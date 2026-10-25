@@ -199,3 +199,51 @@ Load order: CSS `tokens-a.css` → `tokens-b.css` → `tokens-c.css`; JS GSAP �
 ### Verification (demo)
 `lint` 0 errors (2 track-density warnings, same as A). `RSC.audit` at each scene's final state: block centres y 902–909 for all motion scenes, fill 0.46 (number) – 0.90 (media); statement and head-side exempt. Snapshot sheet of all 9 final states reviewed; rendered `demo/style-c-demo.mp4` (1080×1920, 30 fps, 31 s, 6.5 MB, `--workers 2`). Glyph check: Russian, Uzbek Latin ("Oʻtkir") and Kazakh ("Айгерім") render in Inter.
 Known gaps: Fluent Emoji 3D PNGs are 256 px (upscaled ≈2.2× at hero size — real runs use generated 1024 px art); demo is silent (audio policy documented, not mixed); footage is a placeholder slot; glass skin has no backdrop blur (filters on parent layers would drop it anyway); A's whip blur is 1-axis SVG blur, not true shutter blur.
+
+## Style D — "Talking Head × 3D Keyword" (Style A over the head) · `assets/style-d/`
+
+Files: `tokens.css` (footage base, punch camera, face-safe zones, scrims, slot) · `lib.js` (global `RSD`, thin layer over `RSA`) · `demo/` (30 s Russian "Link HR" showcase, 9 scenes; run `demo/prepare.sh` first — copies runtime + A + D into `demo/lib/` with the assembler's names). Spec: `style-d.md`.
+Load order: CSS `tokens-a.css` → `tokens-d.css`; JS GSAP → `runtime.js` → `a.js` → `d.js` (assembler does this for style `d`). `await RSD.ready()` (fonts), register the timeline last. Everything visual is an unmodified RSA builder; RSD layers have RSA's layer shape (`bg/content/inner/over/theme`) so `RSA.transition` runs between head and insert layers.
+
+### Builders
+| Builder | Props (main) | Behaviour |
+|---|---|---|
+| `headBase` | `node \| src \| transparent, fit, label, sub, face:'upper'\|'lower', punches[{at, scale=1.12}]` | full-frame footage, no lens effects; punch-ins = hard scale sets about the eye line (origin 50 % 38 %); no source → labelled neutral slot with the assumed face box + eye line (never a drawn person); `transparent` for assembled `head_overlay` scenes |
+| `scrim` | `where:'lower'\|'upper', opacity` | soft `#0B0D0D`-based gradient (0.78 → 0 over 52 % / 0.72 → 0 over 38 %) — no boxes |
+| `headLayer` | `footage, zone, scrim` | RSA-shaped layer: bg = footage + scrim, A dark ink, A halo on text |
+| `insertLayer` | RSA.layer props | full-screen A layer (any A theme) |
+| `headline` / `caption` | RSA.headline / RSA.caption props + `zone` | A headline at y 1340 (lower) / 390 (upper); caption 1528 / 548 (lighter grey `#C9CCCC` over footage) |
+| `component` | `{type: any RSA builder, side:'below'\|'right'\|'left', at, …}` | places one A component beside/below the face (below 540/1045, right 820/1000, left 260/1000); heroes default 400 px (≈ 37 %) |
+| `cta` | `name, handle, headline='сохрани'` | RSA.bookmarkCTA with identity from `brief.cta` (throws without a name) |
+| `tx.go / tx.blurDrift / tx.whip` | `(tl, from, to, tc, o)` | RSA.transition (blur-drift 0.28 s, whip 150 + 400 ms with motion blur, lum, zoom, cut) |
+| `window(tcIn, tcOut, typeIn, typeOut)` | — | clip window via RSA.transitionWindow |
+
+### Layouts — `RSD.layout.<id>(clip, spec, tl, at)` → layer (`.parts`, `.layout`)
+| id | spec | composition |
+|---|---|---|
+| `head` | `footage, zone, headline{text,words,at,pills}, caption{text,at}` | footage + scrim + zone headline (+ caption) |
+| `head-side` (`headSide`) | `+ component{type, side, …}` | head + one A component beside/below the face |
+| `insert-hero` (`insertHero`) | `theme, headline, hero{emoji\|src\|blob, entry, size=500}, caption` | A scene: headline y 545, hero y 1000 (46–60 % width), caption 1460 |
+| `insert-number` (`insertNumber`) | `theme='light', headline, number{value,unit}, pill, selection, bar, caption` | A number roll 106 px + pill/selection/progress |
+| `insert-media` (`insertMedia`) | `theme='navy', headline, cards[], screenshot, connector, chip, caption` | A glass/frost cards or tilted screenshot (no device frame) |
+| `statement` | `theme, headline{text, pills}, caption` | headline centred y 900 + inline pill wipe |
+| `cta` | `theme='lavender', name, handle` | A bookmark ending held to the end |
+
+### Verification (demo)
+Demo = 9 scenes / 30 s: head → insert-hero → head-side → insert-number → head (upper zone) → insert-media (curtain) → head-side → statement → cta (7 distinct layouts, head-type 4/9 split over two ids, no repeats back-to-back; themes footage/dark/footage/light/footage/curtain/footage/dark/lavender; transitions blur-drift/whip/lum alternating). `lint` 0 errors (2 track-density warnings, same as the A demo). Snapshots of every scene's final state compared side by side with the A demo (6.5 s, 14 s) and A refs (Dej 3.0 s, Der0 20.5 s, DeV 11 s): headline tier y ≈ 545 and size/weight identical (same RSA code), caption tier 1460, insert hero 500 px ≈ Dej's 520 px (was 320 — too small, fixed); head headlines sit in y 1262–1418 (lower) / 312–468 (upper), clear of the face box.
+Known gaps: footage is the labelled slot until a real head.mp4 is passed; placeholder 3D objects are emoji (real runs use generated PNGs); demo silent (A policy = voice only).
+
+## Technique pack "head-umar" (optional, any style) · `assets/techniques/head-umar.{css,js}` → global `RSX`
+
+The talking-head editorial techniques from the creator's earlier reels (teardowns `style-b/Dd1b9kEA-KL.md`, `Dd3Uz4Mgbn-.md`), kept as opt-in tools — **not** part of Style D. Depends on RS + RSB (if RSB is missing, `RSX.available === false` and nothing is defined beyond that flag). Assembler always copies `assets/techniques/*` to `composition/lib/techniques/` and loads `head-umar.css/js` after the style packs; if a scene calls `RSX.` and the style lacks pack b, b is added. All CSS is scoped to `.rsx-*`, so loading it is inert. Build after `await RSX.ready()` (glyph metrics). Lint-checked with a 3-technique test scene (lens + jump zoom, chest-band stat morph, karaoke caption) over a footage slot: 0 errors.
+| Builder | What | Ref |
+|---|---|---|
+| `caption` | one-line karaoke (grey → colour 0.21 s, phrase swap in 1 frame; themes head/paper/dark/light) | Dd1b9kEA-KL §4 |
+| `band` | chest-band host y 880–1460 | §1 |
+| `morphIn` · `stat` · `widget` · `gauge` · `implode` | dot → icon → widget morph, white-glow cards, green checks, squash/re-inflate −8°, 6-frame implode | Dd1b9kEA-KL §5 |
+| `ctaPill` | avatar → pill → name types → blue press → dark chip (RSB.ctaFollow, identity from props) | §5 |
+| `page` | paper (warm radial + embossed grid + lens pass), light, dark (grain + masked 54 px grid) | Dd3Uz4Mgbn- §2 |
+| `ghostNumeral` · `sectionNumbers` · `heroWord` · `window` · `checks` · `label` | giant pale 01/02/03, bold condensed 1 2 3 with motion blur, thin condensed hero word between two lines, speaker grid-cell window, checks list, typed label pill | Dd3Uz4Mgbn-, Dd1b9kEA-KL hook |
+| `headBase` · `lens` · `zoomAbout` / `jumpZoom` · `pullout` | lens-edge blur footage, 2.4× jump zoom, full-frame → phone pull-out | both §6 |
+| `tx.cut` · `tx.glitch` · `tx.blank` | hard cut, 6-frame pixel glitch (RSB datamosh), blank beat | Dd3Uz4Mgbn- §6 |
+| `muffle` | voice-muffle cue (−11 dB + low-pass) recorded to `RSX.cues` / `data-rsx-muffle` for the director/mixer (scripts/mix.py does not read it yet) | Dd3Uz4Mgbn- §8 |

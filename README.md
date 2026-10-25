@@ -7,8 +7,11 @@ Multi-agent production of vertical reels (Instagram Reels / TikTok / Shorts, 108
   - **A "3D Keyword"**: faceless 3D motion, keyword headlines, voice only.
   - **B "iOS Keynote"**: Apple-UI motion, literal word-synced text, soft music bed and UI clicks.
   - **C "Keynote 3D"**: hybrid. Chapters alternate a cinematic 3D scene in the A look with an iOS UI scene in the B look, held together by B's chrome.
+  - **D "3D Keyword Talking Head"**: style A applied over the client's own talking-head footage. Keyword headlines sit above or below the face, 3D objects appear beside the speaker, and full-screen A inserts run between head segments.
   - A and B were reverse-engineered frame by frame from reference reels (`skills/reels-studio/references/teardowns/`). C is built on top of both.
 - **Layouts:** 10 layout types (`references/layouts.md`) with enforced spacing and variety rules: no layout twice in a row, no component reused within 3 scenes, no drawn people, no emoji or placeholder heroes.
+- **Techniques:** 25 signature moves, such as the portal transition, jump zoom, iPhone proof, paper section and karaoke captions (`references/techniques.md`). They are picked per script, and a reel history (`scripts/history.py`) stops a brand's reels from repeating them.
+- **Asks first:** language, then style (with preview images from `assets/previews/`), then the client's footage for talking-head reels, the materials the plan needs, and the CTA name and handle. It also asks before spending credits on an attached ElevenLabs connector.
 - **Modes:** faceless · talking-head hook/CTA + motion body · talking head with overlays.
 - **Languages:** Russian, Uzbek, Kazakh. Speech recognition always runs with the language forced.
 - **Output:**
@@ -56,7 +59,7 @@ The orchestrator asks for anything missing: clone vs stock voice for faceless re
 
 ## Repo layout
 ```
-skills/reels-studio/   orchestrator: SKILL.md, references/, scripts/, assets/{shared,style-a,style-b,style-c,sfx}, examples/
+skills/reels-studio/   orchestrator: SKILL.md, references/, scripts/, assets/{shared,style-a,style-b,style-c,style-d,techniques,previews,sfx}, examples/
 skills/reels-{scene,art,sound,editor,qa}/   worker skills
 tools/agents.yaml      worker roster → agents/*.md (Claude) + codex/agents/*.toml (Codex) via tools/gen_agents.py
 .claude-plugin/        Claude Code plugin + marketplace manifests

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>Style D demo — talking head × 3D keyword</title>
+    <!-- Run ./prepare.sh first: copies runtime + Style A + Style D into ./lib (HyperFrames forbids "../" asset paths). -->
+    <link rel="stylesheet" href="lib/tokens-a.css" />
+    <link rel="stylesheet" href="lib/tokens-d.css" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script src="lib/runtime.js"></script>
+    <script src="lib/a.js"></script>
+    <script src="lib/d.js"></script>
+    <style>
+      body { margin: 0; background: #0B0D0D; }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; }
+      .scene { position: absolute; inset: 0; }
+    </style>
+  </head>
+  <body>
+    <!--
+      Style D = Style A over the talking head. Head segments (s1 s3 s5 s7) alternate with full-screen A inserts.
+      The talking head is a labelled neutral footage slot here — real runs pass the framework <video> (or, assembled,
+      head.mp4 lies underneath and footage is {transparent:true}). The library never draws a person.
+      Clip windows: start = previous transition centre − 0.25 s, end = next centre + 0.15 s (RSA.transitionWindow).
+    -->
+    <div id="root" class="rsa-stage" data-composition-id="main" data-start="0" data-width="1080" data-height="1920" data-duration="30">
+      <div id="s1" class="scene clip" data-start="0" data-duration="3.75" data-track-index="1"></div>
+      <div id="s2" class="scene clip" data-start="3.35" data-duration="4" data-track-index="2"></div>
+      <div id="s3" class="scene clip" data-start="6.95" data-duration="4" data-track-index="1"></div>
+      <div id="s4" class="scene clip" data-start="10.55" data-duration="4" data-track-index="2"></div>
+      <div id="s5" class="scene clip" data-start="14.15" data-duration="3.6" data-track-index="1"></div>
+      <div id="s6" class="scene clip" data-start="17.35" data-duration="4.2" data-track-index="2"></div>
+      <div id="s7" class="scene clip" data-start="21.15" data-duration="3.8" data-track-index="1"></div>
+      <div id="s8" class="scene clip" data-start="24.55" data-duration="2.4" data-track-index="2"></div>
+      <div id="s9" class="scene clip" data-start="26.55" data-duration="3.45" data-track-index="1"></div>
+    </div>
+    <script>
+      (async function () {
+        await RSD.ready();
+        const tl = gsap.timeline({ paused: true });
+        const $ = (id) => document.getElementById(id);
+        const L = RSD.layout;
+        const W = (pairs) => pairs.map(([w, t]) => ({ w, t }));
+        const BRAND = { name: "Link HR", handle: "@linkhr" };          // brief.cta — never the reference creator
+        const HEAD = { label: "ваше видео", sub: "talking head · слот для съёмки" };
+        const TC = [3.6, 7.2, 10.8, 14.4, 17.6, 21.4, 24.8, 26.8];    // transition centres (= sentence onsets)
+
+        /* s1 · head — hook keyword in the lower third, jump-cut punch-in 1.0 → 1.12 */
+        const s1 = L.head($("s1"), {
+          footage: Object.assign({ punches: [{ at: 0, scale: 1 }, { at: 2.2, scale: 1.12 }] }, HEAD),
+          headline: { text: "учёт смен / вручную?", words: W([["учёт", 0.25], ["смен", 0.45], ["вручную?", 0.8]]) },
+          caption: { text: "так компании теряют часы", at: 1.4 },
+        }, tl, 0);
+
+        /* s2 · insert-hero — A dark + dot grid, 3D object pops */
+        const s2 = L.insertHero($("s2"), {
+          theme: "dark",
+          headline: { text: "минус 12 часов / в неделю", at: TC[0] + 0.1 },
+          hero: { emoji: "⏰", entry: "pop", at: TC[0] + 0.35 },
+          caption: { text: "на одного HR-менеджера", at: TC[0] + 1.1 },
+        }, tl, TC[0]);
+
+        /* s3 · head-side — 3D object slides in beside the torso; punch on the cut */
+        const s3 = L.headSide($("s3"), {
+          footage: Object.assign({ punches: [{ at: TC[1], scale: 1.12 }, { at: 9.0, scale: 1 }] }, HEAD),
+          headline: { text: "отметка / с телефона", at: TC[1] + 0.15 },
+          component: { type: "hero", emoji: "📱", side: "right", entry: "slide", from: "right", at: TC[1] + 0.5 },
+          caption: { text: "геолокация и фото за секунду", at: TC[1] + 1.4 },
+        }, tl, TC[1]);
+
+        /* s4 · insert-number — A light: slot-machine roll + keyword pill */
+        const s4 = L.insertNumber($("s4"), {
+          theme: "light",
+          headline: { text: "опозданий / стало меньше", at: TC[2] + 0.1 },
+          number: { value: "38", unit: "%", at: TC[2] + 0.6 },
+          pill: { text: "за месяц", at: TC[2] + 1.05 },
+          caption: { text: "по данным клиентов Link HR", at: TC[2] + 1.6 },
+        }, tl, TC[2]);
+
+        /* s5 · head — face sits low in this take → keyword in the top band */
+        const s5 = L.head($("s5"), {
+          zone: "upper",
+          footage: Object.assign({ punches: [{ at: TC[3], scale: 1 }] }, HEAD),
+          headline: { text: "без бумажного / журнала", at: TC[3] + 0.15 },
+          caption: { text: "всё в одном приложении", at: TC[3] + 1.0 },
+        }, tl, TC[3]);
+
+        /* s6 · insert-media — A curtain accent: frosted glass cards + dashed connector + blue chip */
+        const s6 = L.insertMedia($("s6"), {
+          theme: "curtain",
+          headline: { text: "отчёт / за один клик", at: TC[4] + 0.1 },
+          cards: [
+            { variant: "frost", y: 880, width: 680, height: 200, radius: 40, padding: "0 44px", icon: "📊", title: "табель", sub: "смены · опоздания", at: TC[4] + 0.4 },
+            { variant: "frost", y: 1290, width: 680, height: 200, radius: 40, padding: "0 44px", icon: "💸", title: "зарплата", sub: "расчёт за минуту", at: TC[4] + 1.1 },
+          ],
+          connector: { from: [540, 994], to: [540, 1176], at: TC[4] + 0.85 },
+          chip: { text: "PDF", x: 800, y: 1086, at: TC[4] + 1.6 },
+          caption: { text: "без Excel и ручных сводок", y: 1500, at: TC[4] + 2.0 },
+        }, tl, TC[4]);
+
+        /* s7 · head-side — A number roll under the chin, keyword in the lower third */
+        const s7 = L.headSide($("s7"), {
+          footage: Object.assign({ punches: [{ at: TC[5], scale: 1.12 }, { at: 23.3, scale: 1 }] }, HEAD),
+          headline: { text: "сотрудников / уже отмечаются", at: TC[5] + 0.15 },
+          component: { type: "numberRoll", value: "1240", side: "below", y: 1080, at: TC[5] + 0.55 },
+        }, tl, TC[5]);
+
+        /* s8 · statement — breath insert with an inline keyword pill */
+        const s8 = L.statement($("s8"), {
+          theme: "dark",
+          headline: { text: "проще, / чем журнал", pills: ["журнал"], at: TC[6] + 0.1 },
+        }, tl, TC[6]);
+
+        /* s9 · cta — A bookmark ending, identity from props */
+        const s9 = L.cta($("s9"), { theme: "lavender", name: BRAND.name, handle: BRAND.handle }, tl, TC[7]);
+
+        const T = [
+          { type: "blur-drift", dir: "down" }, { type: "whip", dir: "up" }, { type: "blur-drift", dir: "left" },
+          { type: "whip", dir: "down" }, { type: "blur-drift", dir: "down" }, { type: "whip", dir: "up" },
+          { type: "blur-drift", dir: "down" }, { type: "lum" },
+        ];
+        const Ls = [s1, s2, s3, s4, s5, s6, s7, s8, s9];
+        T.forEach((o, i) => RSD.tx.go(tl, Ls[i], Ls[i + 1], TC[i], o));
+
+        window.__timelines["main"] = tl;
+      })();
+    </script>
+  </body>
+</html>

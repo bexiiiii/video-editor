@@ -1,0 +1,45 @@
+/* reels-studio · Style D "Talking Head × 3D Keyword" — design tokens (scoped to .rsd-*)
+ * Style D = Style A's exact look (assets/style-a, RSA — loaded first, never edited from here) applied over the
+ * client's talking-head footage. This file only adds what A has no notion of: the footage base layer, the
+ * punch-in camera, the readability scrims behind text over footage, and the face-safe zones.
+ * Typography, colours, objects, cards, transitions all come from tokens-a.css / RSA.
+ *
+ * Face-safe geometry (1080×1920): face assumed in the upper third, eyes ≈ 38 % (y ≈ 730).
+ *   zone "lower" (default): text block y 1250–1500 (headline centre 1340 = A's bottom tier), caption ≈ 1530
+ *   zone "upper" (face sits low in the shot): headline block y 230–520 (centre 390), caption ≈ 545
+ */
+:root {
+  --rsd-eyes-y: 730px;                 /* 38 % of 1920 */
+  --rsd-head-bg: #0E1010;              /* under the footage (A dark, a hair lighter) */
+  --rsd-scrim: 5, 7, 7;                /* rgb of the scrim = A dark #0B0D0D, slightly deeper */
+  --rsd-zone-lower: 1340px;            /* headline centre over footage (lower third) */
+  --rsd-zone-upper: 390px;             /* headline centre over footage (top band) */
+}
+
+/* ---------------------------------------------------------------- footage base layer */
+.rsd-head { position: absolute; inset: 0; overflow: hidden; background: var(--rsd-head-bg); }
+.rsd-head.transparent { background: transparent; }
+.rsd-cam { position: absolute; inset: 0; transform-origin: 50% 38%; }       /* punch-ins zoom about the eyes */
+.rsd-cam > .rsd-media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* labelled neutral footage slot (demo / missing footage) — never a drawn person */
+.rsd-slot { position: absolute; inset: 0; background: radial-gradient(85% 55% at 50% 36%, #2A2D2D 0%, #171A1A 55%, #0E1010 100%); }
+.rsd-slot .box { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+  border-radius: 56px; border: 2px dashed rgba(255,255,255,.2); background: rgba(255,255,255,.04); color: #9EA2A2; text-align: center;
+  font-family: var(--rsa-font); }
+.rsd-slot .box svg { width: 72px; height: 54px; color: #8A8E8E; }
+.rsd-slot .box .lb { font-size: 40px; font-weight: 500; color: #D3D6D6; letter-spacing: -0.01em; }
+.rsd-slot .box .sb { font-size: 24px; font-weight: 400; color: #7E8282; letter-spacing: .02em; text-transform: uppercase; }
+.rsd-slot .eyes { position: absolute; left: 0; right: 0; height: 0; border-top: 2px dotted rgba(255,255,255,.16); }
+.rsd-slot .eyes span { position: absolute; right: 120px; top: 8px; font-family: var(--rsa-font); font-size: 22px; color: #6E7272; }
+
+/* readability scrims (A has no boxes behind text — a soft gradient only) */
+.rsd-scrim { position: absolute; left: 0; right: 0; pointer-events: none; }
+.rsd-scrim.lower { bottom: 0; height: 52%;
+  background: linear-gradient(0deg, rgba(var(--rsd-scrim), .78) 0%, rgba(var(--rsd-scrim), .62) 30%, rgba(var(--rsd-scrim), .28) 62%, rgba(var(--rsd-scrim), 0) 100%); }
+.rsd-scrim.upper { top: 0; height: 38%;
+  background: linear-gradient(180deg, rgba(var(--rsd-scrim), .72) 0%, rgba(var(--rsd-scrim), .5) 45%, rgba(var(--rsd-scrim), 0) 100%); }
+
+/* A's light halo exception for text over photos (Dey) — a touch stronger over moving footage */
+.rsd-on-footage .rsa-headline { text-shadow: 0 0 40px rgba(0,0,0,.55), 0 2px 12px rgba(0,0,0,.35); }
+.rsd-on-footage .rsa-caption { color: #C9CCCC; text-shadow: 0 1px 10px rgba(0,0,0,.5); }

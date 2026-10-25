@@ -9,6 +9,7 @@ Layout produced (mirrors the work dir, so the same relative paths work in both p
   composition/lib/tokens-<s>.css    $SKILL/assets/style-<s>/tokens.css   (+ lib/tokens.css alias)
   composition/lib/<s>.js            $SKILL/assets/style-<s>/lib.js       (+ lib/lib.js alias)
   composition/lib/style-<s>/…       the whole style pack (fonts, textures …)
+  composition/lib/techniques/…      $SKILL/assets/techniques/* (head-umar.css/js = RSX, loaded after the packs)
   composition/lib/gsap.min.js       pinned GSAP (cached in ~/.cache/reels-studio; CDN tag if offline)
   composition/scenes/<id>/…         scenes/<id>/index.html (+ any local files), mounted as sub-compositions
   composition/assets/img/…          assets/img/*
@@ -138,7 +139,7 @@ def main() -> None:
     ap.add_argument("--work", required=True, help="work/<slug> directory")
     ap.add_argument("--no-lint", action="store_true", help="skip `npx hyperframes lint`")
     ap.add_argument("--gsap", choices=["local", "cdn"], default="local", help="vendor GSAP locally (default) or CDN")
-    ap.add_argument("--bg", default=None, help="root background colour (default by style: A #0B0D0D, B #1A1A1C)")
+    ap.add_argument("--bg", default=None, help="root background colour (default by style: A/C #0B0D0D, B/D #1A1A1C)")
     a = ap.parse_args()
 
     work = Path(a.work).resolve()
@@ -178,7 +179,15 @@ def main() -> None:
     else:
         warnings.append("assets/shared/runtime.js missing")
     # style "c" (Keynote 3D) is built on the A and B packs: copy + load a → b → c
-    packs = ["a", "b", "c"] if style == "c" else [style]
+    # style "d" (Talking Head × 3D Keyword = Style A over the head) is built on the A pack: copy + load a → d
+    packs = {"c": ["a", "b", "c"], "d": ["a", "d"]}.get(style, [style])
+    # technique pack assets/techniques/head-umar.{css,js} (global RSX) is always copied + loaded after the style
+    # packs; it is inert unless a scene calls RSX. RSX depends on RSB, so when a scene uses it and the style does
+    # not already load pack b, b is appended to the packs.
+    uses_rsx = any("RSX." in (work / "scenes" / s["id"] / "index.html").read_text(errors="ignore")
+                   for s in scenes if (work / "scenes" / s["id"] / "index.html").is_file())
+    if uses_rsx and "b" not in packs:
+        packs = packs + ["b"]
     head_links = []
     for pk in packs:
         sdir = SKILL / "assets" / f"style-{pk}"
@@ -194,6 +203,14 @@ def main() -> None:
     gsap_src = gsap_local(lib, a.gsap)
     head_links += [f'<link rel="stylesheet" href="lib/tokens-{pk}.css" />' for pk in packs if (lib / f"tokens-{pk}.css").is_file()]
     scripts = [gsap_src] + [p for p in ["lib/runtime.js"] + [f"lib/{pk}.js" for pk in packs] if (comp / p).is_file()]
+    tech = SKILL / "assets" / "techniques"
+    if tech.is_dir():
+        copy_tree(tech, lib / "techniques", skip=("README.md",))
+        for name in ("head-umar",):
+            if (lib / "techniques" / f"{name}.css").is_file():
+                head_links.append(f'<link rel="stylesheet" href="lib/techniques/{name}.css" />')
+            if (lib / "techniques" / f"{name}.js").is_file():
+                scripts.append(f"lib/techniques/{name}.js")
 
     # ---- media
     media = comp / "media"
