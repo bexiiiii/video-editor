@@ -32,7 +32,7 @@ work/<slug>/
   "slug": "linkhr-ru-01",
   "style": "A",                       // "A" 3D Keyword | "B" iOS Keynote | "C" Keynote 3D | "D" 3D Keyword Talking Head = style A over footage (needs footage) — chosen from assets/previews
   "mode": "faceless",                 // "faceless" | "hook_cta" | "head_overlay"
-  "lang": "ru",                       // "ru" | "uz" | "kk"
+  "lang": "ru",                       // "ru" | "uz" | "kk" — asked FIRST, before style
   "target_sec": 45,
   "topic": "…", "script": "…|null",   // script required for faceless+TTS
   "footage": ["input/take1.mov"],     // required for hook_cta / head_overlay, optional for faceless (user VO)
