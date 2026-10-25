@@ -95,40 +95,24 @@ Known deviations: Inter vs SF Pro (glyph shapes); emoji depend on host fonts; he
 
 ## Style A — "3D Keyword" (Zaytsev) · `assets/style-a/`
 
-Files: `tokens.css` (fonts, palette, backgrounds, type scale, component CSS) · `lib.js` (global `RSA`: components + `RSA.layout.*`) · `demo/` (31.5 s reel "подписки съедают бюджет" — 9 scenes, 8 layouts, 14 component types; `demo/img/` = Fluent Emoji 3D stand-ins, MIT, see `img/LICENSE.md`; run `demo/prepare.sh` first — it copies `runtime.js`, `tokens-a.css`, `a.js` into `demo/lib/`, the same layout the assembler builds).
+Files: `tokens.css` (fonts, palette, 11 CSS-only backgrounds, type scale, three-tier layout, component CSS) · `lib.js` (global `RSA`) · `demo/` (31.5 s showcase of every component/background/transition; run `demo/prepare.sh` first — it copies `runtime.js`, `tokens-a.css`, `a.js` into `demo/lib/`, the same layout the assembler builds).
 Load order: `lib/tokens-a.css` → GSAP → `lib/runtime.js` (RS) → `lib/a.js`. Build synchronously (nothing is measured at build time; all geometry comes from props), register the timeline last.
 Every builder: `RSA.x(container, props, tl, at) → HTMLElement`; `x`/`y` = stage px of the element **centre** (0×0 flex anchor, so GSAP owns `transform`); times are absolute local seconds. Entrances are seek-safe `fromTo`; follow-up states use `immediateRender:false`. Text never exits on its own — only `RSA.transition*` moves old content out.
 
-**Fonts.** Google Sans Flex has **no Cyrillic** on Google Fonts, so the stack is `"Google Sans Flex", "Google Sans", "Onest"` — Russian glyphs come from Google Sans (same design). Hook display = Unbounded 900 (squeezed `scaleX(.8)` to the ref's 786 px width at 392 px cap height); lime accent = Montserrat 800 italic; code = JetBrains Mono. Hero objects are **transparent PNGs via `src`** (generated renders in real runs; the demo uses Microsoft Fluent Emoji 3D PNGs as stand-ins). Emoji glyphs / CSS blobs (`emoji`, `blob`) remain for back-compat and small UI accents only — never as a final hero (layouts.md §4).
+**Fonts.** Google Sans Flex has **no Cyrillic** on Google Fonts, so the stack is `"Google Sans Flex", "Google Sans", "Onest"` — Russian glyphs come from Google Sans (same design). Hook display = Unbounded 900 (squeezed `scaleX(.8)` to the ref's 786 px width at 392 px cap height); lime accent = Montserrat 800 italic; code = JetBrains Mono. Placeholder 3D objects use colour emoji via `@font-face "RSA Emoji" { src: local(...) }` or CSS/SVG blobs — **real runs pass generated transparent PNGs via `src`**.
 
 ### Themes & layout (tokens.css)
 | Theme (`RSA.layer({theme})`) | Recipe | Source |
 |---|---|---|
 | `dark` / `light` | `#0B0D0D` + 3 px dots 36 px `#2D2F2F` · `#FBFDFD` + 3 px dots 24 px `#DADDDD` (soft edge fade) | Der0 §2 |
-| `curtain` | real fold shading: seeded SVG fractal-noise height map (`baseFrequency .016 / .00004`) lit by `feDiffuseLighting` + satin specular (pleats ≈18–60 px, varying) · warm top glow · vertical fall-off to near-black by ~70 % · gold-lit copy of the same folds masked to a right-edge spotlight · side vignette (`seed` prop) | Dej §2 |
-| `none` | transparent plate — overlay on talking-head footage (`head-side`) | — |
+| `curtain` | seeded pleat gradient (13→36 px pleats, contrast falls L→R) × red→black vertical + gold leak `#CAA277` bottom-right | Dej §2 |
 | `space` | `#050311`, violet TL `#2D044F`, magenta BR `#370040`, centre glow, 44 seeded box-shadow stars | Dej/DeV §2 |
 | `navy` / `green` / `maroon` | 135°/145° base gradient + 3 blurred 35° god-ray bands masked from TL + dot grid (maroon 20 px `#4A1525`) | Der0/DeV §2 |
 | `teal` / `emerald` | bottom elliptical glow `#046D98`/`#077A52` → black by 75% + spotlight arch | DeV §2 |
 | `orange` | 1500×820 radial at (800,300) `#C84A00`→`#130200` at 50%H → black | Dey §2 |
 | `lavender` | top radial `#C3D3FA`→`#FBFDFD` by 72% + faint ring banding | Dej §2 |
 
-Type: headline 78 px / 600 / lh 1.06 / −0.01em (x-height 43 px = refs' 42 px on Dej 3.0, line pitch 84), 64 px when a line > 16 chars (≤2 lines, lowercase is the copy's job) · inline number 106 px / 500, layout `number` 300–420 px · caption 42 px / 400 / lh 1.18 `#767878` (dark) `#686B6B` (light) · label 44 px. Positions are no longer fixed tiers: **use `RSA.layout.*`**, which centres each scene's block (refs: headline block centre 500–560, hero centre 820–1100, caption 1330–1500).
-
-### Layouts — `RSA.layout.<id>(container, props, tl, at) → {block, slots, headline?, caption?, visual?, …}`
-Binding rules in `layouts.md`. Each layout stacks its parts with one rhythm (`RSA.RHYTHM`: kicker→headline 34 · headline→visual 90 · visual→caption 72 · headline→caption 40), centres the block on y 905 inside the live area (230–1575; `RSA.LIVE`), grows the visual until the block is ≥ 600 px, builds the text itself and the visual from `props.visual` — `{type:'<RSA builder>', props, t}` (x/y/size come from the slot) or a callback `(container, slot, tl, at)`. It writes `data-rsa-layout` / `data-rsa-block="top,bottom"` on the container for QA. Common props: `text` ("a / b"), `words`, `pills`, `size`, `textAt`, `caption`, `captionAt`, `captionColor`, `cy` (override centre).
-| id | Parts (top → bottom) | Defaults | Demo scene |
-|---|---|---|---|
-| `hero` | [kicker chip] · headline · visual · caption | visual 620 px box (≈545 px visible object ≈ 50 % width), grows to 700 | 1 hook (pop) |
-| `visual-top` | visual · headline · caption | visual 680, `cy` 1000 → headline ≈ 1250–1330 | 8 bell (drop) |
-| `number` | label (typed) · giant `numberRoll` · keyword pill · caption | size auto-fits 900 px (≤ 420); `value, unit, label, pill` + `labelAt/rollAt/pillAt` | 2 «4 700» |
-| `media` | headline · screenshot/photo/footage frame · caption | visual 860×640 (default `{type:'screenshot'}`) | 5 bank screen (slide) |
-| `list` | headline · 3–4 `listRow`s building down · [caption] | row 150, interval 0.45 s; `items[{icon, title, sub, value, t}]` | 3 rows |
-| `compare` | headline · before card · cut line + divider object · after card · caption | cards 900×210 slide from opposite sides, before dims to 50 %; `before/after{icon,title,sub,value}`, `divider` spec, `variants` | 6 было/стало |
-| `statement` | 2-line big headline, no visual | 116 px (96 if > 13 chars); `select:true` = line 2 as iOS text selection | 7 «без жалости» |
-| `stack` | kicker chip · headline · one component · caption | component 600 | 4 «шаг 1» (rise) |
-| `head-side` | over footage (`layer({theme:'none'})`): keyword (halo) + component in the chest band y 880–1460 | `side`: below / left / right, visual 420 | — (needs footage) |
-`RSA.bookmarkCTA` also uses the layout engine now (bookmark 470 px, block centred).
+Type: headline 74 px / 600 / lh 1.06 / −0.01em, 56 px when a line > 16 chars (measured on ref stills; ≤2 lines, lowercase is the copy's job) · hero number 106 px / 500 · caption 42 px / 400 / lh 1.18 `#767878` (dark) `#686B6B` (light) · label 44 px. Tiers: headline centre y 545 (≈28%), bottom variant 1340 (≈70%), visual ≈1000, caption centre 1460 (≈76%), side margin 100.
 
 ### Components
 | Builder | Props (main) | Motion / timing | Ref |
@@ -141,21 +125,20 @@ Binding rules in `layouts.md`. Each layout stacks its parts with one rhythm (`RS
 | `hero` | `src`/`emoji`/`blob` (`tile`,`tile-dark`,`disc`,`coin`,`orb`,`bookmark`), `size`, `x,y`, `entry` (`pop`,`rise`,`slide`,`drop`,`ghost`), `from`, `idle{amp,period,until}` | pop .1→1 back.out(1.4) .3 s · rise from +900, .38 s expo.out + vertical SVG motion blur · slide ±640 px .4 s + horizontal blur · drop power3.in .32 s + squash · idle off by default | Dej §5, DeV §5 |
 | `stack` | `count, x, y, step=44, interval=.15, blob` | drop-and-stack | Dej scene 4 |
 | `iconRow` | `items[{emoji/src,label,t}]`, `y, size=200, gap=400, zigzag, between` | pop on word time, .1 s sibling stagger, labels type +.45 s | Dej hook, Dey §5 |
-| `card` | `variant` (`dark`,`glass`,`frost`,`light`,`white`), `width,height,radius`, `tilt{rx:2,ry:-4}`, `icon,title,sub,value,valueColor,body`, `from` (`left`/`right`) | y 80→0, blur 16→0, rotateX 8°→2°, .4 s power3.out (`from`: side-slide 620 px + motion blur); sub types +.25 s; value blur-rises +.3 s; content vertically centred when `height` is set | Dej §5, Der0 §5 |
-| `listRow` | `y, height=150, icon (src), title, sub, value, rule` | build-down: text x+70→0 blur, icon pops, hairline draws, value blur-rises +.2 s | Dej/Dey lists |
+| `card` | `variant` (`dark`,`glass`,`frost`,`light`,`white`), `width,height,radius`, `tilt{rx:2,ry:-4}`, `icon,title,sub,body` | y 80→0, blur 16→0, rotateX 8°→2°, .4 s power3.out; sub types +.25 s; gradient rim via mask + inner glow | Dej §5, Der0 §5 |
 | `glassPill` | `text, icon, x, y, size` | scale .6→1 back.out(1.6) .35 s | Dey §5 |
 | `codeWindow` | `lines[], width, cps=40, size=40` | traffic lights; lines typed with syntax colours | Dej scene 6 |
 | `repoCard` | `name, title, lines[]` | GitHub mark + typed name/lines | Dej scene 5 |
-| `screenshot` | `src` or placeholder `rows[{src or icon, text, value}]`, `theme`, `width,height,tilt=5`, `highlights[{x,y,w,h,t}]`, `hlColor`, `lens{x,y,t,zoom}`, `entry` | no device frame; red 3 px box jumps .28 s expo.out; lens = zoomed clone, back.out(1.8) | DeV/Dey §5 |
+| `screenshot` | `src` or placeholder `rows`, `theme`, `width,height,tilt=5`, `highlights[{x,y,w,h,t}]`, `hlColor`, `lens{x,y,t,zoom}`, `entry` | no device frame; red 3 px box jumps .28 s expo.out; lens = zoomed clone, back.out(1.8) | DeV/Dey §5 |
 | `numberRoll` | `value, unit, x, y, size=106` | per-digit slot roll .38 s power3.out, .03 s stagger, vertical motion blur; unit blurs in +.05 s | Der0 §4.3 |
 | `pill` | `text, x, y, size=56` (inline: `headline.pills`) | clip wipe L→R + rotate −8°→0, .35 s power3.out | Der0 §4.4 |
-| `selection` | `text, before, after, x, y, size=62, weight=500, selectAt` | fill `#1C3C5C` (dark) / blue 42 % (accent) / 24 % (light) sweeps .3 s power2.out, end handle travels | Der0 §4.5 |
+| `selection` | `text, before, after, x, y, size=62, selectAt` | fill `#1C3C5C` sweeps .3 s power2.out, end handle travels | Der0 §4.5 |
 | `chip` | `text, icon, x, y, size=30, variant` (`chip`/`marker`) | pop back.out(1.7) .32 s · marker wipes behind words | Der0/Dey |
 | `connector` | `from[x,y], to[x,y], style` (`dashed` 10/10, `dotted`), `curve` | masked dash draw-on .45 s | Der0 §5 |
 | `flow` | `nodes[{id,type,t,h,props}]`, `edges[{from,to,t}]`, `pans[{t,y,dur}]`, `grid`, `gridOffset` | camera pan power2.inOut (grid scrolls with it) | Dey 5.7–11 s |
 | `progressBar` | `x, y, width=800, height=26, dur=2` | fill scaleX power1.inOut + shimmer | Der0 scene 8 |
 | `globe` | `x, y, size=650, count=2000, speed=10, dur, seed` | Fibonacci sphere on canvas, redrawn from a timeline proxy (seek-safe); 2 precessing orbits | Der0 finale |
-| `bookmarkCTA` | `headline='сохрани', title, caption, layout, src, size=470` | bookmark rises, headline +.2, title types +.5, caption ≥ +1.0, held; geometry from the layout engine | Dej/DeV ending |
+| `bookmarkCTA` | `headline='сохрани', title, caption, layout, src, size=370` | bookmark rises, headline +.2, title types +.5, caption ≥ +1.0, held | Dej/DeV ending |
 | `hookDisplay` | `label, word, sub, accent, wordSize=540, squeeze=.8` | per-letter blur 20→0 from opacity .2, 70 ms stagger (mid-reveal on frame 0); lime accent −5° + 2 underlines | Der0 hook |
 
 ### Transitions — `RSA.transition(tl, fromLayer, toLayer, tc, {type, dir, bg, shared})`
@@ -169,8 +152,8 @@ Binding rules in `layouts.md`. Each layout stacks its parts with one rhythm (`RS
 | `cut` | hook only | Der0 2.05 s |
 
 ### Verification (demo)
-`lint` 0 errors (2 track-density warnings) · `check` passes (3 infos: clipped roll digits, one transition overlap) · contrast 79/79 AA. Final-state snapshots of all 9 scenes measured with a row-profile script: every block centre 903–978 (target 860–940; visual-top intentionally lower), block heights 590–1210 px, lower 40 % never empty (lowest content 1323–1522). Side-by-side vs Dej 3.0/26.0, DeV 53, Dey 22.5: headline x-height 43 vs 42 px, line pitch 84 vs 84, hero visible width 552 px (stack magnifier) · 554 px (bell) · ≈520 px (hook) vs refs 386–510, headline block top 440–530 vs refs 438–488, captions 1350–1510 vs 1407–1500. Before (old demo): hero 270–380 px boxes (≈200–330 visible), content clustered y 450–1300 with the lower 40 % empty, two near-empty scenes, pill over text at 16–17 s.
-Known deviations: Google Sans/Unbounded/Montserrat stand in for the refs' exact faces; Fluent 3D PNGs are 256 px (heroes upscaled to 512 with lanczos — slightly soft at 620 px; generated renders ≥ 1024 px should be used in real runs); the blue bookmark is still the SVG stand-in; frosted cards lose backdrop blur inside filtered layers; drop entry is a simple squash, not physics; `head-side` is verified only on a flat test plate (no footage in the demo).
+`lint` 0 errors (2 track-density warnings) · `check` passes (layout infos only; lens/roll/selection carry `data-layout-allow-*` waivers) · contrast 91/91 AA. Side-by-side sheets vs Dej 1.9/3.0/22.8/37.5/55, Der0 1.5/20.5/45/56, DeV 81: headline width within ~4%, positions within ~30 px after calibration (headline 74 px, long 56 px, centre y 545, mono 40 px, selection 62 px, bookmark 370 px). Rendered `demo/style-a-demo.mp4` (1080×1920, 30 fps, 31.5 s, 8.4 MB, `--workers 1 --low-memory-mode`).
+Known deviations: Google Sans/Unbounded/Montserrat stand in for the refs' exact faces; placeholder objects are emoji/SVG blobs (not AI-rendered clay 3D); curtain pleats are a seeded gradient (no real fabric shading); frosted cards lose backdrop blur inside filtered layers; drop entry is a simple squash, not physics; iPhone-mockup proof frames (Dey) are not part of the library.
 
 ## Style C — "Keynote 3D" (A × B fusion) · `assets/style-c/`
 

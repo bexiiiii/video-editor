@@ -106,7 +106,6 @@
     const size = num(p.size, 260);
     const o = el("div", "rsa-obj", null, { width: `${size}px`, height: `${size}px` });
     if (p.src) {
-      o.classList.add("rsa-obj--img");
       o.innerHTML = `<img src="${esc(p.src)}" alt="">`;
     } else if (p.blob === "tile" || p.blob === "tile-dark") {
       const t = el("div", "rsa-tile" + (p.blob === "tile-dark" ? " rsa-tile--dark" : ""), o, { width: `${size}px`, height: `${size}px` });
@@ -179,44 +178,14 @@
     emerald: { bg: "emerald", ink: "accent" },
     orange: { bg: "orange", ink: "accent" },
     lavender: { bg: "lavender", ink: "light" },
-    none: { bg: "none", ink: "dark" }, // transparent overlay over talking-head footage (layout head-side)
   };
   RSA.themes = Object.keys(THEMES);
 
   /**
-   * Pleated velvet curtain (Dej hook) as real shading instead of a flat stripe gradient: a seeded,
-   * vertically-stretched fractal-noise height map lit by feDiffuseLighting (+ a satin specular), so pleat
-   * widths vary naturally (≈18–60 px). Then: warm top glow, vertical light fall-off to near-black by ~70 %,
-   * a second gold-lit copy of the same folds masked to a spotlight at the right edge (gold catches the
-   * pleats rather than a flat blob), and a soft side vignette. Static → rasterised once by Chrome.
-   */
-  function curtain(bg, seed) {
-    const id = nextId("cur");
-    const fold = (lit, extra) => `<feTurbulence type="fractalNoise" baseFrequency="0.016 0.00004" numOctaves="2" seed="${seed}" result="n"/>
-      <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1.2 0 0 0 -0.1" result="h"/>
-      <feDiffuseLighting in="h" surfaceScale="30" diffuseConstant="1.25" lighting-color="${lit}" result="d"><feDistantLight azimuth="200" elevation="38"/></feDiffuseLighting>${extra || ""}`;
-    const svg = (inner) => `<svg class="rsa-cur-svg" width="1080" height="1920" viewBox="0 0 1080 1920">${inner}</svg>`;
-    bg.insertAdjacentHTML("beforeend", svg(`<defs><filter id="${id}r" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">${fold("#ff1a0e",
-      `<feSpecularLighting in="h" surfaceScale="30" specularConstant=".35" specularExponent="14" lighting-color="#ff8a6a" result="s"><feDistantLight azimuth="200" elevation="48"/></feSpecularLighting>
-       <feComposite in="s" in2="d" operator="arithmetic" k2="1" k3=".55"/>`)}</filter></defs>
-      <rect width="1080" height="1920" fill="#000" filter="url(#${id}r)"/>`));
-    el("div", "rsa-cur-top", bg);
-    el("div", "rsa-cur-fall", bg);
-    bg.insertAdjacentHTML("beforeend", svg(`<defs><filter id="${id}g" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">${fold("#f2bf86")}</filter>
-      <radialGradient id="${id}m" gradientUnits="userSpaceOnUse" cx="1080" cy="1430" r="560" gradientTransform="translate(1080 1430) scale(1 1.35) translate(-1080 -1430)">
-        <stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset=".5" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
-      <mask id="${id}k" maskUnits="userSpaceOnUse" x="0" y="0" width="1080" height="1920"><rect width="1080" height="1920" fill="url(#${id}m)"/></mask></defs>
-      <rect x="380" y="760" width="700" height="1160" fill="#000" filter="url(#${id}g)" mask="url(#${id}k)"/>`));
-    el("div", "rsa-cur-vig", bg);
-    el("div", "rsa-cur-glow", bg);
-  }
-
-  /**
    * Background plate for a theme (CSS-only).
    * @param {HTMLElement} container
-   * @param {{theme?: string, drift?: number, grid?: boolean, seed?: number}} props
-   *   theme: dark | light | curtain | space | navy | green | maroon | teal | emerald | orange | lavender | none
-   *   ("accent:<name>" accepted; `none` = transparent plate for overlays on footage). seed = curtain fold seed (default 11).
+   * @param {{theme?: string, drift?: number, grid?: boolean}} props
+   *   theme: dark | light | curtain | space | navy | green | maroon | teal | emerald | orange | lavender ("accent:<name>" accepted).
    *   drift: seconds of slow light-ray/glow drift (the only BG motion in the refs); 0 = static.
    * @returns {HTMLElement} `.rsa-bg` (its `.grid` property = dot-grid element, if any)
    */
@@ -225,7 +194,6 @@
     const name = String(props.theme || "dark").replace(/^accent:/, "");
     const t = THEMES[name] || THEMES.dark;
     const bg = el("div", `rsa-bg rsa-bg--${t.bg}`, container);
-    if (t.bg === "curtain") curtain(bg, props.seed || 11);
     let fx = null;
     if (t.fx) fx = el("div", `rsa-fx rsa-fx--${t.fx}`, bg);
     if (t.grid && props.grid !== false) bg.grid = el("div", `rsa-grid rsa-grid--${t.grid}`, bg);
@@ -462,15 +430,13 @@
    * · 'frost' (white 8% + backdrop blur, navy scenes — Dej) · 'light' (#F3F5F5, r56, 3.5px blue gradient rim — Dej) · 'white' (DeV).
    * Entry: y 80→0, blur 16→0, rotateX 8°→tilt, 0.4 s power3.out. Sub-line types in after 0.25 s.
    * @param {object} props {variant='dark', x=540, y=1000, width=800, height?, radius?, tilt={rx:2, ry:-4}, icon? (html|emoji),
-   *   iconSize=92, title?, titleSize?, sub?, value? (right-aligned figure, blur-rises at valueAt ?? at+0.3), valueColor?,
-   *   body? (HTMLElement|html), padding?, from? ('below' default | 'left' | 'right' — side-slide entry with motion blur)}
+   *   iconSize=92, title?, sub?, body? (HTMLElement|html), padding?}
    * @returns {HTMLElement} card (`.body` = content box)
    */
   RSA.card = function (container, props, tl, at) {
     const a = anchor(container, num(props.x, 540), num(props.y, 1000));
-    const cmb = el("div", "rsa-mb", a);
-    const c = el("div", `rsa-card rsa-card--${props.variant || "dark"}`, cmb, { width: `${props.width || 800}px` });
-    if (props.height) Object.assign(c.style, { height: `${props.height}px`, display: "flex", flexDirection: "column", justifyContent: "center" });
+    const c = el("div", `rsa-card rsa-card--${props.variant || "dark"}`, a, { width: `${props.width || 800}px` });
+    if (props.height) c.style.height = `${props.height}px`;
     if (props.radius) c.style.borderRadius = `${props.radius}px`;
     if (props.padding != null) c.style.padding = typeof props.padding === "number" ? `${props.padding}px` : props.padding;
     if (props.icon || props.title) {
@@ -480,26 +446,13 @@
         if (/^</.test(props.icon)) ic.innerHTML = props.icon;
         else { const s = el("span", "rsa-emoji", ic, { fontSize: `${(props.iconSize || 92) * 0.86}px` }); s.textContent = props.icon; }
       }
-      const tx = el("div", "rsa-card-tx", row);
+      const tx = el("div", "", row);
       if (props.title) { const t = el("div", "rsa-card-title", tx); t.textContent = props.title; if (props.titleSize) t.style.fontSize = `${props.titleSize}px`; }
       if (props.sub) { const s = el("div", "rsa-card-sub", tx); typeInto(s, props.sub, tl, at + 0.25, 30); }
-      if (props.value != null) {
-        const v = el("div", "rsa-card-value", row);
-        if (props.valueColor) v.style.color = props.valueColor;
-        v.textContent = props.value;
-        blurRise(tl, v, props.valueAt ?? at + 0.3, { y: 16, blur: 12 });
-      }
     }
     c.body = el("div", "", c);
     if (props.body) { if (typeof props.body === "string") c.body.innerHTML = props.body; else c.body.appendChild(props.body); }
     const tilt = props.tilt || { rx: 2, ry: -4 };
-    if (props.from === "left" || props.from === "right") {
-      const d = props.from === "left" ? -1 : 1;
-      tl.fromTo(c, { opacity: 0, x: 620 * d, rotationX: tilt.rx, rotationY: tilt.ry, transformPerspective: 1400 },
-        { opacity: 1, x: 0, rotationX: tilt.rx, rotationY: tilt.ry, transformPerspective: 1400, duration: 0.42, ease: "expo.out" }, at);
-      dirBlur(tl, cmb, at, 0.34, "x", 40, 0, "power2.out");
-      return c;
-    }
     tl.fromTo(c, { opacity: 0, y: 80, filter: "blur(16px)", rotationX: 8, rotationY: tilt.ry, transformPerspective: 1400 },
       { opacity: 1, y: 0, filter: "blur(0px)", rotationX: tilt.rx, rotationY: tilt.ry, transformPerspective: 1400, duration: 0.4, ease: "power3.out" }, at);
     return c;
@@ -595,7 +548,7 @@
    * lens (170 px, 4 px white ring) showing a zoomed copy of the content.
    * @param {object} props
    * @param {string} [props.src] real screenshot (PNG/JPG). Without it a placeholder iOS list is drawn from `rows`.
-   * @param {Array<{icon?:string,src?:string,text:string,value?:string}>} [props.rows] placeholder rows (src = small 3D icon image)
+   * @param {Array<{icon?:string,text:string,value?:string}>} [props.rows] placeholder rows
    * @param {'dark'|'light'} [props.theme='dark']
    * @param {number} [props.x=540] [props.y=1000] [props.width=640] [props.height=900] [props.tilt=5] [props.radius=18]
    * @param {Array<{x,y,w,h,t}>} [props.highlights] boxes in screenshot px; first appears, others jump.
@@ -660,8 +613,7 @@
         borderTop: i ? `1px solid ${dark ? "#2C2C2E" : "#E5E5EA"}` : "none", fontSize: "31px" });
       const ic = el("div", "rsa-emoji", row, { width: "52px", height: "52px", borderRadius: "12px", display: "flex", alignItems: "center",
         justifyContent: "center", fontSize: "32px", background: ["#0A84FF", "#30D158", "#FF9F0A", "#FF453A", "#5E5CE6", "#8E8E93"][i % 6] });
-      if (r.src) { ic.style.background = "transparent"; ic.innerHTML = `<img src="${esc(r.src)}" alt="" style="width:52px;height:52px;object-fit:contain">`; }
-      else ic.textContent = r.icon || "";
+      ic.textContent = r.icon || "";
       el("div", "", row, { flex: "1" }).textContent = r.text;
       const v = el("div", "", row, { color: dark ? "#8E8E93" : "#8A8A8E" });
       v.textContent = (r.value || "") + "  ›";
@@ -684,7 +636,7 @@
     if (props.color) n.style.color = props.color;
     const cols = [];
     [...String(props.value)].forEach((ch) => {
-      if (!/\d/.test(ch)) { el("span", "", n).textContent = ch === " " ? "\u202F" : ch; return; } // thousands gap must not collapse
+      if (!/\d/.test(ch)) { el("span", "", n).textContent = ch; return; }
       const col = el("span", "rsa-roll-col", n);
       col.setAttribute("data-layout-allow-overflow", ""); // slot-machine stack is clipped on purpose
       const mb = el("span", "rsa-roll-stack", col);
@@ -724,15 +676,14 @@
   /**
    * Text-selection highlight (Der0 «в несколько лет», Dey «совпадать»): text sits in place; a selection fill
    * (#1C3C5C on dark) sweeps L→R in 0.3 s power2.out, the end caret handle (#2A90F6, 3 px bar + 15 px dot) travels with it.
-   * @param {object} props {text, x, y, size=62, weight=500, before?, after?, selectAt?} — before/after = unselected text on the same line
+   * @param {object} props {text, x, y, size=62, before?, after?, selectAt?} — before/after = unselected text on the same line
    * @returns {HTMLElement}
    */
   RSA.selection = function (container, props, tl, at) {
     const a = anchor(container, num(props.x, 540), num(props.y, 1000));
-    const line = el("div", "", a, { display: "flex", alignItems: "baseline", gap: ".28em", fontSize: `${props.size || 62}px`, color: "var(--ink)",
-      fontWeight: String(props.weight || 500), whiteSpace: "nowrap", letterSpacing: props.size > 90 ? "-0.015em" : "" });
+    const line = el("div", "", a, { display: "flex", alignItems: "baseline", gap: ".28em", fontSize: `${props.size || 62}px`, color: "var(--ink)", fontWeight: "500", whiteSpace: "nowrap" });
     if (props.before) el("span", "", line).textContent = props.before;
-    const s = el("span", "rsa-sel", line, { fontSize: "inherit", fontWeight: "inherit" });
+    const s = el("span", "rsa-sel", line, { fontSize: "inherit" });
     s.setAttribute("data-layout-allow-occlusion", "");
     const box = el("span", "rsa-sel-box", s);
     el("span", "rsa-sel-tx", s).textContent = props.text;
@@ -916,6 +867,25 @@
   };
 
   /**
+   * Bookmark CTA ending (Dej 52.9 s, DeV 103.5 s): glossy 3D blue bookmark rises from below with motion blur,
+   * "сохрани…" blur-rises +0.2 s, title types +0.5 s, caption types +1.0 s; held to the end (no end card).
+   * @param {object} props {headline='сохрани', title?, caption?, layout='top'|'bottom', src? (bookmark PNG), size=370 (≈380 px tall in Dej)}
+   * @returns {HTMLElement} bookmark node
+   */
+  RSA.bookmarkCTA = function (container, props, tl, at) {
+    const bottom = props.layout === "bottom";
+    const bm = RSA.hero(container, { src: props.src, blob: "bookmark", size: props.size || 370, x: 540, y: bottom ? 820 : 960, entry: "rise", shadow: false }, tl, at);
+    RSA.headline(container, { text: props.headline || "сохрани", position: bottom ? "bottom" : "top", y: bottom ? 1540 : undefined }, tl, at + 0.2);
+    let t = at + 0.5;
+    if (props.title) {
+      RSA.label(container, { text: props.title, x: 540, y: bottom ? 1150 : 1345, cls: "rsa-cta-title" }, tl, t);
+      t += props.title.length / 24 + 0.1;
+    }
+    if (props.caption) RSA.caption(container, { text: props.caption, y: bottom ? 1290 : 1472 }, tl, Math.max(t, at + 1.0));
+    return bm;
+  };
+
+  /**
    * Hook display (Der0 0–2 s): tiny tracked label, giant ultra-wide display word (Unbounded 900, per-letter
    * blur 20→0 from opacity .2, 70 ms stagger, +30 px rise, 0.47 s — already mid-reveal on frame 0), a wide
    * sub-word, and a lime #BAE436 italic accent rotated −5° with two hand-drawn underlines.
@@ -952,358 +922,6 @@
       });
     }
     return w;
-  };
-
-  /* ───────────────────────────── list row ───────────────────────────── */
-
-  /**
-   * List row (layout `list`): 3D icon · title + grey sub · right-aligned value, hairline under the row, no card box.
-   * Entry (build-down): row slides x +70→0 with blur 12→0 (0.36 s expo.out), icon pops back.out(1.6), hairline draws L→R,
-   * value blur-rises +0.2 s.
-   * @param {object} props {y (row centre), height=150, icon? (image src), emoji? (fallback), iconSize=112, title, sub?, value?,
-   *   valueColor?, rule=true}
-   * @returns {HTMLElement} row
-   */
-  RSA.listRow = function (container, props, tl, at) {
-    const h = props.height || 150, is = props.iconSize || 112;
-    const row = el("div", "rsa-row", container, { top: `${props.y - h / 2}px`, height: `${h}px` });
-    let ic = null;
-    if (props.icon || props.emoji) {
-      ic = el("div", "rsa-row-icon", row, { width: `${is}px`, height: `${is}px` });
-      if (props.icon) ic.innerHTML = `<img src="${esc(props.icon)}" alt="">`;
-      else { const e = el("span", "rsa-emoji", ic, { fontSize: `${is * 0.86}px` }); e.textContent = props.emoji; }
-    }
-    const tx = el("div", "rsa-row-tx", row);
-    el("div", "rsa-row-title", tx).textContent = props.title || "";
-    if (props.sub) el("div", "rsa-row-sub", tx).textContent = props.sub;
-    let v = null;
-    if (props.value != null) {
-      v = el("div", "rsa-row-value", row);
-      if (props.valueColor) v.style.color = props.valueColor;
-      v.textContent = props.value;
-    }
-    tl.fromTo(tx, { opacity: 0, x: 70, filter: "blur(12px)" }, { opacity: 1, x: 0, filter: "blur(0px)", duration: 0.36, ease: "expo.out" }, at + 0.04);
-    if (ic) tl.fromTo(ic, { opacity: 0, scale: 0.2, filter: "blur(8px)" }, { opacity: 1, scale: 1, filter: "blur(0px)", duration: 0.32, ease: "back.out(1.6)" }, at);
-    if (v) blurRise(tl, v, at + 0.2, { y: 14, blur: 12, dur: 0.34 });
-    if (props.rule !== false) {
-      const r = el("div", "rsa-row-rule", row, { top: `${h - 1}px` });
-      tl.fromTo(r, { scaleX: 0 }, { scaleX: 1, duration: 0.45, ease: "power2.out" }, at + 0.1);
-    }
-    return row;
-  };
-
-  /* ───────────────────────────── layouts (references/layouts.md) ───────────────────────────── */
-
-  /*
-   * Every scene picks ONE layout. A layout computes the vertical stack of its parts (kicker · headline · visual ·
-   * caption …) from their known heights + the shared rhythm, then centres the whole block in the live area
-   * (y 230–1575): block centre ≈ y 905 (rule: 860–940), block ≥ 600 px tall (except `statement`). It builds the
-   * text parts itself, builds the visual from `props.visual` (spec or callback) and returns the geometry so
-   * callers can add more components into the slots. Measured against the refs (Dej 3.0/7.0/26.0, DeV 25/53,
-   * Der0 20.5, Dey 22.5): headline block centre 500–560, hero centre 820–1100, caption 1330–1500.
-   */
-  const LIVE = { top: 230, bottom: 1575, left: 90, right: 990, cy: 905 };
-  const RHYTHM = { kickerHead: 34, headVisual: 90, visualCap: 72, headCap: 40, visualHead: 90, row: 0 };
-  const TYPE = { h1: 78, h1Long: 64, lh: 1.06, cap: 42, capLh: 1.18, kicker: 56 };
-  RSA.LIVE = LIVE; RSA.RHYTHM = RHYTHM; RSA.TYPE = TYPE;
-
-  const linesOf = (t) => (t == null ? [] : toLines(t));
-  const h1Size = (lines, size) => size || (Math.max(0, ...lines.map((l) => l.length)) > 16 ? TYPE.h1Long : TYPE.h1);
-  const capLines = (t) => (t == null ? [] : Array.isArray(t) ? t : [t]);
-
-  /**
-   * Stack items top→bottom, centred on `cy`, clamped inside the live area.
-   * items: [{key, h, gap? (gap ABOVE this item)}] → { [key]: {top, cy, h}, block: {top, bottom, cy, h} }
-   */
-  function stackItems(items, cy, minH) {
-    let H = 0;
-    items.forEach((it, i) => { H += (i ? it.gap || 0 : 0) + it.h; });
-    // grow the flexible item so the block fills ≥ minH (layouts.md §1)
-    const grow = items.find((it) => it.grow);
-    if (grow && minH && H < minH) { const add = Math.min(minH - H, (grow.max || Infinity) - grow.h); if (add > 0) { grow.h += add; H += add; } }
-    let top = cy - H / 2;
-    top = Math.max(LIVE.top + 20, Math.min(top, LIVE.bottom - 20 - H));
-    const out = { block: { top, bottom: top + H, cy: top + H / 2, h: H } };
-    let y = top;
-    items.forEach((it, i) => { y += i ? it.gap || 0 : 0; out[it.key] = { top: y, cy: y + it.h / 2, h: it.h }; y += it.h; });
-    return out;
-  }
-
-  /** Build the visual for a slot: callback `(container, slot, tl, at) → el` or `{type, props, t}` naming any RSA builder. */
-  function buildVisual(container, spec, slot, tl, at) {
-    if (!spec) return null;
-    if (typeof spec === "function") return spec(container, slot, tl, at);
-    const fn = RSA[spec.type];
-    if (!fn) throw new Error(`RSA.layout: unknown visual type ${spec.type}`);
-    const auto = { x: slot.x, y: slot.y };
-    if (spec.type === "hero" || spec.type === "globe") auto.size = slot.h;
-    if (spec.type === "screenshot") { auto.height = slot.h; auto.width = slot.w; }
-    if (spec.type === "card" || spec.type === "codeWindow" || spec.type === "repoCard") auto.width = slot.w;
-    if (spec.type === "iconRow") auto.y = slot.y;
-    return fn(container, Object.assign(auto, spec.props), tl, spec.t ?? at);
-  }
-
-  function headlineAt(container, p, y, tl, at) {
-    return RSA.headline(container, { text: p.text, words: p.words, stagger: p.stagger, pills: p.pills, size: p.size, weight: p.weight,
-      halo: p.halo, color: p.color, y }, tl, p.textAt ?? at);
-  }
-  function captionAt(container, p, y, tl, at) {
-    return RSA.caption(container, { text: p.caption, y, color: p.captionColor, cps: p.cps }, tl, p.captionAt ?? at + 0.9);
-  }
-  /** Marks the block on the container for QA (data-rsa-block="top,bottom"). */
-  function mark(container, id, g) {
-    container.dataset.rsaLayout = id;
-    container.dataset.rsaBlock = `${Math.round(g.block.top)},${Math.round(g.block.bottom)}`;
-  }
-
-  RSA.layout = {};
-
-  /**
-   * `hero` — headline top · one big 3D object centre · grey caption under it (Style A default).
-   * Hero box default 620 px (Fluent/generated PNGs carry ≈ 6 % padding → visible object ≈ 545 px ≈ 50 % of frame width); headline lands ≈ y 500–540, caption ≈ 1350.
-   * @param {HTMLElement} container  layer.inner
-   * @param {object} props
-   * @param {string} props.text  headline ("a / b"); [props.words], [props.pills], [props.size], [props.halo], [props.textAt]
-   * @param {object|Function} props.visual  e.g. {type:'hero', props:{src, entry:'pop'}, t} — gets x/y/size from the slot
-   * @param {number} [props.visualH=620]  visual height (hero size)
-   * @param {string|string[]} [props.caption]  [props.captionAt=at+0.9], [props.captionColor]
-   * @param {string} [props.kicker]  blue chip above the headline
-   * @param {object} tl  @param {number} at  scene start (local s)
-   * @returns {{block, slots:{visual:{x,y,w,h}}, headline, caption, visual, kicker}}
-   */
-  RSA.layout.hero = function (container, props, tl, at) {
-    const hl = linesOf(props.text), size = h1Size(hl, props.size), cl = capLines(props.caption);
-    const items = [];
-    if (props.kicker) items.push({ key: "kicker", h: TYPE.kicker });
-    items.push({ key: "head", h: hl.length * size * TYPE.lh, gap: RHYTHM.kickerHead });
-    items.push({ key: "vis", h: props.visualH || 620, gap: RHYTHM.headVisual, grow: true, max: 700 });
-    if (cl.length) items.push({ key: "cap", h: cl.length * TYPE.cap * TYPE.capLh, gap: RHYTHM.visualCap });
-    const g = stackItems(items, props.cy || LIVE.cy, 600);
-    mark(container, props._id || "hero", g);
-    const slot = { x: 540, y: g.vis.cy, w: Math.min(900, props.visualW || g.vis.h), h: g.vis.h };
-    const r = { block: g.block, slots: { visual: slot } };
-    if (props.kicker) r.kicker = RSA.chip(container, { text: props.kicker, y: g.kicker.cy, size: 34 }, tl, props.kickerAt ?? at);
-    r.headline = headlineAt(container, Object.assign({}, props, { size }), g.head.cy, tl, at + (props.kicker ? 0.15 : 0));
-    r.visual = buildVisual(container, props.visual, slot, tl, at + 0.15);
-    if (cl.length) r.caption = captionAt(container, props, g.cap.cy, tl, at);
-    return r;
-  };
-
-  /**
-   * `visual-top` — big visual first (≤ 55 % of the live area), headline BELOW it (y ≈ 1250–1450), caption last.
-   * Use for tall objects / drop entries; the asymmetric mass breaks the headline-on-top habit.
-   * @param {object} props {text, visual, visualH=680, caption?, size?, words?, cy=1000}
-   * @returns {{block, slots:{visual}, headline, caption, visual}}
-   */
-  RSA.layout["visual-top"] = function (container, props, tl, at) {
-    const hl = linesOf(props.text), size = h1Size(hl, props.size), cl = capLines(props.caption);
-    const items = [{ key: "vis", h: props.visualH || 680, grow: true, max: 760 },
-      { key: "head", h: hl.length * size * TYPE.lh, gap: RHYTHM.visualHead }];
-    if (cl.length) items.push({ key: "cap", h: cl.length * TYPE.cap * TYPE.capLh, gap: RHYTHM.headCap });
-    const g = stackItems(items, props.cy || 1000, 600);
-    mark(container, "visual-top", g);
-    const slot = { x: 540, y: g.vis.cy, w: Math.min(900, props.visualW || g.vis.h), h: g.vis.h };
-    const r = { block: g.block, slots: { visual: slot } };
-    r.visual = buildVisual(container, props.visual, slot, tl, at);
-    r.headline = headlineAt(container, Object.assign({}, props, { size }), g.head.cy, tl, at + 0.3);
-    if (cl.length) r.caption = captionAt(container, props, g.cap.cy, tl, at + 0.2);
-    return r;
-  };
-
-  /**
-   * `number` — giant slot-machine number centre (glyphs ≈ 0.71 × size tall; font size auto-fits 900 px width, ≤ 420),
-   * grey label above (typed), keyword pill and/or caption below.
-   * @param {object} props {value: string, unit?, label?, pill?, pillAt?, caption?, size?, color?, labelAt?, rollAt?}
-   * @returns {{block, number, label, pill, caption}}
-   */
-  RSA.layout.number = function (container, props, tl, at) {
-    const v = String(props.value);
-    const digits = (v.match(/\d/g) || []).length, other = v.length - digits;
-    const size = props.size || Math.min(420, Math.floor(900 / (digits * 0.58 + other * 0.3 + (props.unit ? props.unit.length * 0.5 + 0.22 : 0))));
-    const cl = capLines(props.caption);
-    const items = [];
-    if (props.label) items.push({ key: "label", h: 52 });
-    items.push({ key: "num", h: size * 0.86, gap: 44 });
-    if (props.pill) items.push({ key: "pill", h: 72, gap: 56 });
-    if (cl.length) items.push({ key: "cap", h: cl.length * TYPE.cap * TYPE.capLh, gap: props.pill ? 48 : RHYTHM.visualCap });
-    const g = stackItems(items, props.cy || LIVE.cy, 600);
-    mark(container, "number", g);
-    const r = { block: g.block, slots: {} };
-    let t = at;
-    if (props.label) { r.label = RSA.label(container, { text: props.label, x: 540, y: g.label.cy, color: "var(--cap)" }, tl, props.labelAt ?? t); t += 0.35; }
-    r.number = RSA.numberRoll(container, { value: v, unit: props.unit, x: 540, y: g.num.cy, size, color: props.color }, tl, props.rollAt ?? t);
-    if (props.pill) r.pill = RSA.pill(container, { text: props.pill, y: g.pill.cy, size: 54 }, tl, props.pillAt ?? t + 0.6);
-    if (cl.length) r.caption = captionAt(container, Object.assign({ captionAt: t + 1.0 }, props), g.cap.cy, tl, at);
-    return r;
-  };
-
-  /**
-   * `media` — real screenshot / photo / footage frame at 60–75 % of the live height with a short headline above
-   * and an optional caption under. The visual defaults to `{type:'screenshot'}` sized from the slot.
-   * @param {object} props {text, visual, visualH=860, visualW=640, caption?}
-   * @returns {{block, slots:{visual}, headline, caption, visual}}
-   */
-  RSA.layout.media = function (container, props, tl, at) {
-    const hl = linesOf(props.text), size = h1Size(hl, props.size), cl = capLines(props.caption);
-    const items = [];
-    if (hl.length) items.push({ key: "head", h: hl.length * size * TYPE.lh });
-    items.push({ key: "vis", h: props.visualH || 860, gap: RHYTHM.headVisual });
-    if (cl.length) items.push({ key: "cap", h: cl.length * TYPE.cap * TYPE.capLh, gap: RHYTHM.visualCap });
-    const g = stackItems(items, props.cy || LIVE.cy, 600);
-    mark(container, "media", g);
-    const slot = { x: 540, y: g.vis.cy, w: props.visualW || 640, h: g.vis.h };
-    const r = { block: g.block, slots: { visual: slot } };
-    if (hl.length) r.headline = headlineAt(container, Object.assign({}, props, { size }), g.head.cy, tl, at);
-    r.visual = buildVisual(container, props.visual || { type: "screenshot" }, slot, tl, at + 0.2);
-    if (cl.length) r.caption = captionAt(container, props, g.cap.cy, tl, at);
-    return r;
-  };
-
-  /**
-   * `list` — headline + 3–4 rows building downward in a centred 900 px column (RSA.listRow).
-   * @param {object} props {text, items: [{icon|emoji, title, sub?, value?, t?}], rowH=150, interval=0.45, caption?}
-   * @returns {{block, rows: HTMLElement[], headline, caption}}
-   */
-  RSA.layout.list = function (container, props, tl, at) {
-    const hl = linesOf(props.text), size = h1Size(hl, props.size), cl = capLines(props.caption);
-    const its = props.items || [], rh = props.rowH || 150;
-    const items = [];
-    if (hl.length) items.push({ key: "head", h: hl.length * size * TYPE.lh });
-    items.push({ key: "rows", h: its.length * rh, gap: RHYTHM.headVisual - 20 });
-    if (cl.length) items.push({ key: "cap", h: cl.length * TYPE.cap * TYPE.capLh, gap: RHYTHM.visualCap });
-    const g = stackItems(items, props.cy || LIVE.cy, 600);
-    mark(container, "list", g);
-    const r = { block: g.block, slots: {}, rows: [] };
-    if (hl.length) r.headline = headlineAt(container, Object.assign({}, props, { size }), g.head.cy, tl, at);
-    const t0 = at + 0.45, iv = props.interval ?? 0.45;
-    its.forEach((it, i) => {
-      r.rows.push(RSA.listRow(container, Object.assign({ height: rh, y: g.rows.top + rh * (i + 0.5), rule: i < its.length - 1 }, it), tl, it.t ?? t0 + i * iv));
-    });
-    if (cl.length) r.caption = captionAt(container, Object.assign({ captionAt: t0 + its.length * iv + 0.2 }, props), g.cap.cy, tl, at);
-    return r;
-  };
-
-  /**
-   * `compare` — two stacked states (before → after): two cards with a cut line + object between them.
-   * The "before" card dims to 50 % when "after" lands. Cards slide in from opposite sides.
-   * @param {object} props {text, before:{title, sub?, value?, icon?}, after:{…}, divider? (visual spec, e.g. scissors hero,
-   *   default size 190; false = no cut line), cardH=210, beforeAt?, afterAt?, caption?, variants?: [before, after] card variants}
-   * @returns {{block, before, after, divider, headline, caption}}
-   */
-  RSA.layout.compare = function (container, props, tl, at) {
-    const hl = linesOf(props.text), size = h1Size(hl, props.size), cl = capLines(props.caption);
-    const ch = props.cardH || 210, dh = props.dividerH || 190;
-    const items = [];
-    if (hl.length) items.push({ key: "head", h: hl.length * size * TYPE.lh });
-    items.push({ key: "a", h: ch, gap: RHYTHM.headVisual }, { key: "mid", h: dh, gap: 34 }, { key: "b", h: ch, gap: 34 });
-    if (cl.length) items.push({ key: "cap", h: cl.length * TYPE.cap * TYPE.capLh, gap: RHYTHM.visualCap });
-    const g = stackItems(items, props.cy || LIVE.cy, 600);
-    mark(container, "compare", g);
-    const light = /light/.test(container.closest(".rsa-layer")?.className || "");
-    const [va, vb] = props.variants || (light ? ["white", "light"] : ["dark", "glass"]);
-    const r = { block: g.block, slots: { divider: { x: 540, y: g.mid.cy, w: 900, h: dh } } };
-    if (hl.length) r.headline = headlineAt(container, Object.assign({}, props, { size }), g.head.cy, tl, at);
-    const card = (p, y, variant, t, from) => RSA.card(container, Object.assign({ variant, x: 540, y, width: 900, height: ch, radius: 44,
-      padding: "0 48px", iconSize: 120, from }, p, { icon: p.icon && !/^</.test(p.icon) && /\.(png|webp|jpg|svg)$/i.test(p.icon) ? `<img src="${esc(p.icon)}" alt="" style="width:120px;height:120px;object-fit:contain">` : p.icon }), tl, t);
-    const ta = props.beforeAt ?? at + 0.35, tb = props.afterAt ?? ta + 1.1;
-    r.before = card(props.before || {}, g.a.cy, va, ta, "left");
-    if (props.divider !== false) {
-      RSA.connector(container, { from: [110, g.mid.cy], to: [970, g.mid.cy], color: props.lineColor }, tl, ta + 0.5);
-      r.divider = buildVisual(container, props.divider, { x: 540, y: g.mid.cy, w: dh, h: dh }, tl, ta + 0.6);
-    }
-    r.after = card(props.after || {}, g.b.cy, vb, tb, "right");
-    RS.dim(tl, r.before, tb + 0.15, 0.5, 0.3);
-    if (cl.length) r.caption = captionAt(container, Object.assign({ captionAt: tb + 0.5 }, props), g.cap.cy, tl, at);
-    return r;
-  };
-
-  /**
-   * `statement` — breath scene: 2-line big headline only (default 116 px), centred at y 905. Optional
-   * `select` = the second line is shown as an iOS text selection (fill sweeps, blue handles) instead of plain words.
-   * Max one per ~6 scenes.
-   * @param {object} props {text: "line1 / line2", size=116, select?: boolean, selectAt?, words?}
-   * @returns {{block, headline, selection}}
-   */
-  RSA.layout.statement = function (container, props, tl, at) {
-    const hl = linesOf(props.text), size = props.size || (Math.max(...hl.map((l) => l.length)) > 13 ? 96 : 116);
-    const lineH = size * TYPE.lh;
-    const g = stackItems([{ key: "head", h: hl.length * lineH }], props.cy || LIVE.cy, 0);
-    mark(container, "statement", g);
-    const r = { block: g.block, slots: {} };
-    if (props.select && hl.length > 1) {
-      r.headline = RSA.headline(container, { text: hl.slice(0, -1), words: props.words, size, y: g.head.top + (hl.length - 1) * lineH / 2 }, tl, at);
-      r.selection = RSA.selection(container, { text: hl[hl.length - 1], x: 540, y: g.head.bottom - lineH / 2 + size * 0.04, size, weight: 600,
-        selectAt: props.selectAt }, tl, at + 0.12 * hl[0].split(/\s+/).length + 0.1);
-    } else {
-      r.headline = RSA.headline(container, { text: hl, words: props.words, size, pills: props.pills, y: g.head.cy }, tl, at);
-    }
-    return r;
-  };
-
-  /**
-   * `stack` — kicker chip + headline + ONE component, whole block centred (default component height 600).
-   * @param {object} props {kicker?, text, visual, visualH=600, caption?}
-   * @returns {{block, slots:{visual}, kicker, headline, visual, caption}}
-   */
-  RSA.layout.stack = function (container, props, tl, at) {
-    return RSA.layout.hero(container, Object.assign({ visualH: 600 }, props, { _id: "stack" }), tl, at);
-  };
-
-  /**
-   * `head-side` — transparent overlay for talking-head scenes (use `RSA.layer({theme:'none'})` over the footage).
-   * One component sits in the chest band (y 880–1460) beside or below the face; an optional keyword line with a dark
-   * halo sits at the top of the band (over the component's column for left/right). Never covers the face (band starts at y 880).
-   * @param {object} props {side='below'|'left'|'right', text?, visual, visualH=420, size=64}
-   * @returns {{block, slots:{visual}, headline, visual}}
-   */
-  RSA.layout["head-side"] = function (container, props, tl, at) {
-    const band = { top: 880, bottom: 1460 };
-    const side = props.side || "below";
-    const hl = linesOf(props.text), size = props.size || 64;
-    const headH = hl.length ? hl.length * size * TYPE.lh + 40 : 0;
-    const vh = Math.min(props.visualH || 420, band.bottom - band.top - headH);
-    const x = side === "left" ? 300 : side === "right" ? 780 : 540;
-    const r = { block: { top: band.top, bottom: band.bottom, cy: (band.top + band.bottom) / 2, h: band.bottom - band.top }, slots: {} };
-    container.dataset.rsaLayout = "head-side";
-    if (hl.length) {
-      r.headline = RSA.headline(container, { text: hl, words: props.words, size, halo: true, y: band.top + headH / 2 - 20 }, tl, at);
-      // side variants: the keyword sits over its own column (keep ≤ 12 chars per line there)
-      if (side === "left") Object.assign(r.headline.style, { left: "90px", right: "560px" });
-      if (side === "right") Object.assign(r.headline.style, { left: "560px", right: "90px" });
-    }
-    const slot = { x, y: band.top + headH + vh / 2, w: side === "below" ? 820 : 420, h: vh };
-    r.slots.visual = slot;
-    r.visual = buildVisual(container, props.visual, slot, tl, at + 0.15);
-    return r;
-  };
-
-  /**
-   * Bookmark CTA ending (Dej 52.9 s, DeV 103.5 s): glossy 3D blue bookmark rises from below with motion blur,
-   * "сохрани…" blur-rises +0.2 s, title types +0.5 s, caption types +1.0 s; held to the end (no end card).
-   * Geometry comes from the layout engine (block centred at y≈905, bookmark = hero size).
-   * @param {object} props {headline='сохрани', title?, caption?, layout='top'|'bottom', src? (bookmark PNG), size=470}
-   * @returns {HTMLElement} bookmark node (`.layout` = {block, …} geometry)
-   */
-  RSA.bookmarkCTA = function (container, props, tl, at) {
-    const bottom = props.layout === "bottom";
-    const size = props.size || 470;
-    const head = { key: "head", h: TYPE.h1 * TYPE.lh, gap: RHYTHM.visualHead };
-    const vis = { key: "vis", h: size, gap: RHYTHM.headVisual };
-    const items = bottom ? [vis, head] : [Object.assign({}, head, { gap: 0 }), vis];
-    if (props.title) items.push({ key: "title", h: 56, gap: 64 });
-    if (props.caption) items.push({ key: "cap", h: TYPE.cap * TYPE.capLh, gap: props.title ? 26 : RHYTHM.visualCap });
-    const g = stackItems(items, LIVE.cy, 600);
-    mark(container, "cta", g);
-    const bm = RSA.hero(container, { src: props.src, blob: props.src ? undefined : "bookmark", size, x: 540, y: g.vis.cy, entry: "rise", shadow: !!props.src }, tl, at);
-    RSA.headline(container, { text: props.headline || "сохрани", y: g.head.cy }, tl, at + 0.2);
-    let t = at + 0.5;
-    if (props.title) {
-      RSA.label(container, { text: props.title, x: 540, y: g.title.cy, cls: "rsa-cta-title" }, tl, t);
-      t += props.title.length / 24 + 0.1;
-    }
-    if (props.caption) RSA.caption(container, { text: props.caption, y: g.cap.cy }, tl, Math.max(t, at + 1.0));
-    bm.layout = g;
-    return bm;
   };
 
   /* ───────────────────────────── transitions ───────────────────────────── */

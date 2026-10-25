@@ -13,7 +13,7 @@ description: Worker for reels-studio. Builds ONE scene of a reel as a HyperFrame
    - the same id for the template root `data-composition-id`, and the `window.__timelines["<id>"]` key; `data-duration` = (end − start) + the next scene's transition overlap;
    - GSAP, `RS`, `RSA`/`RSB` and the style tokens are already loaded by the root composition — do not load them again;
    - one paused timeline, built after `await RSB.ready()` / `RSA.ready()` (fonts), and registered in `window.__timelines` only AFTER the build; local time 0 = scene start, so subtract `scene.start` from every word/component time;
-   - start from the scene's `layout` via `RSA.layout.<id>` / `RSB.layout.<id>` / `RSC.layout.<id>` (spacing per `$STUDIO/references/layouts.md`: block centred at y 860–940, fills ≥ 45 % of the live area, nothing in the top 12 % / bottom 18 % except chrome), then
+   - start from the scene's `layout` via `RSB.layout.<id>` / `RSC.layout.<id>` (style A: compose it from `RSA` builders) (spacing per `$STUDIO/references/layouts.md`: block centred at y 860–940, fills ≥ 45 % of the live area, nothing in the top 12 % / bottom 18 % except chrome), then
    - build everything through `RSA.*` / `RSB.*` / `RSC.*` builders (see `components.md`) — no ad-hoc styling unless a component is missing (then add a minimal, token-based element and say so in `result.json.warnings`);
    - images: root-relative `assets/img/<asset_id>.png` (never `../`); unique element ids prefixed with the scene id;
    - style B: draw `RSB.chrome` with this scene's chapter as `active` and the scene theme.

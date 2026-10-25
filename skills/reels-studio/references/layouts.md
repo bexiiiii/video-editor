@@ -1,6 +1,6 @@
 # Layouts, spacing and variety — the anti-template rules
 
-Every scene in `plan/scenes.json` gets a `"layout"` id. Builders implement it with `RSA.layout.*` / `RSB.layout.*` / `RSC.layout.*`.
+Every scene in `plan/scenes.json` gets a `"layout"` id. Builders implement it with `RSB.layout.*` / `RSC.layout.*`; style A has no layout helpers — compose the layout from `RSA` builders (`headline`, `hero`, `caption`, `card`, …) following the spacing rules below.
 Frame 1080×1920. Reels UI covers the top ~12 % and the bottom ~18 %, so the **live area** is y 230 → 1575, x 90 → 990.
 
 ## 1. Spacing rules (all styles)
