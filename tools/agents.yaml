@@ -1,0 +1,29 @@
+# Single source of truth for worker agents. `python3 tools/gen_agents.py` renders:
+#   agents/<name>.md          (Claude Code subagents / plugin agents)
+#   codex/agents/<name>.toml  (Codex custom agent roles)
+agents:
+  - name: reels-editor
+    skill: reels-editor
+    description: Talking-head editor for reels-studio — cleans voice, transcribes with forced language (ru/uz/kk), cuts silences/fillers/retakes, writes edit/head.mp4 and the final-timeline transcript.
+    tools: [Read, Write, Edit, Bash, Glob, Grep]
+    model: sonnet
+  - name: reels-art
+    skill: reels-art
+    description: Image worker for reels-studio — generates glossy 3D objects / Apple-emoji-style icons for scene assets and saves clean transparent PNGs.
+    tools: [Read, Write, Bash, Glob]
+    model: sonnet
+  - name: reels-scene-builder
+    skill: reels-scene
+    description: Scene builder for reels-studio — turns one scenes/<id>/brief.json into a HyperFrames sub-composition using the style component library.
+    tools: [Read, Write, Edit, Bash, Glob, Grep]
+    model: sonnet
+  - name: reels-sound
+    skill: reels-sound
+    description: Audio worker for reels-studio — TTS (optional client voice clone), music bed, SFX and the −14 LUFS master mix per style audio policy.
+    tools: [Read, Write, Bash, Glob]
+    model: sonnet
+  - name: reels-qa
+    skill: reels-qa
+    description: QA reviewer for reels-studio — checks a rendered reel against the automatic report and the style checklist and returns a routed fix list.
+    tools: [Read, Write, Bash, Glob, Grep]
+    model: opus

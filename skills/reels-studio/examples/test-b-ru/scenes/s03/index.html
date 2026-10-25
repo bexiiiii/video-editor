@@ -1,0 +1,54 @@
+<!-- s03 · blue "for example" — Теперь отметка / в один тап: / GPS и селфи.  (global 6.82–10.73, local = global − 6.82) -->
+<template>
+  <div id="s03" data-composition-id="s03" data-width="1080" data-height="1920" data-duration="4.41">
+    <style>
+      #s03 { position: absolute; inset: 0; overflow: hidden; }
+    </style>
+    <script>
+      (async function () {
+        const root = document.getElementById("s03");
+        const tl = gsap.timeline({ paused: true });
+        await RSB.ready();
+
+        // page (blue) — dissolve-in half: previous scene's tail sits underneath, we fade in over it
+        const page = RSB.page(root, { theme: "blue", visible: false }, tl, 0);
+        page.id = "s03-page";
+        tl.fromTo(page, { opacity: 0 }, { opacity: 1, duration: 0.45, ease: "power2.out" }, 0.06);
+
+        // chrome inside the page so it dissolves in with it; chapter 2 (0-based) of 4
+        RSB.chrome(page, { series: "Link HR", topic: "Учёт времени", dots: 4, active: 2, theme: "blue" }, tl, 0);
+
+        // kicker / headline / sub — literal words, local times
+        const col = RSB.stack(page.content, {
+          top: 300,
+          kicker:   { words: [{ w: "Теперь", t: 0.455 }, { w: "отметка", t: 0.830 }] },
+          headline: { words: [{ w: "в", t: 1.268 }, { w: "один", t: 1.305 }, { w: "тап:", t: 1.605 }] },
+          sub:      { words: [{ w: "GPS", t: 2.018 }, { w: "и", t: 2.742 }, { w: "селфи.", t: 2.817 }] },
+        }, tl, 0);
+        col.id = "s03-col";
+
+        // white "Начать день" button (capsule; white variant via style override)
+        const btn = RSB.capsule(page.content, {
+          text: "Начать день", kind: "grey", center: true, y: 770,
+          style: { background: "#FFFFFF", color: "#0A7AFF", height: "104px", padding: "0 56px", fontSize: "44px", boxShadow: "0 18px 40px rgba(0,0,0,.18)" },
+        }, tl, 1.10);
+        btn.id = "s03-btn";
+        // press feedback on the tap (8.43 → 1.61)
+        RSB.ft(tl, btn, { scale: 1 }, { scale: 0.94, duration: 0.07, ease: "power2.in" }, 1.61);
+        RSB.ft(tl, btn, { scale: 0.94 }, { scale: 1, duration: 0.14, ease: "power2.out" }, 1.68);
+
+        // glove cursor: appears at 8.10 (1.28), glides onto the button, taps at 8.43 (1.61)
+        const cur = RSB.cursor(page.content, { kind: "glove", path: [{ x: 585, y: 830, at: 1.28 }], taps: [1.61] }, tl, 1.28);
+        cur.id = "s03-cursor";
+
+        // check badges: GPS at 8.84 (2.02), Селфи at 9.64 (2.82)
+        const gps = RSB.capsule(page.content, { text: "GPS", kind: "ok", center: true, y: 960 }, tl, 2.02);
+        gps.id = "s03-gps";
+        const selfie = RSB.capsule(page.content, { text: "Селфи", kind: "ok", center: true, y: 1074 }, tl, 2.82);
+        selfie.id = "s03-selfie";
+
+        window.__timelines["s03"] = tl;
+      })();
+    </script>
+  </div>
+</template>

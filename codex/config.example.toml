@@ -1,0 +1,31 @@
+# Merge into ~/.codex/config.toml. Codex sandbox has no network by default; the pipeline needs it
+# for npx (HyperFrames renderer), pip, and provider APIs.
+sandbox_mode = "workspace-write"
+approval_policy = "on-request"          # use "never" only for unattended `codex exec` runs
+
+[sandbox_workspace_write]
+network_access = true
+# writable_roots = ["/Users/<you>/.cache", "/Users/<you>/.npm", "/Users/<you>/.reels-studio"]
+
+[agents]
+max_concurrent_threads_per_session = 6
+
+[agents.reels-scene-builder]
+description = "Builds one reel scene from scenes/<id>/brief.json"
+config_file = "agents/reels-scene-builder.toml"
+
+[agents.reels-art]
+description = "Generates scene images"
+config_file = "agents/reels-art.toml"
+
+[agents.reels-sound]
+description = "TTS, music, SFX and master mix"
+config_file = "agents/reels-sound.toml"
+
+[agents.reels-editor]
+description = "Talking-head footage editor"
+config_file = "agents/reels-editor.toml"
+
+[agents.reels-qa]
+description = "QA reviewer for rendered reels"
+config_file = "agents/reels-qa.toml"

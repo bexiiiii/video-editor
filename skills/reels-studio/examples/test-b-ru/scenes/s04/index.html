@@ -1,0 +1,48 @@
+<template>
+  <div id="s04" data-composition-id="s04" data-width="1080" data-height="1920" data-duration="4.606">
+    <style>
+      #s04 { position: absolute; inset: 0; overflow: hidden; }
+    </style>
+    <script>
+      (async function () {
+        await RSB.ready();
+        const root = document.getElementById("s04");
+        const tl = gsap.timeline({ paused: true });
+
+        // Page (light). Incoming dissolve: this scene paints over s03's 0.5 s tail, so fade the page in.
+        const page = RSB.page(root, { theme: "light", visible: false }, tl, 0);
+        tl.fromTo(page, { opacity: 0 }, { opacity: 1, duration: 0.49, ease: "power2.inOut" }, 0.06);
+
+        // Chrome: blue/chapter 2 -> light/chapter 3, stepped with the dissolve.
+        RSB.chrome(root, {
+          series: "Link HR", topic: "Учёт времени", dots: 4, theme: "blue", active: 2,
+          steps: [{ at: 0, theme: "light", active: 3 }],
+        }, tl, 0);
+
+        // Kicker + headline (local = global - 10.73)
+        const col = RSB.stack(page.content, {
+          top: 359,
+          kicker: { words: [{ w: "Табель", t: 0.458 }, { w: "собирается", t: 0.807 }, { w: "сам,", t: 1.383 }] },
+          headline: {
+            words: [{ w: "а", t: 1.858 }, { w: "HR", t: 1.958 }, { w: "видит", t: 2.395 }, { w: "команду", t: 2.682 }, { w: "сейчас.", t: 3.133 }],
+            highlight: ["сейчас"],
+          },
+        }, tl, 0.458);
+
+        // Calendar: pops at 11.3, green days fill 11.6 -> 12.6
+        RSB.calendar(RSB.slot(col, 60), {
+          cols: 6, rows: 5, count: 30, fillAt: 0.87, stagger: 0.034, fillBg: "#34C759", fillInk: "#FFFFFF",
+        }, tl, 0.57);
+
+        // Notification banner at 13.1
+        RSB.notification(RSB.slot(col, 50), {
+          title: "HR", time: "сейчас", text: "12 из 12 на месте", width: 714,
+        }, tl, 2.37);
+
+        // Hold to scene end
+        tl.set({}, {}, 4.606);
+        window.__timelines["s04"] = tl;
+      })();
+    </script>
+  </div>
+</template>

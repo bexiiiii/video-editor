@@ -1,0 +1,28 @@
+# reels-studio python deps. install.sh installs every uncommented line into ~/.reels-studio/venv.
+# Hard requirements outside pip: ffmpeg (+ffprobe), python >= 3.10, node >= 20 (npx).
+# doctor.py, common.py and the cloud providers are stdlib-only (urllib); nothing here is a
+# hard dependency of doctor.py.
+
+# --- core: procedural music, SFX kit, mixing, local ASR input decoding -------------------
+numpy>=1.26
+scipy>=1.11
+
+# --- free TTS (no key): Microsoft Edge neural voices ru/uz/kk, with word boundaries ------
+edge-tts>=7.0
+
+# --- free local ASR / alignment (no key). large-v3 downloads ~3 GB on first use; pass
+#     --model small for quick tests. Audio is decoded with ffmpeg, so PyAV issues on
+#     Python 3.14 do not matter.
+faster-whisper>=1.1
+
+# --- images (image.py / qa.py) ---------------------------------------------------------
+Pillow>=10.0
+
+# --- optional: nicer HTTP stack (scripts fall back to urllib when absent) -------------
+# requests>=2.31
+
+# --- optional, heavy: better voice cleanup (pulls in PyTorch, ~2 GB) -------------------
+# deepfilternet>=0.5
+
+# --- optional, Apple Silicon only: faster local Whisper on the GPU ---------------------
+# mlx-whisper>=0.4

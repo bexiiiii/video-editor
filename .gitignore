@@ -1,0 +1,9 @@
+.env
+work/
+**/__pycache__/
+*.pyc
+.DS_Store
+node_modules/
+.hyperframes/
+renders/
+**/demo/lib/

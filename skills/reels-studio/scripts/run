@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Run a reels-studio script with the right interpreter.
+#   run doctor.py --work work/x      run providers/asr.py in.wav --lang uz ...
+# Uses the venv created by install.sh (~/.reels-studio/venv) when present, else python3.
+set -euo pipefail
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+py="${REELS_STUDIO_PYTHON:-$HOME/.reels-studio/venv/bin/python}"
+[ -x "$py" ] || py="$(command -v python3)"
+script="$1"; shift
+exec "$py" "$here/$script" "$@"

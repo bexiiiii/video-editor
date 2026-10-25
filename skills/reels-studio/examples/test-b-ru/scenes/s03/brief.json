@@ -1,0 +1,92 @@
+{
+ "scene": {
+  "id": "s03",
+  "start": 6.82,
+  "end": 10.73,
+  "kind": "motion",
+  "theme": "blue",
+  "chapter": 2,
+  "transition_in": {
+   "type": "dissolve",
+   "dur": 0.5
+  },
+  "kicker": {
+   "words": [
+    {
+     "w": "Теперь",
+     "t": 7.275
+    },
+    {
+     "w": "отметка",
+     "t": 7.65
+    }
+   ]
+  },
+  "headline": {
+   "words": [
+    {
+     "w": "в",
+     "t": 8.088
+    },
+    {
+     "w": "один",
+     "t": 8.125
+    },
+    {
+     "w": "тап:",
+     "t": 8.425
+    }
+   ]
+  },
+  "caption": {
+   "words": [
+    {
+     "w": "GPS",
+     "t": 8.838
+    },
+    {
+     "w": "и",
+     "t": 9.562
+    },
+    {
+     "w": "селфи.",
+     "t": 9.637
+    }
+   ]
+  },
+  "components": [
+   {
+    "type": "cursor",
+    "at": 8.1,
+    "props": {
+     "hint": "glove cursor taps a white capsule 'Начать день' exactly at 8.43 ('тап'); then two check badges 'GPS' and 'Селфи' pop at 8.84 and 9.64"
+    }
+   }
+  ],
+  "sfx": [
+   {
+    "name": "tap",
+    "t": 8.43
+   },
+   {
+    "name": "pop",
+    "t": 8.84
+   },
+   {
+    "name": "pop",
+    "t": 9.64
+   }
+  ],
+  "notes": "New way: one tap, GPS + selfie. Blue 'for example' screen."
+ },
+ "style": "B",
+ "chapter_index": 2,
+ "chapter_count": 4,
+ "chrome": {
+  "series": "Link HR",
+  "topic": "Учёт времени"
+ },
+ "next_transition_overlap": 0.5,
+ "assets_dir": "assets/img",
+ "out": "scenes/s03/"
+}

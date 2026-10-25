@@ -1,0 +1,270 @@
+/* reels-studio · Style A "3D Keyword" (Zaytsev) — design tokens + layout + backgrounds.
+ * All values @1080×1920. Sources: references/teardowns/style-a/*.md (DejCkBdNC6h, DeVzimJCYVp, Der0UBDNBmZ, DeyJKx9t_aA).
+ *
+ * Fonts: Google Sans Flex has no Cyrillic subset on Google Fonts, so Cyrillic glyphs fall through to
+ * "Google Sans" (same design, has Cyrillic), then Onest. HyperFrames inlines Google-Fonts stylesheets
+ * at build time (local renders); for offline/cloud renders ship woff2 files via @font-face instead.
+ * Everything below is CSS-only (no images). Star field / curtain pleats are pre-generated with a seeded
+ * PRNG (mulberry32, seeds 42 / 7) so they are deterministic.
+ */
+@import url("https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400..700&family=Google+Sans:wght@400..700&family=Onest:wght@400..700&family=Unbounded:wght@800;900&family=Montserrat:ital,wght@1,800&family=JetBrains+Mono:wght@400;500&display=block");
+
+/* colour emoji = placeholder 3D objects; resolved from the OS (real runs use generated PNGs) */
+@font-face { font-family: "RSA Emoji"; src: local("Apple Color Emoji"), local("AppleColorEmoji"), local("Segoe UI Emoji"), local("Noto Color Emoji"); }
+
+:root {
+  /* palette */
+  --rsa-dark: #0B0D0D;
+  --rsa-light: #FBFDFD;
+  --rsa-grid-dark: #2D2F2F;      /* 3px dots, 36px pitch */
+  --rsa-grid-light: #DADDDD;     /* 3px dots, 24px pitch */
+  --rsa-cap-dark: #767878;
+  --rsa-cap-light: #686B6B;
+  --rsa-sub-dark: #E2E0E8;
+  --rsa-card-dark: #121414;
+  --rsa-card-light: #F3F5F5;
+  --rsa-blue: #257CFA;           /* buttons / light card border */
+  --rsa-chip: #2C7CF4;           /* blue chip */
+  --rsa-line-blue: #0084F0;
+  --rsa-sel: #1C3C5C;            /* text-selection fill (dark) */
+  --rsa-handle: #2A90F6;         /* selection handles */
+  --rsa-red: #E5484D;            /* screenshot highlight */
+  --rsa-lime: #BAE436;           /* hook accent */
+  --rsa-lime-alt: #C0EA4E;
+
+  /* type */
+  --rsa-font: "Google Sans Flex", "Google Sans", "Onest", "Manrope", sans-serif;
+  --rsa-font-display: "Unbounded", "Google Sans Flex", sans-serif;
+  --rsa-font-accent: "Montserrat", "Google Sans", sans-serif;
+  --rsa-font-mono: "JetBrains Mono", "SF Mono", ui-monospace, monospace;
+  --rsa-h1: 74px;                /* headline 72–78 (measured 73–74 on Dej/Der0 frames) */
+  --rsa-h1-long: 56px;           /* > 16 chars per line (measured ≈54 on Dej "с каким помощником") */
+  --rsa-h1-weight: 600;          /* 500 (Der0) … 700 (Dej) */
+  --rsa-h1-lh: 1.06;
+  --rsa-hero: 106px;             /* hero number 104–108 */
+  --rsa-cap: 42px;               /* grey caption 40–44 */
+  --rsa-cap-lh: 1.18;
+  --rsa-label: 44px;
+
+  /* three-tier layout (block centres) */
+  --rsa-head-y: 545px;           /* ≈28% — headline block centre (19–30%) */
+  --rsa-head-y-bottom: 1340px;   /* ≈70% — headline-bottom variant */
+  --rsa-visual-y: 1000px;        /* ≈52% — hero visual centre */
+  --rsa-cap-y: 1460px;           /* ≈76% — caption block centre (74–80%) */
+  --rsa-side: 100px;             /* min side margin */
+}
+
+/* ───────────────────────── stage / layers ───────────────────────── */
+.rsa-stage { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--rsa-dark);
+  font-family: var(--rsa-font); -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; }
+.rsa-layer { position: absolute; inset: 0; overflow: hidden; }
+.rsa-bg, .rsa-content, .rsa-inner, .rsa-over, .rsa-grid, .rsa-fx { position: absolute; inset: 0; }
+.rsa-content, .rsa-inner, .rsa-over { pointer-events: none; }
+
+/* theme ink */
+.rsa-theme-dark, .rsa-theme-accent { --ink: #FBFDFD; --cap: var(--rsa-cap-dark); --sub: var(--rsa-sub-dark); --label: #E4E1E2;
+  --card: var(--rsa-card-dark); --rim: rgba(255,255,255,.16); --line: #3A3D3D; --track: #1E2121; --pill-bg: #050808; --pill-ink: #FBFDFD; }
+.rsa-theme-accent { --cap: rgba(226,232,240,.80); --line: rgba(255,255,255,.42); }
+.rsa-theme-light { --ink: #0B0D0D; --cap: var(--rsa-cap-light); --sub: #3A3C3C; --label: #444747;
+  --card: var(--rsa-card-light); --rim: rgba(0,0,0,.08); --line: #CFCFCF; --track: #E6E8E8; --pill-bg: #151515; --pill-ink: #FBFDFD; }
+
+/* ───────────────────────── backgrounds ───────────────────────── */
+.rsa-bg--dark  { background: var(--rsa-dark); }
+.rsa-bg--light { background: var(--rsa-light); }
+/* dot grids — separate element so a camera pan can scroll it (background-position) */
+.rsa-grid--dark  { background-image: radial-gradient(circle, var(--rsa-grid-dark) 1.5px, transparent 2.1px);
+  background-size: 36px 36px; background-position: -17px -17px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, #000 50%, rgba(0,0,0,.55) 100%);
+          mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, #000 50%, rgba(0,0,0,.55) 100%); }
+.rsa-grid--light { background-image: radial-gradient(circle, var(--rsa-grid-light) 1.5px, transparent 2.1px);
+  background-size: 24px 24px; background-position: -11px -11px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, #000 45%, rgba(0,0,0,.5) 100%);
+          mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, #000 45%, rgba(0,0,0,.5) 100%); }
+.rsa-grid--ray   { background-image: radial-gradient(circle, rgba(255,255,255,.075) 1.4px, transparent 2px);
+  background-size: 36px 36px; background-position: -17px -17px; }
+.rsa-grid--maroon{ background-image: radial-gradient(circle, #4A1525 1.4px, transparent 2px);
+  background-size: 20px 20px; background-position: -9px -9px; }
+
+/* red pleated curtain + warm gold light leak (hook) — DejCkBdNC6h §2 */
+.rsa-bg--curtain {
+  background:
+    linear-gradient(90deg,rgba(0,0,0,0.47) 0px,rgba(0,0,0,0.04) 5px,rgba(0,0,0,0.06) 8px,rgba(0,0,0,0.57) 13px,rgba(0,0,0,0.04) 21px,rgba(0,0,0,0.06) 25px,rgba(0,0,0,0.52) 32px,rgba(0,0,0,0.04) 39px,rgba(0,0,0,0.06) 43px,rgba(0,0,0,0.49) 49px,rgba(0,0,0,0.04) 56px,rgba(0,0,0,0.06) 59px,rgba(0,0,0,0.56) 66px,rgba(0,0,0,0.04) 73px,rgba(0,0,0,0.07) 77px,rgba(0,0,0,0.47) 84px,rgba(0,0,0,0.04) 90px,rgba(0,0,0,0.07) 94px,rgba(0,0,0,0.52) 100px,rgba(0,0,0,0.05) 108px,rgba(0,0,0,0.07) 112px,rgba(0,0,0,0.49) 120px,rgba(0,0,0,0.05) 127px,rgba(0,0,0,0.07) 130px,rgba(0,0,0,0.51) 136px,rgba(0,0,0,0.05) 144px,rgba(0,0,0,0.07) 147px,rgba(0,0,0,0.57) 154px,rgba(0,0,0,0.05) 162px,rgba(0,0,0,0.07) 165px,rgba(0,0,0,0.55) 172px,rgba(0,0,0,0.05) 180px,rgba(0,0,0,0.07) 183px,rgba(0,0,0,0.45) 190px,rgba(0,0,0,0.05) 198px,rgba(0,0,0,0.08) 202px,rgba(0,0,0,0.46) 208px,rgba(0,0,0,0.05) 216px,rgba(0,0,0,0.08) 220px,rgba(0,0,0,0.52) 227px,rgba(0,0,0,0.05) 236px,rgba(0,0,0,0.08) 240px,rgba(0,0,0,0.54) 248px,rgba(0,0,0,0.05) 256px,rgba(0,0,0,0.08) 260px,rgba(0,0,0,0.49) 267px,rgba(0,0,0,0.05) 276px,rgba(0,0,0,0.08) 280px,rgba(0,0,0,0.54) 289px,rgba(0,0,0,0.06) 298px,rgba(0,0,0,0.08) 303px,rgba(0,0,0,0.52) 312px,rgba(0,0,0,0.06) 322px,rgba(0,0,0,0.09) 326px,rgba(0,0,0,0.40) 335px,rgba(0,0,0,0.06) 346px,rgba(0,0,0,0.09) 351px,rgba(0,0,0,0.44) 360px,rgba(0,0,0,0.06) 369px,rgba(0,0,0,0.09) 374px,rgba(0,0,0,0.39) 382px,rgba(0,0,0,0.06) 392px,rgba(0,0,0,0.09) 397px,rgba(0,0,0,0.48) 406px,rgba(0,0,0,0.06) 415px,rgba(0,0,0,0.09) 420px,rgba(0,0,0,0.43) 428px,rgba(0,0,0,0.06) 438px,rgba(0,0,0,0.10) 443px,rgba(0,0,0,0.49) 452px,rgba(0,0,0,0.07) 463px,rgba(0,0,0,0.10) 468px,rgba(0,0,0,0.45) 478px,rgba(0,0,0,0.07) 489px,rgba(0,0,0,0.10) 495px,rgba(0,0,0,0.40) 505px,rgba(0,0,0,0.07) 516px,rgba(0,0,0,0.10) 521px,rgba(0,0,0,0.37) 531px,rgba(0,0,0,0.07) 541px,rgba(0,0,0,0.10) 546px,rgba(0,0,0,0.39) 556px,rgba(0,0,0,0.07) 569px,rgba(0,0,0,0.11) 575px,rgba(0,0,0,0.42) 586px,rgba(0,0,0,0.07) 597px,rgba(0,0,0,0.11) 603px,rgba(0,0,0,0.34) 613px,rgba(0,0,0,0.07) 625px,rgba(0,0,0,0.11) 630px,rgba(0,0,0,0.43) 641px,rgba(0,0,0,0.08) 654px,rgba(0,0,0,0.11) 660px,rgba(0,0,0,0.41) 672px,rgba(0,0,0,0.08) 685px,rgba(0,0,0,0.12) 691px,rgba(0,0,0,0.42) 702px,rgba(0,0,0,0.08) 716px,rgba(0,0,0,0.12) 722px,rgba(0,0,0,0.37) 734px,rgba(0,0,0,0.08) 747px,rgba(0,0,0,0.12) 752px,rgba(0,0,0,0.40) 764px,rgba(0,0,0,0.08) 778px,rgba(0,0,0,0.12) 784px,rgba(0,0,0,0.38) 797px,rgba(0,0,0,0.08) 812px,rgba(0,0,0,0.13) 819px,rgba(0,0,0,0.39) 832px,rgba(0,0,0,0.09) 847px,rgba(0,0,0,0.13) 854px,rgba(0,0,0,0.34) 867px,rgba(0,0,0,0.09) 882px,rgba(0,0,0,0.13) 890px,rgba(0,0,0,0.28) 904px,rgba(0,0,0,0.09) 920px,rgba(0,0,0,0.14) 927px,rgba(0,0,0,0.30) 941px,rgba(0,0,0,0.09) 956px,rgba(0,0,0,0.14) 964px,rgba(0,0,0,0.31) 977px,rgba(0,0,0,0.09) 993px,rgba(0,0,0,0.14) 1001px,rgba(0,0,0,0.34) 1015px,rgba(0,0,0,0.10) 1032px,rgba(0,0,0,0.14) 1040px,rgba(0,0,0,0.31) 1055px,rgba(0,0,0,0.10) 1071px,rgba(0,0,0,0.15) 1079px,rgba(0,0,0,0.5) 1093px),
+    radial-gradient(46% 11% at 82% 80%, rgba(222,184,138,.95) 0%, rgba(202,162,119,.6) 40%, rgba(150,100,70,0) 100%),
+    radial-gradient(70% 26% at 88% 86%, rgba(176,120,80,.55) 0%, rgba(120,60,30,0) 100%),
+    linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(12,4,3,.35) 55%, rgba(20,11,9,.7) 100%),
+    linear-gradient(180deg, #E52217 0%, #CF1C13 14%, #A3150D 28%, #74100A 42%, #4A0C09 56%, #260908 70%, #120807 84%, #0C0807 100%);
+}
+/* deep-space purple + deterministic stars — DejCkBdNC6h / DeVzimJCYVp */
+.rsa-bg--space {
+  background:
+    radial-gradient(60% 34% at 50% 50%, rgba(52,38,120,.55) 0%, rgba(32,22,75,.35) 45%, rgba(0,0,0,0) 100%),
+    radial-gradient(70% 40% at 0% 0%, #2D044F 0%, rgba(45,4,79,0) 100%),
+    radial-gradient(70% 40% at 100% 100%, #370040 0%, rgba(55,0,64,0) 100%),
+    #050311;
+}
+.rsa-fx--stars::after { content: ""; position: absolute; left: 0; top: 0; width: 2px; height: 2px; border-radius: 50%;
+  background: transparent; box-shadow: 649px 861px 0 1px rgba(255,255,255,0.75),189px 1011px 0 0px rgba(255,255,255,0.72),935px 907px 0 0px rgba(255,255,255,0.88),805px 589px 0 0px rgba(255,255,255,0.65),742px 1172px 0 0px rgba(255,255,255,0.63),904px 98px 0 0px rgba(255,255,255,0.37),288px 119px 0 0px rgba(255,255,255,0.82),573px 52px 0 0px rgba(255,255,255,0.86),527px 1553px 0 0px rgba(255,255,255,0.62),40px 99px 0 0px rgba(255,255,255,0.71),265px 1240px 0 0px rgba(255,255,255,0.53),798px 1649px 0 0px rgba(255,255,255,0.47),307px 563px 0 0px rgba(255,255,255,0.75),735px 1331px 0 1px rgba(255,255,255,0.40),1019px 828px 0 1px rgba(255,255,255,0.43),120px 30px 0 0px rgba(255,255,255,0.64),661px 1727px 0 0px rgba(255,255,255,0.78),1010px 534px 0 0px rgba(255,255,255,0.46),562px 1578px 0 0px rgba(255,255,255,0.95),608px 1759px 0 0px rgba(255,255,255,0.70),364px 1145px 0 0px rgba(255,255,255,0.79),319px 864px 0 1px rgba(255,255,255,0.77),1074px 1709px 0 0px rgba(255,255,255,0.68),320px 194px 0 0px rgba(255,255,255,0.54),849px 1737px 0 0px rgba(255,255,255,0.64),888px 250px 0 1px rgba(255,255,255,0.46),766px 1343px 0 0px rgba(255,255,255,0.60),177px 1257px 0 0px rgba(255,255,255,0.47),679px 1703px 0 0px rgba(255,255,255,0.83),424px 252px 0 1px rgba(255,255,255,0.57),10px 1416px 0 0px rgba(255,255,255,0.88),981px 401px 0 0px rgba(255,255,255,0.64),199px 91px 0 0px rgba(255,255,255,0.78),315px 529px 0 0px rgba(255,255,255,0.37),239px 1908px 0 0px rgba(255,255,255,0.94),177px 328px 0 0px rgba(255,255,255,0.53),426px 834px 0 0px rgba(255,255,255,0.76),430px 645px 0 1px rgba(255,255,255,0.55),535px 1173px 0 0px rgba(255,255,255,0.70),254px 625px 0 0px rgba(255,255,255,0.54),723px 424px 0 0px rgba(255,255,255,0.77),339px 240px 0 0px rgba(255,255,255,0.38),624px 399px 0 0px rgba(255,255,255,0.58),769px 1752px 0 1px rgba(255,255,255,0.61); }
+/* diagonal light-ray themes (beam ≈35° from vertical, from top-left) — Der0UBDNBmZ / DeVzimJCYVp */
+.rsa-bg--navy   { background: linear-gradient(135deg, #5967CA 0%, #4A55AA 10%, #353E88 22%, #222864 40%, #131A43 62%, #111841 100%); }
+.rsa-bg--green  { background: linear-gradient(135deg, #2DA371 0%, #23875D 9%, #166648 22%, #0A4A33 40%, #052F21 62%, #052A1E 100%); }
+.rsa-bg--maroon { background: linear-gradient(145deg, #AF3956 0%, #7A1E37 16%, #561326 32%, #380B19 70%, #2E0914 100%); }
+.rsa-fx--rays { background:
+    linear-gradient(55deg, rgba(255,255,255,0) 30%, rgba(255,255,255,.13) 36%, rgba(255,255,255,0) 43%,
+                           rgba(255,255,255,0) 47%, rgba(255,255,255,.09) 52%, rgba(255,255,255,0) 58%,
+                           rgba(255,255,255,0) 61%, rgba(255,255,255,.06) 65%, rgba(255,255,255,0) 70%);
+  filter: blur(22px);
+  -webkit-mask-image: radial-gradient(120% 75% at 0% 0%, #000 0%, rgba(0,0,0,.6) 40%, transparent 85%);
+          mask-image: radial-gradient(120% 75% at 0% 0%, #000 0%, rgba(0,0,0,.6) 40%, transparent 85%); }
+/* glow-from-bottom hero themes — DeVzimJCYVp §2 */
+.rsa-bg--teal    { background:
+    radial-gradient(38% 22% at 50% 84%, rgba(70,170,215,.22) 0%, rgba(70,170,215,0) 100%),
+    radial-gradient(120% 55% at 50% 100%, #046D98 0%, #044866 24%, #022736 38%, #00171F 55%, #000 75%); }
+.rsa-bg--emerald { background:
+    radial-gradient(38% 22% at 50% 84%, rgba(60,200,140,.18) 0%, rgba(60,200,140,0) 100%),
+    radial-gradient(120% 55% at 50% 100%, #077A52 0%, #045236 24%, #003E28 36%, #00190F 55%, #000 75%); }
+/* orange top-right glow on black — DeyJKx9t_aA §2 */
+.rsa-bg--orange  { background: radial-gradient(1500px 820px at 800px 300px, #C84A00 0%, #B64300 30%, #8A2C00 62%, #130200 84%, #000 95%), #000; }
+/* lavender radial with faint ring banding — DejCkBdNC6h §2 */
+.rsa-bg--lavender { background:
+    repeating-radial-gradient(circle at 50% 0%, rgba(255,255,255,0) 0px, rgba(255,255,255,.10) 46px, rgba(255,255,255,0) 92px),
+    radial-gradient(130% 68% at 50% 0%, #C3D3FA 0%, #CFDBFA 32%, #E4EBFB 54%, #FBFDFD 72%); }
+
+/* ───────────────────────── typography ───────────────────────── */
+.rsa-headline { position: absolute; left: var(--rsa-side); right: var(--rsa-side); height: 2000px;
+  top: calc(var(--rsa-head-y) - 1000px); display: flex; flex-direction: column; align-items: center; justify-content: center;
+  color: var(--ink); font-size: var(--rsa-h1); font-weight: var(--rsa-h1-weight); line-height: var(--rsa-h1-lh);
+  letter-spacing: -0.01em; text-align: center; pointer-events: none; }
+.rsa-headline--bottom { top: calc(var(--rsa-head-y-bottom) - 1000px); }
+.rsa-headline--long { font-size: var(--rsa-h1-long); }
+.rsa-headline--halo { text-shadow: 0 0 40px rgba(0,0,0,.65); }
+.rsa-line { display: block; white-space: nowrap; }
+.rsa-line .w, .rsa-hero-num .w { display: inline-block; will-change: transform, filter, opacity; }
+
+.rsa-caption { position: absolute; left: var(--rsa-side); right: var(--rsa-side); height: 1000px;
+  top: calc(var(--rsa-cap-y) - 500px); display: flex; flex-direction: column; align-items: center; justify-content: center;
+  color: var(--cap); font-size: var(--rsa-cap); font-weight: 400; line-height: var(--rsa-cap-lh); text-align: center; }
+.rsa-typed { display: block; }
+.rsa-tw { display: inline-block; white-space: nowrap; }
+.rsa-tw .c { display: inline-block; }
+
+/* anchor: a 0×0 flex box at (x,y); its child is centred on the point without CSS transforms */
+.rsa-at { position: absolute; width: 0; height: 0; display: flex; align-items: center; justify-content: center; }
+.rsa-at > * { flex: none; }
+
+.rsa-label { color: var(--label); font-size: var(--rsa-label); font-weight: 400; white-space: nowrap; }
+.rsa-hero-num { color: var(--ink); font-size: var(--rsa-hero); font-weight: 500; line-height: 1; letter-spacing: -0.01em;
+  display: flex; align-items: baseline; white-space: nowrap; }
+.rsa-roll-col { display: inline-block; height: 1em; overflow: hidden; line-height: 1; }
+.rsa-roll-stack { display: block; }
+.rsa-roll-stack > span { display: block; height: 1em; text-align: center; }
+.rsa-roll-unit { display: inline-block; margin-left: .22em; }
+
+/* ───────────────────────── objects ───────────────────────── */
+.rsa-obj { position: relative; display: flex; align-items: center; justify-content: center; line-height: 1; }
+.rsa-obj img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.rsa-emoji { font-family: "RSA Emoji", sans-serif; line-height: 1; }
+.rsa-contact { position: absolute; border-radius: 50%; background: radial-gradient(closest-side, rgba(0,0,0,.42), rgba(0,0,0,0)); }
+.rsa-theme-dark .rsa-contact { background: radial-gradient(closest-side, rgba(0,0,0,.65), rgba(0,0,0,0)); }
+.rsa-mb { position: relative; }
+
+/* 3D app tile (white squircle) */
+.rsa-tile { position: relative; display: flex; align-items: center; justify-content: center; border-radius: 26%;
+  background: radial-gradient(120% 90% at 30% 15%, #FFFFFF 0%, #F4F5F7 45%, #DADDE3 100%);
+  box-shadow: inset 0 -10px 18px rgba(0,0,0,.10), inset 0 6px 10px rgba(255,255,255,.9), 0 18px 30px rgba(0,0,0,.30); }
+.rsa-tile--dark { background: radial-gradient(120% 90% at 30% 15%, #2C3438 0%, #20272C 55%, #161B1E 100%);
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.16), inset 0 8px 14px rgba(255,255,255,.06), 0 16px 30px rgba(0,0,0,.35); }
+
+/* ───────────────────────── cards / glass ───────────────────────── */
+.rsa-card { position: relative; box-sizing: border-box; border-radius: 46px; padding: 40px; color: var(--ink);
+  background: var(--rsa-card-dark); box-shadow: 0 30px 60px rgba(0,0,0,.35); }
+.rsa-card::before { /* lit rim: bright top-left fading — gradient stroke via mask */
+  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: var(--rim-w, 1.5px); pointer-events: none;
+  background: var(--rim-grad, linear-gradient(135deg, rgba(255,255,255,.34) 0%, rgba(255,255,255,.10) 35%, rgba(255,255,255,.06) 70%, rgba(255,255,255,.16) 100%));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude; }
+.rsa-card--glass { background: rgba(255,255,255,.035); --rim-w: 2.5px;
+  --rim-grad: linear-gradient(180deg, rgba(231,233,233,.95) 0%, rgba(146,148,148,.55) 50%, rgba(221,223,223,.9) 100%);
+  box-shadow: inset 0 0 22px rgba(255,255,255,.18), 0 20px 40px rgba(0,0,0,.35); }
+.rsa-card--frost { background: rgba(255,255,255,.08); backdrop-filter: blur(18px); --rim-w: 2px;
+  --rim-grad: linear-gradient(135deg, rgba(255,255,255,.75) 0%, rgba(255,255,255,.28) 45%, rgba(255,255,255,.45) 100%);
+  box-shadow: inset 0 0 26px rgba(255,255,255,.10), 0 24px 50px rgba(0,0,0,.25); }
+.rsa-card--light { background: var(--rsa-card-light); color: #0B0D0D; border-radius: 56px; --rim-w: 3.5px;
+  --rim-grad: linear-gradient(225deg, rgba(37,124,250,.15) 0%, rgba(37,124,250,.9) 40%, #257CFA 100%);
+  box-shadow: 0 30px 60px rgba(0,40,120,.10); }
+.rsa-card--white { background: #FFFFFF; color: #0B0D0D; border-radius: 36px; --rim-w: 1.5px;
+  --rim-grad: linear-gradient(#DADADA, #DADADA); box-shadow: 0 6px 20px rgba(0,0,0,.08); }
+.rsa-card-row { display: flex; align-items: center; gap: 28px; }
+.rsa-card-icon { flex: none; display: flex; align-items: center; justify-content: center; }
+.rsa-card-title { font-size: 52px; font-weight: 500; line-height: 1.1; white-space: nowrap; }
+.rsa-card-sub { font-size: 34px; font-weight: 400; color: #8E9090; line-height: 1.2; margin-top: 6px; white-space: nowrap; }
+.rsa-card--light .rsa-card-sub, .rsa-card--white .rsa-card-sub { color: #6E7070; }
+.rsa-mono { font-family: var(--rsa-font-mono); font-size: 32px; line-height: 1.55; color: #E8EAEA; white-space: pre; }
+.rsa-dots { display: flex; gap: 12px; margin-bottom: 26px; }
+.rsa-dots i { width: 16px; height: 16px; border-radius: 50%; display: block; }
+.tok-kw { color: #F06EC6; } .tok-id { color: #4FA3FF; } .tok-mut { color: #9A9C9C; } .tok-str { color: #9BD27A; }
+
+/* glass pill — darker than bg, lit rim (DeyJKx9t_aA) */
+.rsa-gpill { position: relative; display: inline-flex; align-items: center; gap: 18px; height: 84px; padding: 0 34px 0 26px;
+  border-radius: 999px; background: var(--pill-bg); color: var(--pill-ink); font-size: 48px; font-weight: 500; white-space: nowrap;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.30), 0 14px 30px rgba(0,0,0,.35); }
+.rsa-gpill::before { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 2.5px; pointer-events: none;
+  background: linear-gradient(135deg, #8A8D8D 0%, #4A4D4D 45%, #2C2E2E 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+.rsa-theme-light .rsa-gpill::before { background: linear-gradient(135deg, #5A5D5D, #151515); }
+
+/* keyword pill (wipe) */
+.rsa-pill { display: inline-block; background: var(--pill-bg); color: var(--pill-ink); border-radius: 999px;
+  padding: 0 .32em .06em; margin: 0 .04em; line-height: 1.12; }
+.rsa-theme-dark .rsa-pill { background: #E8EBEB; color: #0B0D0D; }
+
+/* blue chip */
+.rsa-chip { display: inline-flex; align-items: center; gap: .35em; background: var(--rsa-chip); color: #fff; border-radius: 999px;
+  font-size: 30px; font-weight: 500; padding: .32em .75em; white-space: nowrap; line-height: 1;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 10px 24px rgba(44,124,244,.30); }
+.rsa-marker { position: relative; display: inline-block; }
+.rsa-marker-bg { position: absolute; inset: -.04em -.18em; background: #2478F6; border-radius: 10px; }
+.rsa-marker-tx { position: relative; color: #fff; }
+
+/* text selection (macOS/Figma) */
+.rsa-sel { position: relative; display: inline-block; color: var(--ink); font-size: 56px; font-weight: 500; white-space: nowrap; }
+.rsa-sel-box { position: absolute; inset: -2px -6px; background: var(--rsa-sel); }
+.rsa-theme-light .rsa-sel-box { background: rgba(42,144,246,.24); }
+.rsa-sel-tx { position: relative; }
+.rsa-sel-follow { position: absolute; inset: -2px -6px; }
+.rsa-handle { position: absolute; width: 3px; background: var(--rsa-handle); top: 0; bottom: 0; }
+.rsa-handle::after { content: ""; position: absolute; left: -6px; width: 15px; height: 15px; border-radius: 50%; background: var(--rsa-handle); }
+.rsa-handle--start { left: -1px; } .rsa-handle--start::after { top: -12px; }
+.rsa-handle--end { right: -2px; } .rsa-handle--end::after { bottom: -12px; }
+
+/* screenshot frame */
+.rsa-shot { position: relative; overflow: hidden; border-radius: 18px; box-shadow: 0 30px 60px rgba(0,0,0,.28); }
+.rsa-shot img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.rsa-hl { position: absolute; left: 0; top: 0; border: 3px solid var(--rsa-red); border-radius: 12px; box-sizing: border-box; }
+.rsa-lens { position: absolute; border-radius: 50%; overflow: hidden; border: 4px solid #fff; box-sizing: border-box;
+  box-shadow: 0 10px 30px rgba(0,0,0,.35); background: #fff; }
+.rsa-ui { position: absolute; inset: 0; font-family: var(--rsa-font); }
+.rsa-ui--dark { background: #000; color: #F2F2F7; }
+.rsa-ui--light { background: #F2F2F7; color: #111; }
+
+/* progress bar */
+.rsa-bar { position: relative; border-radius: 999px; background: var(--track); overflow: hidden; }
+.rsa-bar-fill { position: absolute; inset: 0; border-radius: 999px; transform-origin: 0 50%;
+  background: linear-gradient(90deg, #1C74F4 0%, #3CA4FC 25%, #ACE4FC 50%, #3CA4FC 75%, #1C74F4 100%); background-size: 200% 100%; }
+
+/* flow connectors */
+.rsa-flow { position: absolute; left: 0; top: 0; width: 100%; }
+.rsa-flow svg { position: absolute; left: 0; top: 0; overflow: visible; }
+
+/* hook display */
+.rsa-hook-label { font-size: 24px; font-weight: 500; letter-spacing: .08em; color: #8A8A8A; white-space: nowrap; }
+.rsa-hook-word { font-family: var(--rsa-font-display); font-weight: 900; color: #F4F4F4; line-height: .9; letter-spacing: -0.02em;
+  white-space: nowrap; text-transform: uppercase; display: flex; }
+.rsa-hook-word span { display: inline-block; }
+.rsa-hook-sub { font-family: var(--rsa-font-display); font-weight: 800; color: #F4F4F4; line-height: 1; white-space: nowrap; text-transform: uppercase; }
+.rsa-hook-accent { position: relative; font-family: var(--rsa-font-accent); font-style: italic; font-weight: 800; color: var(--rsa-lime);
+  font-size: 56px; white-space: nowrap; transform-origin: 50% 50%; }
+.rsa-hook-ul { position: absolute; height: 2.5px; background: var(--rsa-lime); border-radius: 2px; transform-origin: 0 50%; }
+
+/* bookmark CTA */
+.rsa-cta-title { color: #8E9090; font-size: 52px; font-weight: 400; white-space: nowrap; }
+.rsa-theme-light .rsa-cta-title { color: #8A8C8C; }

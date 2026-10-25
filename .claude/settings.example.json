@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ffmpeg *)", "Bash(ffprobe *)",
+      "Bash(npx -y hyperframes@0.8.154 *)",
+      "Bash(python3 *)", "Bash(*/reels-studio/scripts/run *)",
+      "Bash(edge-tts *)"
+    ],
+    "deny": ["Read(./.env)", "Read(./**/.env)"]
+  }
+}

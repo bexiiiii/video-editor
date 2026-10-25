@@ -1,0 +1,7 @@
+{
+  "name": "reels-studio",
+  "owner": { "name": "bexiiiii" },
+  "plugins": [
+    { "name": "reels-studio", "source": "./", "description": "Multi-agent vertical reel production (Claude Code + Codex)." }
+  ]
+}

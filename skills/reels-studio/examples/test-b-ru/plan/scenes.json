@@ -1,0 +1,335 @@
+{
+ "style": "B",
+ "fps": 30,
+ "width": 1080,
+ "height": 1920,
+ "duration": 15.336,
+ "chapters": [
+  {
+   "title": "Вопрос",
+   "start": 0
+  },
+  {
+   "title": "Раньше",
+   "start": 3.08
+  },
+  {
+   "title": "Теперь",
+   "start": 6.82
+  },
+  {
+   "title": "Итог",
+   "start": 10.73
+  }
+ ],
+ "scenes": [
+  {
+   "id": "s01",
+   "start": 0.0,
+   "end": 3.08,
+   "kind": "motion",
+   "theme": "light",
+   "chapter": 0,
+   "transition_in": {
+    "type": "none",
+    "dur": 0
+   },
+   "kicker": {
+    "words": [
+     {
+      "w": "Кто",
+      "t": 0.1
+     },
+     {
+      "w": "из",
+      "t": 0.4
+     },
+     {
+      "w": "сотрудников",
+      "t": 0.487
+     }
+    ]
+   },
+   "headline": {
+    "words": [
+     {
+      "w": "реально",
+      "t": 1.175
+     },
+     {
+      "w": "пришёл",
+      "t": 1.562
+     },
+     {
+      "w": "вовремя?",
+      "t": 1.962
+     }
+    ],
+    "highlight": [
+     "вовремя"
+    ]
+   },
+   "components": [
+    {
+     "type": "countdown",
+     "at": 0.6,
+     "props": {
+      "hint": "clock/countdown under headline, ticks down to 0:00 by 2.6s"
+     }
+    }
+   ],
+   "sfx": [
+    {
+     "name": "tick",
+     "t": 0.9
+    },
+    {
+     "name": "tick",
+     "t": 1.9
+    }
+   ],
+   "notes": "Hook. Tension: who really came on time."
+  },
+  {
+   "id": "s02",
+   "start": 3.08,
+   "end": 6.82,
+   "kind": "motion",
+   "theme": "dark",
+   "chapter": 1,
+   "transition_in": {
+    "type": "dissolve",
+    "dur": 0.5
+   },
+   "kicker": {
+    "words": [
+     {
+      "w": "Раньше",
+      "t": 3.55
+     },
+     {
+      "w": "табели",
+      "t": 4.05
+     },
+     {
+      "w": "вели",
+      "t": 4.438
+     },
+     {
+      "w": "в",
+      "t": 4.688
+     },
+     {
+      "w": "Excel",
+      "t": 4.737
+     }
+    ]
+   },
+   "headline": {
+    "words": [
+     {
+      "w": "и",
+      "t": 5.2
+     },
+     {
+      "w": "верили",
+      "t": 5.35
+     },
+     {
+      "w": "на",
+      "t": 5.688
+     },
+     {
+      "w": "слово.",
+      "t": 5.8
+     }
+    ]
+   },
+   "components": [
+    {
+     "type": "card",
+     "at": 3.3,
+     "props": {
+      "hint": "dark quote card styled like a spreadsheet row 'Табель.xlsx — Иванов 09:00 ✓?' then strike-through on '09:00' when 'верили на слово' is said (~5.4s)"
+     }
+    }
+   ],
+   "sfx": [
+    {
+     "name": "click",
+     "t": 3.4
+    }
+   ],
+   "notes": "Old way: Excel and trust."
+  },
+  {
+   "id": "s03",
+   "start": 6.82,
+   "end": 10.73,
+   "kind": "motion",
+   "theme": "blue",
+   "chapter": 2,
+   "transition_in": {
+    "type": "dissolve",
+    "dur": 0.5
+   },
+   "kicker": {
+    "words": [
+     {
+      "w": "Теперь",
+      "t": 7.275
+     },
+     {
+      "w": "отметка",
+      "t": 7.65
+     }
+    ]
+   },
+   "headline": {
+    "words": [
+     {
+      "w": "в",
+      "t": 8.088
+     },
+     {
+      "w": "один",
+      "t": 8.125
+     },
+     {
+      "w": "тап:",
+      "t": 8.425
+     }
+    ]
+   },
+   "caption": {
+    "words": [
+     {
+      "w": "GPS",
+      "t": 8.838
+     },
+     {
+      "w": "и",
+      "t": 9.562
+     },
+     {
+      "w": "селфи.",
+      "t": 9.637
+     }
+    ]
+   },
+   "components": [
+    {
+     "type": "cursor",
+     "at": 8.1,
+     "props": {
+      "hint": "glove cursor taps a white capsule 'Начать день' exactly at 8.43 ('тап'); then two check badges 'GPS' and 'Селфи' pop at 8.84 and 9.64"
+     }
+    }
+   ],
+   "sfx": [
+    {
+     "name": "tap",
+     "t": 8.43
+    },
+    {
+     "name": "pop",
+     "t": 8.84
+    },
+    {
+     "name": "pop",
+     "t": 9.64
+    }
+   ],
+   "notes": "New way: one tap, GPS + selfie. Blue 'for example' screen."
+  },
+  {
+   "id": "s04",
+   "start": 10.73,
+   "end": 15.336,
+   "kind": "motion",
+   "theme": "light",
+   "chapter": 3,
+   "transition_in": {
+    "type": "dissolve",
+    "dur": 0.5
+   },
+   "kicker": {
+    "words": [
+     {
+      "w": "Табель",
+      "t": 11.188
+     },
+     {
+      "w": "собирается",
+      "t": 11.537
+     },
+     {
+      "w": "сам,",
+      "t": 12.113
+     }
+    ]
+   },
+   "headline": {
+    "words": [
+     {
+      "w": "а",
+      "t": 12.588
+     },
+     {
+      "w": "HR",
+      "t": 12.688
+     },
+     {
+      "w": "видит",
+      "t": 13.125
+     },
+     {
+      "w": "команду",
+      "t": 13.412
+     },
+     {
+      "w": "сейчас.",
+      "t": 13.863
+     }
+    ],
+    "highlight": [
+     "сейчас"
+    ]
+   },
+   "components": [
+    {
+     "type": "calendar",
+     "at": 11.3,
+     "props": {
+      "hint": "calendar grid fills day by day while 'Табель собирается сам' (11.3–12.6), green days; then a notification banner 'HR: 12 из 12 на месте' at 13.1"
+     }
+    }
+   ],
+   "sfx": [
+    {
+     "name": "tick",
+     "t": 11.6
+    },
+    {
+     "name": "tick",
+     "t": 12.0
+    },
+    {
+     "name": "notification",
+     "t": 13.1
+    }
+   ],
+   "notes": "Payoff. Ends ≤0.5s after last word."
+  }
+ ],
+ "audio": {
+  "music": {
+   "enabled": true,
+   "mood": "soft-subbass",
+   "bpm": 105,
+   "duck_db": -11,
+   "start": 3.08
+  },
+  "sfx_enabled": true
+ }
+}

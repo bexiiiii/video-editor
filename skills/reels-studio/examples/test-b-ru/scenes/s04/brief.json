@@ -1,0 +1,91 @@
+{
+ "scene": {
+  "id": "s04",
+  "start": 10.73,
+  "end": 15.336,
+  "kind": "motion",
+  "theme": "light",
+  "chapter": 3,
+  "transition_in": {
+   "type": "dissolve",
+   "dur": 0.5
+  },
+  "kicker": {
+   "words": [
+    {
+     "w": "Табель",
+     "t": 11.188
+    },
+    {
+     "w": "собирается",
+     "t": 11.537
+    },
+    {
+     "w": "сам,",
+     "t": 12.113
+    }
+   ]
+  },
+  "headline": {
+   "words": [
+    {
+     "w": "а",
+     "t": 12.588
+    },
+    {
+     "w": "HR",
+     "t": 12.688
+    },
+    {
+     "w": "видит",
+     "t": 13.125
+    },
+    {
+     "w": "команду",
+     "t": 13.412
+    },
+    {
+     "w": "сейчас.",
+     "t": 13.863
+    }
+   ],
+   "highlight": [
+    "сейчас"
+   ]
+  },
+  "components": [
+   {
+    "type": "calendar",
+    "at": 11.3,
+    "props": {
+     "hint": "calendar grid fills day by day while 'Табель собирается сам' (11.3–12.6), green days; then a notification banner 'HR: 12 из 12 на месте' at 13.1"
+    }
+   }
+  ],
+  "sfx": [
+   {
+    "name": "tick",
+    "t": 11.6
+   },
+   {
+    "name": "tick",
+    "t": 12.0
+   },
+   {
+    "name": "notification",
+    "t": 13.1
+   }
+  ],
+  "notes": "Payoff. Ends ≤0.5s after last word."
+ },
+ "style": "B",
+ "chapter_index": 3,
+ "chapter_count": 4,
+ "chrome": {
+  "series": "Link HR",
+  "topic": "Учёт времени"
+ },
+ "next_transition_overlap": 0,
+ "assets_dir": "assets/img",
+ "out": "scenes/s04/"
+}

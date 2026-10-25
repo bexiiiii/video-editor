@@ -1,0 +1,43 @@
+<!--
+  reels-studio scene template — copy to work/<slug>/scenes/<id>/index.html and replace S_ID / numbers.
+  Rules (verified with hyperframes@0.8.154):
+  - Sub-composition = root wrapped in <template>; <style>/<script> go INSIDE the template.
+  - The ROOT index.html already loads GSAP, lib/runtime.js (RS), lib/<style>.js (RSA|RSB) and lib/tokens-<style>.css.
+  - Same id for: template root data-composition-id, host slot, window.__timelines key.
+  - Root-relative asset URLs: assets/img/<asset_id>.png  (no "../").
+  - Local time 0 = scene.start → every time below = global time − scene.start.
+  - data-duration = (end − start) + incoming overlap of the NEXT scene's transition (e.g. +0.5 for a B dissolve).
+-->
+<template>
+  <div id="S_ID" data-composition-id="S_ID" data-width="1080" data-height="1920" data-duration="4.58">
+    <style>
+      #S_ID { position: absolute; inset: 0; overflow: hidden; }
+    </style>
+    <script>
+      (async function () {
+        const root = document.getElementById("S_ID");
+        const tl = gsap.timeline({ paused: true });
+        // Fonts first: one-line headline fitting measures real glyph widths. Register only AFTER building.
+        const lib = window.RSB || window.RSA;
+        if (lib && lib.ready) await lib.ready();
+
+        // ---- Style B example (iOS Keynote): theme page + chrome + kicker/headline + one component
+        const page = RSB.page(root, { theme: "light" }, tl, 0);
+        RSB.chrome(root, { series: "Ssenariy", topic: "Open Loop", dots: 4, active: 1, theme: "light" }, tl, 0);
+        const col = RSB.stack(page.content, {
+          kicker:   { words: [{ w: "Birinchi", t: 0.10 }, { w: "gapdayoq", t: 0.32 }] },
+          headline: { words: [{ w: "butun", t: 0.70 }, { w: "hikoyani", t: 0.95 }] },
+        }, tl, 0);
+        RSB.player(RSB.slot(col, 70), { fillAt: 1.2, fillDur: 2.4 }, tl, 1.1);
+
+        // ---- Style A equivalent (3D Keyword):
+        // RSA.background(root, { theme: "dark" }, tl, 0);
+        // RSA.headline(root, { text: "нужны плагины?", words: [{ w: "нужны", t: 0.2 }, { w: "плагины?", t: 0.35 }] }, tl, 0);
+        // RSA.hero(root, { src: "assets/img/s01_plugin.png", entry: "pop" }, tl, 0.3);
+        // RSA.caption(root, { text: "для claude или codex", at: 1.1 }, tl, 1.1);
+
+        window.__timelines["S_ID"] = tl;
+      })();
+    </script>
+  </div>
+</template>

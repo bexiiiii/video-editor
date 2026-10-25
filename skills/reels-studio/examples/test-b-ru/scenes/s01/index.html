@@ -1,0 +1,28 @@
+<!-- reels-studio scene s01 (style B) · global 0.000–3.080 · local = global − 0.0 · +0.5 overlap for next transition -->
+<template>
+  <div id="s01" data-composition-id="s01" data-width="1080" data-height="1920" data-duration="3.58">
+    <style>
+      #s01 { position: absolute; inset: 0; overflow: hidden; }
+    </style>
+    <script>
+      (function () {
+        const root = document.getElementById("s01");
+        const tl = gsap.timeline({ paused: true });
+
+        function build() {
+          const page = RSB.page(root, { theme: "light" }, tl, 0);
+          RSB.chrome(root, { series: "Link HR", topic: "Учёт времени", dots: 4, active: 0, theme: "light" }, tl, 0);
+          const col = RSB.stack(page.content, {
+            kicker:   { words: [{ w: "Кто", t: 0.1 }, { w: "из", t: 0.4 }, { w: "сотрудников", t: 0.487 }] },
+            headline: { words: [{ w: "реально", t: 1.175 }, { w: "пришёл", t: 1.562 }, { w: "вовремя?", t: 1.962 }], highlight: ["вовремя"] },
+          }, tl, 0);
+          // countdown capsule under the headline: pops at 0.6, ticks 00:00:02 → 00:00:00 (1/s from 0.9)
+          RSB.countdown(RSB.slot(col, 80), { from: "00:00:02", ticks: 2 }, tl, 0.6);
+          tl.set({}, {}, 3.58);
+        }
+
+        (RSB.ready ? RSB.ready() : Promise.resolve()).then(() => { build(); window.__timelines["s01"] = tl; });
+      })();
+    </script>
+  </div>
+</template>

@@ -1,0 +1,45 @@
+<!--
+  s02 · Style B · dark · chapter 1 — "Раньше табели вели в Excel / и верили на слово."
+  Global 3.08–6.82 → local 0–3.74; data-duration = 3.74 + 0.5 (next dissolve overlap) = 4.24.
+-->
+<template>
+  <div id="s02" data-composition-id="s02" data-width="1080" data-height="1920" data-duration="4.24">
+    <style>
+      #s02 { position: absolute; inset: 0; overflow: hidden; }
+    </style>
+    <script>
+      (async function () {
+        const root = document.getElementById("s02");
+        const tl = gsap.timeline({ paused: true });
+        await RSB.ready();
+
+        const page = RSB.page(root, { theme: "dark" }, tl, 0);
+        RSB.chrome(root, { series: "Link HR", topic: "Учёт времени", dots: 4, active: 1, theme: "dark" }, tl, 0);
+
+        // kicker 3.55… / headline 5.20… (global) → local = t − 3.08
+        const col = RSB.stack(page.content, {
+          top: 359,
+          kicker: { words: [
+            { w: "Раньше", t: 0.47 }, { w: "табели", t: 0.97 }, { w: "вели", t: 1.358 },
+            { w: "в", t: 1.608 }, { w: "Excel", t: 1.657 },
+          ] },
+          headline: { words: [
+            { w: "и", t: 2.12 }, { w: "верили", t: 2.27 }, { w: "на", t: 2.608 }, { w: "слово.", t: 2.72 },
+          ] },
+        }, tl, 0.47);
+
+        // spreadsheet-row card at 3.3 global (0.22 local); "09:00" struck when "верили" is said
+        const card = RSB.card(RSB.slot(col, 90), {
+          meta: { left: "📊 Табель.xlsx" },
+          rows: [{ words: [{ w: "Иванов", t: 0.36 }, { w: "09:00", t: 0.46 }, { w: "✓?", t: 0.56 }] }],
+        }, tl, 0.22);
+        const time = card.rows[0].querySelectorAll(".w")[1];
+        time.style.position = "relative";
+        time.style.display = "inline-block";
+        RSB.strike(time, { color: "#FF453A", thickness: 4 }, tl, 2.32);
+
+        window.__timelines["s02"] = tl;
+      })();
+    </script>
+  </div>
+</template>

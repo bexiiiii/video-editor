@@ -1,0 +1,6 @@
+{"slug":"test-b-ru","style":"B","mode":"faceless","lang":"ru","target_sec":16,
+ "topic":"Link HR — учёт рабочего времени","script":"input/script.txt","footage":[],
+ "voice":{"source":"tts_stock","voice_id":null},
+ "cta":{"type":"follow","text":"Подписаться","handle":"@linkhr","name":"Link HR"},
+ "brand":{"name":"Link HR","accent":null,"logo":null},
+ "chrome":{"series":"Link HR","topic":"Учёт времени"}}

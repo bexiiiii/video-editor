@@ -1,0 +1,84 @@
+{
+ "scene": {
+  "id": "s02",
+  "start": 3.08,
+  "end": 6.82,
+  "kind": "motion",
+  "theme": "dark",
+  "chapter": 1,
+  "transition_in": {
+   "type": "dissolve",
+   "dur": 0.5
+  },
+  "kicker": {
+   "words": [
+    {
+     "w": "Раньше",
+     "t": 3.55
+    },
+    {
+     "w": "табели",
+     "t": 4.05
+    },
+    {
+     "w": "вели",
+     "t": 4.438
+    },
+    {
+     "w": "в",
+     "t": 4.688
+    },
+    {
+     "w": "Excel",
+     "t": 4.737
+    }
+   ]
+  },
+  "headline": {
+   "words": [
+    {
+     "w": "и",
+     "t": 5.2
+    },
+    {
+     "w": "верили",
+     "t": 5.35
+    },
+    {
+     "w": "на",
+     "t": 5.688
+    },
+    {
+     "w": "слово.",
+     "t": 5.8
+    }
+   ]
+  },
+  "components": [
+   {
+    "type": "card",
+    "at": 3.3,
+    "props": {
+     "hint": "dark quote card styled like a spreadsheet row 'Табель.xlsx — Иванов 09:00 ✓?' then strike-through on '09:00' when 'верили на слово' is said (~5.4s)"
+    }
+   }
+  ],
+  "sfx": [
+   {
+    "name": "click",
+    "t": 3.4
+   }
+  ],
+  "notes": "Old way: Excel and trust."
+ },
+ "style": "B",
+ "chapter_index": 1,
+ "chapter_count": 4,
+ "chrome": {
+  "series": "Link HR",
+  "topic": "Учёт времени"
+ },
+ "next_transition_overlap": 0.5,
+ "assets_dir": "assets/img",
+ "out": "scenes/s02/"
+}
