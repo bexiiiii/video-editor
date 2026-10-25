@@ -477,7 +477,7 @@ def main() -> None:
     ap.add_argument("--provider", default="auto", choices=["auto", "openai", "gemini", "emoji", "placeholder"])
     ap.add_argument("--quality", default="high", choices=["low", "medium", "high", "auto"])
     ap.add_argument("--import", dest="import_", nargs="?", const="", default=None, metavar="PATH",
-                    help="import a Codex image_gen output (newest file when PATH omitted)")
+                    help="import a Codex image_gen output; pass the exact PATH (newest file is only a single-worker convenience — unsafe with parallel art workers)")
     ap.add_argument("--cutout", metavar="IN", help="only chroma-key an existing image into --out")
     ap.add_argument("--key", default="auto", help="chroma key: auto (border) | green | magenta | blue | #rrggbb")
     ap.add_argument("--softness", type=float, default=1.0, help="matte softness multiplier (default 1.0)")
