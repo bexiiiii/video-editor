@@ -30,7 +30,7 @@ work/<slug>/
 ```json
 {
   "slug": "linkhr-ru-01",
-  "style": "A",                       // "A" 3D Keyword | "B" iOS Keynote | "C" Keynote 3D | "D" Talking Head Editorial (needs footage) — chosen from assets/previews
+  "style": "A",                       // "A" 3D Keyword | "B" iOS Keynote | "C" Keynote 3D | "D" 3D Keyword Talking Head = style A over footage (needs footage) — chosen from assets/previews
   "mode": "faceless",                 // "faceless" | "hook_cta" | "head_overlay"
   "lang": "ru",                       // "ru" | "uz" | "kk"
   "target_sec": 45,
@@ -71,6 +71,7 @@ work/<slug>/
                    "words": [{"w": "…", "t": 8.02}]},       // t = reveal time (from transcript)
       "caption": {"text": "…", "at": 9.1},
       "components": [{"type": "card", "at": 7.95, "props": {}}],
+      "techniques": [{"id": "portal", "at": 11.6, "props": {}}],   // techniques.md — 2–4 per reel
       "assets": [{"id": "s03_rocket", "kind": "3d_object|icon|photo|screenshot", "prompt": "…",
                   "transparent": true, "size": "1024x1024"}],
       "sfx": [{"name": "click", "t": 8.40}],

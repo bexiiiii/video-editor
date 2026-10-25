@@ -21,6 +21,9 @@ Input: `audio/transcript.json` (final timeline), `brief.json`, the style referen
 - Talking-head material is real footage only — never request drawn people or faces.
 - Run `$SKILL/scripts/run qa.py --work work/<slug> --plan-only` after writing the plan; fix any variety violations before fan-out.
 
+## 3a. Techniques
+- Pick 2–4 from `techniques.md` by trigger (spoken number → number_roll, demo → iphone_proof/pull_out_phone, list → paper_section/section_number, punchline → jump_zoom …); avoid the brand's last 3 reels (`history.py --avoid`).
+
 ## 3b. Visual per scene
 - A: one hero 3D object per scene (generated, transparent) OR a glass/UI card OR a screenshot frame. Alternate dark/light themes; accent backgrounds for hook and payoff scenes only (≤ 3 per video).
 - B: one component per beat from `components.md` (card, capsule, player, ring, counter, calendar, notification, selection highlight, typing dots, profile card…). Theme flips per chapter: light → dark → blue ("masalan / for example" moments) → light. Chapter changes advance the page dots.
