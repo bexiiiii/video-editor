@@ -15,7 +15,13 @@ Input: `audio/transcript.json` (final timeline), `brief.json`, the style referen
 - Numbers on screen whenever a number is spoken (roll/counter component).
 - Brand / app names → icon or logo pops exactly on the spoken name.
 
-## 3. Visual per scene
+## 3. Layout + variety (read `layouts.md` — binding)
+- Give every scene a `layout`; obey the variety rules (no layout twice in a row, ≤ 30 % one layout, component not reused within 3 scenes, ≥ 4 layouts per video).
+- Plan the visual mass across the video: centre → top → bottom → full-bleed; insert one `statement` breath scene per ~6 scenes.
+- Talking-head material is real footage only — never request drawn people or faces.
+- Run `$SKILL/scripts/run qa.py --work work/<slug> --plan-only` after writing the plan; fix any variety violations before fan-out.
+
+## 3b. Visual per scene
 - A: one hero 3D object per scene (generated, transparent) OR a glass/UI card OR a screenshot frame. Alternate dark/light themes; accent backgrounds for hook and payoff scenes only (≤ 3 per video).
 - B: one component per beat from `components.md` (card, capsule, player, ring, counter, calendar, notification, selection highlight, typing dots, profile card…). Theme flips per chapter: light → dark → blue ("masalan / for example" moments) → light. Chapter changes advance the page dots.
 - Talking head (`head` / `head_overlay`): punch-in 1.0 ↔ 1.12 on cuts every 3–5 s; overlays only in the chest band (y 880–1460); B portal or glitch transition between head and motion.
@@ -33,3 +39,5 @@ Per `audio-policy.md`. A: none. B: `click`/`tap` on every interactive component,
 - Every headline word has a `t` inside its scene.
 - No two consecutive scenes with the same component + theme.
 - Asset ids unique; total images ≤ 1 per scene.
+- Every scene has a `layout`; variety rules pass (`qa.py --plan-only`).
+- One art direction for all generated images of the video (same material/light/angle words in every prompt).

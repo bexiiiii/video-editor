@@ -4,8 +4,8 @@
  * Fonts: Google Sans Flex has no Cyrillic subset on Google Fonts, so Cyrillic glyphs fall through to
  * "Google Sans" (same design, has Cyrillic), then Onest. HyperFrames inlines Google-Fonts stylesheets
  * at build time (local renders); for offline/cloud renders ship woff2 files via @font-face instead.
- * Everything below is CSS-only (no images). Star field / curtain pleats are pre-generated with a seeded
- * PRNG (mulberry32, seeds 42 / 7) so they are deterministic.
+ * Everything below is CSS-only (no images). The star field is pre-generated with a seeded PRNG (mulberry32);
+ * the curtain folds are a seeded SVG fractal-noise height map that RSA.background injects (deterministic).
  */
 @import url("https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400..700&family=Google+Sans:wght@400..700&family=Onest:wght@400..700&family=Unbounded:wght@800;900&family=Montserrat:ital,wght@1,800&family=JetBrains+Mono:wght@400;500&display=block");
 
@@ -37,8 +37,8 @@
   --rsa-font-display: "Unbounded", "Google Sans Flex", sans-serif;
   --rsa-font-accent: "Montserrat", "Google Sans", sans-serif;
   --rsa-font-mono: "JetBrains Mono", "SF Mono", ui-monospace, monospace;
-  --rsa-h1: 74px;                /* headline 72–78 (measured 73–74 on Dej/Der0 frames) */
-  --rsa-h1-long: 56px;           /* > 16 chars per line (measured ≈54 on Dej "с каким помощником") */
+  --rsa-h1: 78px;                /* headline: x-height 42 px / line pitch 84 px on Dej 3.0 / 26.0, DeV 25, Dey 22.5 */
+  --rsa-h1-long: 64px;           /* > 16 chars per line */
   --rsa-h1-weight: 600;          /* 500 (Der0) … 700 (Dej) */
   --rsa-h1-lh: 1.06;
   --rsa-hero: 106px;             /* hero number 104–108 */
@@ -47,10 +47,10 @@
   --rsa-label: 44px;
 
   /* three-tier layout (block centres) */
-  --rsa-head-y: 545px;           /* ≈28% — headline block centre (19–30%) */
+  --rsa-head-y: 520px;           /* ≈27% — headline block centre (refs 500–560); RSA.layout.* computes it per scene */
   --rsa-head-y-bottom: 1340px;   /* ≈70% — headline-bottom variant */
   --rsa-visual-y: 1000px;        /* ≈52% — hero visual centre */
-  --rsa-cap-y: 1460px;           /* ≈76% — caption block centre (74–80%) */
+  --rsa-cap-y: 1420px;           /* ≈74% — caption block centre (refs 1330–1500) */
   --rsa-side: 100px;             /* min side margin */
 }
 
@@ -85,15 +85,18 @@
 .rsa-grid--maroon{ background-image: radial-gradient(circle, #4A1525 1.4px, transparent 2px);
   background-size: 20px 20px; background-position: -9px -9px; }
 
-/* red pleated curtain + warm gold light leak (hook) — DejCkBdNC6h §2 */
-.rsa-bg--curtain {
-  background:
-    linear-gradient(90deg,rgba(0,0,0,0.47) 0px,rgba(0,0,0,0.04) 5px,rgba(0,0,0,0.06) 8px,rgba(0,0,0,0.57) 13px,rgba(0,0,0,0.04) 21px,rgba(0,0,0,0.06) 25px,rgba(0,0,0,0.52) 32px,rgba(0,0,0,0.04) 39px,rgba(0,0,0,0.06) 43px,rgba(0,0,0,0.49) 49px,rgba(0,0,0,0.04) 56px,rgba(0,0,0,0.06) 59px,rgba(0,0,0,0.56) 66px,rgba(0,0,0,0.04) 73px,rgba(0,0,0,0.07) 77px,rgba(0,0,0,0.47) 84px,rgba(0,0,0,0.04) 90px,rgba(0,0,0,0.07) 94px,rgba(0,0,0,0.52) 100px,rgba(0,0,0,0.05) 108px,rgba(0,0,0,0.07) 112px,rgba(0,0,0,0.49) 120px,rgba(0,0,0,0.05) 127px,rgba(0,0,0,0.07) 130px,rgba(0,0,0,0.51) 136px,rgba(0,0,0,0.05) 144px,rgba(0,0,0,0.07) 147px,rgba(0,0,0,0.57) 154px,rgba(0,0,0,0.05) 162px,rgba(0,0,0,0.07) 165px,rgba(0,0,0,0.55) 172px,rgba(0,0,0,0.05) 180px,rgba(0,0,0,0.07) 183px,rgba(0,0,0,0.45) 190px,rgba(0,0,0,0.05) 198px,rgba(0,0,0,0.08) 202px,rgba(0,0,0,0.46) 208px,rgba(0,0,0,0.05) 216px,rgba(0,0,0,0.08) 220px,rgba(0,0,0,0.52) 227px,rgba(0,0,0,0.05) 236px,rgba(0,0,0,0.08) 240px,rgba(0,0,0,0.54) 248px,rgba(0,0,0,0.05) 256px,rgba(0,0,0,0.08) 260px,rgba(0,0,0,0.49) 267px,rgba(0,0,0,0.05) 276px,rgba(0,0,0,0.08) 280px,rgba(0,0,0,0.54) 289px,rgba(0,0,0,0.06) 298px,rgba(0,0,0,0.08) 303px,rgba(0,0,0,0.52) 312px,rgba(0,0,0,0.06) 322px,rgba(0,0,0,0.09) 326px,rgba(0,0,0,0.40) 335px,rgba(0,0,0,0.06) 346px,rgba(0,0,0,0.09) 351px,rgba(0,0,0,0.44) 360px,rgba(0,0,0,0.06) 369px,rgba(0,0,0,0.09) 374px,rgba(0,0,0,0.39) 382px,rgba(0,0,0,0.06) 392px,rgba(0,0,0,0.09) 397px,rgba(0,0,0,0.48) 406px,rgba(0,0,0,0.06) 415px,rgba(0,0,0,0.09) 420px,rgba(0,0,0,0.43) 428px,rgba(0,0,0,0.06) 438px,rgba(0,0,0,0.10) 443px,rgba(0,0,0,0.49) 452px,rgba(0,0,0,0.07) 463px,rgba(0,0,0,0.10) 468px,rgba(0,0,0,0.45) 478px,rgba(0,0,0,0.07) 489px,rgba(0,0,0,0.10) 495px,rgba(0,0,0,0.40) 505px,rgba(0,0,0,0.07) 516px,rgba(0,0,0,0.10) 521px,rgba(0,0,0,0.37) 531px,rgba(0,0,0,0.07) 541px,rgba(0,0,0,0.10) 546px,rgba(0,0,0,0.39) 556px,rgba(0,0,0,0.07) 569px,rgba(0,0,0,0.11) 575px,rgba(0,0,0,0.42) 586px,rgba(0,0,0,0.07) 597px,rgba(0,0,0,0.11) 603px,rgba(0,0,0,0.34) 613px,rgba(0,0,0,0.07) 625px,rgba(0,0,0,0.11) 630px,rgba(0,0,0,0.43) 641px,rgba(0,0,0,0.08) 654px,rgba(0,0,0,0.11) 660px,rgba(0,0,0,0.41) 672px,rgba(0,0,0,0.08) 685px,rgba(0,0,0,0.12) 691px,rgba(0,0,0,0.42) 702px,rgba(0,0,0,0.08) 716px,rgba(0,0,0,0.12) 722px,rgba(0,0,0,0.37) 734px,rgba(0,0,0,0.08) 747px,rgba(0,0,0,0.12) 752px,rgba(0,0,0,0.40) 764px,rgba(0,0,0,0.08) 778px,rgba(0,0,0,0.12) 784px,rgba(0,0,0,0.38) 797px,rgba(0,0,0,0.08) 812px,rgba(0,0,0,0.13) 819px,rgba(0,0,0,0.39) 832px,rgba(0,0,0,0.09) 847px,rgba(0,0,0,0.13) 854px,rgba(0,0,0,0.34) 867px,rgba(0,0,0,0.09) 882px,rgba(0,0,0,0.13) 890px,rgba(0,0,0,0.28) 904px,rgba(0,0,0,0.09) 920px,rgba(0,0,0,0.14) 927px,rgba(0,0,0,0.30) 941px,rgba(0,0,0,0.09) 956px,rgba(0,0,0,0.14) 964px,rgba(0,0,0,0.31) 977px,rgba(0,0,0,0.09) 993px,rgba(0,0,0,0.14) 1001px,rgba(0,0,0,0.34) 1015px,rgba(0,0,0,0.10) 1032px,rgba(0,0,0,0.14) 1040px,rgba(0,0,0,0.31) 1055px,rgba(0,0,0,0.10) 1071px,rgba(0,0,0,0.15) 1079px,rgba(0,0,0,0.5) 1093px),
-    radial-gradient(46% 11% at 82% 80%, rgba(222,184,138,.95) 0%, rgba(202,162,119,.6) 40%, rgba(150,100,70,0) 100%),
-    radial-gradient(70% 26% at 88% 86%, rgba(176,120,80,.55) 0%, rgba(120,60,30,0) 100%),
-    linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(12,4,3,.35) 55%, rgba(20,11,9,.7) 100%),
-    linear-gradient(180deg, #E52217 0%, #CF1C13 14%, #A3150D 28%, #74100A 42%, #4A0C09 56%, #260908 70%, #120807 84%, #0C0807 100%);
-}
+/* red pleated velvet curtain + gold spotlight (hook) — DejCkBdNC6h §2.
+ * The folds are real shading: RSA.background injects two SVG layers (fractal-noise height map lit by
+ * feDiffuseLighting — red, and gold-lit masked to a right-edge spotlight); the divs below add the warm top
+ * glow, the vertical light fall-off and a side vignette. The plain gradient is only the fallback base. */
+.rsa-bg--curtain { background: linear-gradient(180deg, #C81B12 0%, #8E140D 30%, #3A0B08 55%, #0C0807 80%); }
+.rsa-cur-svg, .rsa-cur-top, .rsa-cur-fall, .rsa-cur-vig, .rsa-cur-glow { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; }
+.rsa-cur-top  { background: radial-gradient(95% 34% at 50% -4%, rgba(255,70,45,.30), rgba(0,0,0,0) 70%); mix-blend-mode: screen; }
+.rsa-cur-fall { background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.12) 18%, rgba(12,2,2,.5) 36%,
+                rgba(10,2,2,.8) 52%, rgba(8,3,3,.9) 68%, rgba(7,3,3,.94) 85%); }
+.rsa-cur-vig  { background: linear-gradient(90deg, rgba(0,0,0,.45), rgba(0,0,0,0) 22%, rgba(0,0,0,0) 80%, rgba(0,0,0,.30)); }
+.rsa-cur-glow { background: radial-gradient(24% 18% at 100% 74%, rgba(255,210,160,.22), rgba(0,0,0,0) 100%); mix-blend-mode: screen; }
+.rsa-bg--none { background: transparent; }
 /* deep-space purple + deterministic stars — DejCkBdNC6h / DeVzimJCYVp */
 .rsa-bg--space {
   background:
@@ -268,3 +271,23 @@
 /* bookmark CTA */
 .rsa-cta-title { color: #8E9090; font-size: 52px; font-weight: 400; white-space: nowrap; }
 .rsa-theme-light .rsa-cta-title { color: #8A8C8C; }
+
+/* ───────────────────────── layouts (RSA.layout.*) ───────────────────────── */
+/* real 3D renders (generated PNG or Fluent 3D stand-ins): soft ambient drop so they sit in the scene */
+.rsa-obj--img img { filter: drop-shadow(0 22px 26px rgba(0,0,0,.22)); }
+.rsa-theme-dark .rsa-obj--img img, .rsa-theme-accent .rsa-obj--img img { filter: drop-shadow(0 26px 34px rgba(0,0,0,.45)); }
+.rsa-contact { filter: blur(6px); }
+.rsa-card-value { margin-left: auto; padding-left: 24px; font-size: 56px; font-weight: 600; white-space: nowrap; letter-spacing: -0.01em; }
+.rsa-card-row > .rsa-card-tx { min-width: 0; }
+.rsa-theme-accent .rsa-sel-box { background: rgba(42,144,246,.42); }
+
+/* list row (layout list): icon · title/sub · value, hairline between rows, no card box */
+.rsa-row { position: absolute; left: 90px; width: 900px; display: flex; align-items: center; gap: 30px; box-sizing: border-box; padding: 0 6px; }
+.rsa-row-icon { flex: none; display: flex; align-items: center; justify-content: center; }
+.rsa-row-icon img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.rsa-row-tx { flex: 1; min-width: 0; }
+.rsa-row-title { color: var(--ink); font-size: 54px; font-weight: 500; line-height: 1.1; white-space: nowrap; }
+.rsa-row-sub { color: var(--cap); font-size: 36px; font-weight: 400; line-height: 1.2; margin-top: 4px; white-space: nowrap; }
+.rsa-row-value { flex: none; color: var(--ink); font-size: 54px; font-weight: 600; white-space: nowrap; letter-spacing: -0.01em; }
+.rsa-row-rule { position: absolute; left: 0; right: 0; height: 2px; background: var(--line); opacity: .7; transform-origin: 0 50%; }
+.rsa-theme-light .rsa-row-rule { opacity: 1; }

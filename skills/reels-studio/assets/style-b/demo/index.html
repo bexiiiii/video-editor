@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=1080, height=1920" />
-    <title>Style B component demo</title>
+    <title>Style B layout demo</title>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
     <link rel="stylesheet" href="lib/tokens-style-b.css" />
     <script src="lib/runtime.js"></script>
@@ -11,31 +11,25 @@
     <style>
       body { margin: 0; background: #0a0a0c; }
       #root { position: relative; width: 100%; height: 100%; overflow: hidden; }
-      /* placeholder "footage" (no real video in the demo): warm room, lamp bokeh, figure in a white tee */
-      .foot { position: absolute; inset: 0; overflow: hidden; background: radial-gradient(60% 40% at 18% 30%, #E8B77A 0%, rgba(232,183,122,0) 60%), linear-gradient(180deg, #5B4636 0%, #3B2D24 45%, #261D18 100%); }
-      .foot .bk { position: absolute; border-radius: 50%; background: radial-gradient(closest-side, rgba(255,214,150,.75), rgba(255,214,150,0)); filter: blur(6px); }
-      .foot .head { position: absolute; left: 395px; top: 360px; width: 290px; height: 370px; border-radius: 48% 48% 44% 44%; background: radial-gradient(70% 60% at 45% 40%, #D9A27E, #A8714F); filter: blur(3px); }
-      .foot .hair { position: absolute; left: 390px; top: 359px; width: 300px; height: 150px; border-radius: 50% 50% 30% 30%; background: #1E1612; filter: blur(3px); }
-      .foot .neck { position: absolute; left: 480px; top: 690px; width: 120px; height: 140px; background: #B57D5A; filter: blur(3px); }
-      .foot .torso { position: absolute; left: 150px; top: 800px; width: 780px; height: 1300px; border-radius: 340px 340px 0 0; background: linear-gradient(180deg, #F1EEE9, #D9D4CC); filter: blur(4px); }
-      .foot .shirt { position: absolute; left: 110px; top: 840px; width: 260px; height: 1200px; border-radius: 200px 0 0 0; background: #4D5236; filter: blur(4px); }
-      .foot .shirt.r { left: 710px; border-radius: 0 200px 0 0; }
-      /* fake Instagram "New reel" screen for the phone */
+      /* Instagram "New reel" settings screen for the phone (UI only — no people) */
       .ig { position: absolute; inset: 0; background: #0C0F12; color: #fff; font: 500 22px/1.2 Inter, sans-serif; letter-spacing: -0.01em; }
-      .ig .bar { position: absolute; left: 0; right: 0; top: 70px; text-align: center; font-weight: 600; font-size: 24px; }
-      .ig .prev { position: absolute; left: 170px; top: 130px; width: 175px; height: 300px; border-radius: 16px; background: linear-gradient(160deg, #6B5644, #2C2420); }
-      .ig .row { position: absolute; left: 34px; right: 34px; height: 64px; border-bottom: 1px solid #22272C; display: flex; align-items: center; justify-content: space-between; font-size: 22px; color: #E6E6E6; }
-      .ig .tg { position: relative; width: 70px; height: 40px; border-radius: 20px; background: #3A3A3C; }
-      .ig .tg i { position: absolute; left: 3px; top: 3px; width: 34px; height: 34px; border-radius: 50%; background: #fff; }
-      .ig .tg b { position: absolute; inset: 0; border-radius: 20px; background: #34C759; opacity: 0; }
-      .ig .btns { position: absolute; left: 34px; right: 34px; bottom: 60px; display: flex; gap: 16px; }
-      .ig .btns div { flex: 1; height: 64px; border-radius: 14px; display: grid; place-items: center; font-weight: 600; background: #26292E; }
+      .ig .bar { position: absolute; left: 0; right: 0; top: 78px; text-align: center; font-weight: 600; font-size: 26px; }
+      .ig .prev { position: absolute; left: 172px; top: 140px; width: 172px; height: 300px; border-radius: 18px; background: linear-gradient(160deg, #3A3F4A, #1D2026); display: grid; place-items: center; }
+      .ig .prev i { width: 0; height: 0; border-left: 30px solid rgba(255,255,255,.85); border-top: 18px solid transparent; border-bottom: 18px solid transparent; margin-left: 8px; }
+      .ig .prev b { position: absolute; bottom: 14px; left: 0; right: 0; text-align: center; font-size: 18px; font-weight: 500; color: #C7C7CC; }
+      .ig .row { position: absolute; left: 34px; right: 34px; height: 72px; border-bottom: 1px solid #22272C; display: flex; align-items: center; justify-content: space-between; font-size: 24px; color: #E6E6E6; }
+      .ig .row span { color: #8E8E93; }
+      .ig .hint { position: absolute; left: 34px; right: 120px; top: 700px; font-size: 18px; line-height: 1.35; color: #8E8E93; }
+      .ig .tg { position: relative; width: 74px; height: 42px; border-radius: 21px; background: #3A3A3C; }
+      .ig .tg i { position: absolute; left: 3px; top: 3px; width: 36px; height: 36px; border-radius: 50%; background: #fff; z-index: 1; }
+      .ig .tg b { position: absolute; inset: 0; border-radius: 21px; background: #34C759; opacity: 0; }
+      .ig .btns { position: absolute; left: 34px; right: 34px; bottom: 64px; display: flex; gap: 16px; }
+      .ig .btns div { flex: 1; height: 68px; border-radius: 14px; display: grid; place-items: center; font-weight: 600; background: #26292E; }
       .ig .btns div.sh { background: #3D50F5; }
-      .phcap { color: #211F1E; text-shadow: none; }
     </style>
   </head>
   <body>
-    <div id="root" class="rsb" data-composition-id="rsb-demo" data-start="0" data-width="1080" data-height="1920" data-duration="33">
+    <div id="root" class="rsb" data-composition-id="rsb-demo" data-start="0" data-width="1080" data-height="1920" data-duration="31.6">
       <div id="stage" class="rsb-stage-base"></div>
     </div>
     <script>
@@ -43,195 +37,187 @@
         await RSB.ready();
         const tl = gsap.timeline({ paused: true });
         const stage = document.getElementById("stage");
-        const R = (t) => t; // times below are absolute local seconds
-
-        /* ---------- footage placeholder ---------- */
-        function footage(page) {
-          const f = RS.el("div", "foot", page.content); f.setAttribute("data-layout-allow-overflow", "");
-          const rnd = RS.rand(3);
-          for (let i = 0; i < 7; i++) {
-            const b = RS.el("div", "bk", f), s = 60 + rnd() * 120;
-            Object.assign(b.style, { width: s + "px", height: s + "px", left: rnd() * 260 + "px", top: 160 + rnd() * 600 + "px" });
-          }
-          ["hair", "head", "neck", "torso", "shirt", "shirt r"].forEach((c) => RS.el("div", c, f));
-          RSB.lens(page.content, { blur: 16 });
-          return f;
-        }
+        const L = RSB.layout;
         const W = (pairs) => pairs.map(([w, t]) => ({ w, t }));
+        /** layout offset of `node` inside `anc` (transform-free → exact at build time) */
+        const offsetIn = (node, anc) => { let x = 0, y = 0, n = node; while (n && n !== anc) { x += n.offsetLeft; y += n.offsetTop; n = n.offsetParent; } return { x, y }; };
 
-        /* ---------- pages ---------- */
-        const P = {};
-        P.head = RSB.page(stage, { theme: "dark" });
-        P.s1 = RSB.page(stage, { theme: "light", visible: false });
-        P.s2 = RSB.page(stage, { theme: "blue", visible: false });
-        P.s3 = RSB.page(stage, { theme: "dark", visible: false });
-        P.s4 = RSB.page(stage, { theme: "light", visible: false });
-        P.s5 = RSB.page(stage, { theme: "dark2", visible: false });
-        P.s6 = RSB.page(stage, { theme: "light", visible: false });
-        P.s7 = RSB.page(stage, { theme: "dark3", visible: false });
-        P.s8 = RSB.page(stage, { theme: "paper", visible: false });
-        P.cta = RSB.page(stage, { theme: "dark", visible: false });
+        /* CTA identity comes from props — never the reference creator */
+        const BRAND = { name: "Link HR", handle: "@linkhr", footage: null /* e.g. { node: document.getElementById('head') } */ };
+
+        /* ---------- pages (theme flips per section) ---------- */
+        const P = {
+          hook: RSB.page(stage, { theme: "dark" }),
+          s1: RSB.page(stage, { theme: "light", visible: false }),
+          s2: RSB.page(stage, { theme: "blue", visible: false }),
+          s3: RSB.page(stage, { theme: "dark", visible: false }),
+          s4: RSB.page(stage, { theme: "light", visible: false }),
+          s5: RSB.page(stage, { theme: "dark2", visible: false }),
+          s6: RSB.page(stage, { theme: "light", visible: false }),
+          s7: RSB.page(stage, { theme: "paper", visible: false }),
+          s8: RSB.page(stage, { theme: "dark3", visible: false }),
+          cta: RSB.page(stage, { theme: "dark", visible: false }),
+        };
 
         RSB.chrome(stage, {
-          series: "Ssenariy", topic: "Open Loop", dots: 6, theme: "light", hidden: true,
+          series: "Ssenariy", topic: "Open Loop", dots: 7, theme: "light", hidden: true,
           steps: [
-            { at: 2.9, active: 0, theme: "light" },
+            { at: 2.85, active: 0, theme: "light" },
             { at: 6.3, active: 1, theme: "blue" },
-            { at: 10.0, active: 2, theme: "dark" },
-            { at: 13.6, active: 3, theme: "light" },
-            { at: 17.0, active: 4, theme: "dark2" },
-            { at: 20.6, active: 5, theme: "light" },
-            { at: 24.2, theme: "dark3" },
-            { at: 27.0, theme: "paper" },
-            { at: 29.6, hidden: true },
+            { at: 9.6, active: 2, theme: "dark" },
+            { at: 13.2, active: 3, theme: "light" },
+            { at: 16.6, active: 4, theme: "dark2" },
+            { at: 20.2, active: 5, theme: "light" },
+            { at: 23.6, active: 6, theme: "paper" },
+            { at: 27.0, theme: "dark3" },
+            { at: 28.6, hidden: true },
           ],
         }, tl, 0);
 
-        /* ---------- S0 · talking-head hook (0 – 2.85) ---------- */
-        footage(P.head);
-        RSB.sticker(P.head.content, { text: "Odamlar kontentingizni kutadigan formula", emoji: "🍿", y: 1050 }, tl, 0.2);
-        RSB.caption(P.head.content, { y: 1330, phrases: [
-          { words: W([["Bu", 0.45], ["formulani", 0.62]]) },
-          { words: W([["hamma", 1.25], ["ham", 1.48], ["bilmaydi", 1.62]]) },
-        ] }, tl, 0);
-        RSB.tx.portal(tl, P.head, P.s1, 2.25, { from: [900, 300], to: [540, 980] }, stage);
+        /* ---------- S0 · head — talking-head hook (0 – 2.85) ---------- */
+        L.head(P.hook.content, {
+          footage: BRAND.footage || {},
+          sticker: { text: "Odamlar kontentingizni kutadigan formula", emoji: "🍿", at: 0.2 },
+          caption: { phrases: [
+            { words: W([["Bu", 0.45], ["formulani", 0.62]]) },
+            { words: W([["hamma", 1.25], ["ham", 1.48], ["bilmaydi", 1.62]]) },
+          ] },
+        }, tl, 0);
+        RSB.tx.portal(tl, P.hook, P.s1, 2.25, { from: [900, 300], to: [540, 900] }, stage);
 
-        /* ---------- S1 · light: stack + audio player (2.85 – 6.3) ---------- */
-        {
-          const c = RSB.stack(P.s1.content, {
-            top: 483,
-            kicker: { words: W([["Birinchi", 3.0], ["gapdayoq", 3.14]]) },
-            headline: { words: W([["butun", 3.55], ["hikoyani", 3.66]]) },
-            sub: { words: W([["aytib", 4.22], ["qo‘ysangiz,", 4.36]]) },
-          }, tl, 3.0);
-          RSB.player(RSB.slot(c, 108), {}, tl, 4.1);
-          RSB.line(c, { cls: "kicker", mt: 118, words: W([["odam", 4.95], ["davomini", 5.08]]) }, tl);
-          RSB.line(c, { cls: "second", mt: 18, words: W([["nega", 5.5], ["ko‘rsin?", 5.62]]) }, tl);
-        }
+        /* ---------- S1 · stack — player (2.85 – 6.3) ---------- */
+        L.stack(P.s1.content, {
+          kicker: { words: W([["Birinchi", 3.0], ["gapdayoq", 3.14]]) },
+          headline: { words: W([["butun", 3.5], ["hikoyani", 3.62]]) },
+          sub: { words: W([["aytib", 4.1], ["qo‘ysangiz,", 4.24]]) },
+          visual: { type: "player", at: 3.9, scale: 1.3, time: "0:30 / 0:30" },
+          caption: { kicker: { words: W([["odam", 4.95], ["davomini", 5.08]]) }, second: { words: W([["nega", 5.5], ["ko‘rsin?", 5.62]]) } },
+        }, tl, 3.0);
         RSB.tx.dissolve(tl, P.s1, P.s2, 6.3);
 
-        /* ---------- S2 · blue takeover: Masalan + counter card + calendar (6.3 – 10.0) ---------- */
-        {
-          const c = RSB.stack(P.s2.content, {
-            top: 300,
-            step: { text: "Masalan", kind: "outline", at: 6.5 },
-            headline: { words: W([["qandolatchisiz", 6.9]]), emoji: { e: "🎂", at: 7.15 } },
-          }, tl, 6.5);
-          const card = RSB.card(RSB.slot(c, 50), { }, tl, 7.35);
-          card.style.paddingTop = "34px";
-          RSB.capsule(card, { text: "SERIAL", kind: "red" }, tl, 7.55);
-          const cup = RS.el("div", "emo", card, "☕"); Object.assign(cup.style, { position: "absolute", right: "40px", top: "28px", fontSize: "130px" });
-          RSB.pop(tl, cup, 7.6, { from: 0.5, dur: 0.35 });
-          const ctr = RSB.counter(card, { from: 1, to: 30, dur: 0.45, ease: "power2.out", size: 120, suffix: { text: "kunda", size: 56 } }, tl, 7.75);
-          ctr.style.marginTop = "18px"; ctr.style.display = "flex";
-          const q = RS.el("div", "quote", card); q.style.marginTop = "8px";
-          RSB.revealWords(q, W([["noldan", 8.1], ["qandolatxona", 8.24], ["ochamiz", 8.5]]), tl, { highlight: ["ochamiz"], hlClass: "hl-blue" });
-          q.querySelector(".hl-blue").style.color = "#0A7AFF";
-          RSB.calendar(RSB.slot(c, 60), { cols: 6, rows: 5, fillAt: 8.85, stagger: 0.034 }, tl, 8.45);
-        }
-        RSB.tx.dissolve(tl, P.s2, P.s3, 10.0);
+        /* ---------- S2 · number — blue "Masalan" takeover (6.3 – 9.6) ---------- */
+        L.number(P.s2.content, {
+          step: { text: "Masalan", kind: "outline", at: 6.45 },
+          kicker: { words: W([["Siz", 6.75], ["qandolatchisiz", 6.86]]), emoji: { e: "🎂", at: 7.0 } },
+          number: { from: 1, to: 30, at: 7.35, dur: 0.75, suffix: { text: "kun", color: "rgba(255,255,255,.74)" }, color: "#FFFFFF" },
+          headline: { words: W([["noldan", 8.0], ["qandolatxona", 8.14]]) },
+          below: (slot, tl) => {
+            slot.style.flexDirection = "row"; slot.style.gap = "18px"; slot.style.justifyContent = "center";
+            RSB.capsule(slot, { text: "SERIAL", kind: "red" }, tl, 8.55);
+            RSB.capsule(slot, { text: "har kuni 1 video", kind: "grey", icon: "📅" }, tl, 8.75).style.background = "rgba(255,255,255,.18)";
+            return slot;
+          },
+        }, tl, 6.45);
+        RSB.tx.dissolve(tl, P.s2, P.s3, 9.6);
 
-        /* ---------- S3 · dark: card + countdown + notification + typing (10.0 – 13.6) ---------- */
-        {
-          const c = RSB.stack(P.s3.content, {
-            top: 359,
-            kicker: { words: W([["Shu", 10.25], ["voqeani", 10.38]]) },
-            headline: { words: W([["boshqacha", 10.7], ["boshlang", 10.95]]) },
-          }, tl, 10.2);
-          const card = RSB.card(RSB.slot(c, 100), {
-            head: { emoji: "🎂", words: W([["«Tort", 11.45], ["tayyor.", 11.6]]), at: 11.4,
-                    right: { type: "countdown", from: "00:59:59", ticks: 2, at: 11.9 } },
-            lines: [{ cls: "note", words: W([["Yetkazishga", 12.0], ["1", 12.12], ["soat", 12.2], ["qolgan", 12.3], ["edi.", 12.42]]) }],
-            slot: true,
-          }, tl, 11.2);
-          RSB.notification(card.slotEl, { title: "Mijoz", time: "hozir", width: 710 }, tl, 12.6);
-          RSB.typing(RSB.slot(c, 50), { dur: 1.0 }, tl, 13.05);
-        }
-        RSB.tx.dissolve(tl, P.s3, P.s4, 13.6);
+        /* ---------- S3 · list — timeline rows build down (9.6 – 13.2) ---------- */
+        L.list(P.s3.content, {
+          kicker: { words: W([["Keyin", 9.85], ["aytasiz", 9.98]]) },
+          headline: { words: W([["3", 10.25], ["ta", 10.36], ["savol", 10.46]]) },
+          variant: "timeline",
+          rows: [
+            { emoji: "📝", caption: "1-savol", title: "Nima kelishilgan edi?", at: 10.85 },
+            { emoji: "⚠️", caption: "2-savol", title: "Qayerda muammo chiqdi?", at: 11.45 },
+            { emoji: "💸", caption: "3-savol", title: "Nega pul qaytarildi?", at: 12.05, right: { type: "check", at: 12.6, color: "#30D158" } },
+          ],
+        }, tl, 9.85);
+        RSB.tx.dissolve(tl, P.s3, P.s4, 13.2, { lift: 30 });
 
-        /* ---------- S4 · light: cursor bubbles + open-loop ring (13.6 – 17.0) ---------- */
-        {
-          const c = RSB.stack(P.s4.content, { top: 359,
-            kicker: { words: W([["Endi", 13.85], ["savollar", 13.98], ["paydo", 14.15], ["bo'ladi", 14.3]]) } }, tl, 13.85);
-          RSB.cursorBubble(P.s4.content, { x: 210, y: 470, text: "Nima yozdi?", color: "#0A7AFF" }, tl, 14.5);
-          RSB.cursorBubble(P.s4.content, { x: 250, y: 590, text: "Nega tortni tuzatib bermadi?", color: "#FF9500" }, tl, 15.0);
-          RSB.ring(P.s4.content, { size: 560, center: true, y: 760, label: { words: W([["Open", 16.3], ["Loop", 16.42]]), maxPx: 78 } }, tl, 15.45);
-        }
-        RSB.tx.dissolve(tl, P.s4, P.s5, 17.0);
+        /* ---------- S4 · visual-top — open-loop ring + questions, headline below (13.2 – 16.6) ---------- */
+        L["visual-top"](P.s4.content, {
+          visual: (slot, tl) => {
+            const box = RS.el("div", null, slot); Object.assign(box.style, { position: "relative", width: "900px", height: "770px" });
+            RSB.cursorBubble(box, { x: 70, y: 0, text: "Nima yozdi?", color: "#0A7AFF" }, tl, 13.45);
+            RSB.cursorBubble(box, { x: 120, y: 112, text: "Nega tortni tuzatib bermadi?", color: "#FF9500" }, tl, 13.9);
+            RSB.ring(box, { size: 560, x: 170, y: 210, label: { words: W([["Open", 15.05], ["Loop", 15.17]]), maxPx: 82 } }, tl, 14.25);
+            return box;
+          },
+          kicker: { words: W([["odam", 15.55], ["javobini", 15.66], ["bilmoqchi", 15.8], ["bo‘lgan", 15.95]]) },
+          headline: { words: W([["savolni", 16.1], ["ochasiz", 16.24]]) },
+        }, tl, 13.45);
+        RSB.tx.dissolve(tl, P.s4, P.s5, 16.6);
 
-        /* ---------- S5 · dark2: segmented control + quote card + result capsules (17.0 – 20.6) ---------- */
-        {
-          const seg = RSB.segmented(P.s5.content, { items: ["TOP-3", "To'g'ri / noto'g'ri", "Real keys"], center: true, y: 330,
-            steps: [{ at: 17.55, active: 0 }, { at: 19.35, active: 1 }] }, tl, 17.2);
-          const c = RSB.stack(P.s5.content, { top: 483,
-            kicker: { words: W([["Birinchi", 17.75], ["video", 17.86]]) },
-            headline: { words: W([["maslahat", 18.25]]) } }, tl, 17.7);
-          const qc = RSB.quoteCard(RSB.slot(c, 70), { emoji: "💡", title: "Maslahat", count: "1 / 5", accent: "#34C759",
-            quote: { words: W([["«Yuzingizga", 18.5], ["mos", 18.68], ["soqol", 18.8], ["shaklini", 18.98], ["qanday", 19.15], ["tanlaysiz?»", 19.3]]) },
-            emphasis: ["tanlaysiz?»"], barFrom: 18.1, barTo: 20.6 }, tl, 18.0);
-          const row = RSB.slot(c, 44); row.style.flexDirection = "row"; row.style.gap = "20px";
-          RSB.capsule(row, { kind: "ok", text: "Savol qoldiryapti" }, tl, 19.75);
-          RSB.capsule(row, { kind: "bad", text: "Hammasi aytildi" }, tl, 20.1);
-        }
-        RSB.tx.dissolve(tl, P.s5, P.s6, 20.6);
+        /* ---------- S5 · compare — which first line keeps viewers (16.6 – 20.2) ---------- */
+        L.compare(P.s5.content, {
+          kicker: { words: W([["Qaysi", 16.85], ["biri", 16.98]]) },
+          headline: { words: W([["ushlab", 17.2], ["qoladi?", 17.34]]) },
+          left: { at: 17.7, emoji: "📉", tag: { text: "Hammasi aytildi", kind: "bad" },
+                  quote: { words: W([["«Mijoz", 17.95], ["pulini", 18.07], ["qaytarib", 18.19], ["oldi.»", 18.31]]) },
+                  meter: { value: 0.22, color: "#FF453A", label: "tomosha · 22 %" } },
+          right: { at: 18.45, emoji: "📈", tag: { text: "Savol qoldirdi", kind: "ok" },
+                   quote: { words: W([["«Tort", 18.7], ["tayyor", 18.82], ["edi.", 18.94], ["Keyin…»", 19.1]]) },
+                   meter: { value: 0.81, color: "#30D158", label: "tomosha · 81 %" } },
+          pick: "right", pickAt: 19.55,
+        }, tl, 16.85);
+        RSB.tx.dissolve(tl, P.s5, P.s6, 20.2);
 
-        /* ---------- S6 · light: strike-through correction + selection + skeleton rows (20.6 – 24.2) ---------- */
+        /* ---------- S6 · stack — strike + selection + notifications (20.2 – 23.6) ---------- */
         {
-          const c = RSB.stack(P.s6.content, { top: 359,
-            kicker: { words: W([["Shunda", 20.85], ["kontentingiz", 21.0]]) } }, tl, 20.85);
-          const wrong = RSB.line(c, { cls: "kicker", mt: 14, words: W([["👀", 21.35], ["ko'rishlar", 21.45]]) }, tl);
-          RSB.strike(wrong.inner, {}, tl, 21.9);
-          const h = RSB.line(c, { cls: "headline", mt: 6, words: W([["real", 22.15], ["mijozlar", 22.3]]) }, tl);
-          RSB.selection(h.inner, {}, tl, 22.7);
-          const rows = RSB.skeletonRows(RSB.slot(c, 70), { enterAt: 21.2, height: 150, rows: [
-            { emoji: "🌹", caption: "1-mavzu", title: "Gullarning ma'nosi", at: 22.95 },
-            { emoji: "💧", caption: "2-mavzu", title: "Uzoq saqlash", at: 23.3 },
-            { emoji: "🎁", caption: "3-mavzu", title: "Sovg'a uchun tanlash", at: 23.65 },
-          ] }, tl, 21.2);
-          RSB.checkBadge(rows.rows[2], { x: 790 - 34, y: -14 }, tl, 23.95);
+          const b = L.stack(P.s6.content, {
+            kicker: { words: W([["Shunda", 20.45], ["kontentingiz", 20.58]]) },
+            headline: { words: W([["real", 21.5], ["mijozlar", 21.64]]) },
+            visual: (slot, tl) => {
+              const col = RS.el("div", null, slot); Object.assign(col.style, { display: "flex", flexDirection: "column", gap: "22px", alignItems: "center" });
+              const n = [
+                { title: "Yangi buyurtma", text: "Tort 2 kg · 450 000 so‘m", at: 22.25 },
+                { title: "Yangi buyurtma", text: "Ertaga uchun 3 ta tort", at: 22.6 },
+                { title: "Yangi mijoz", text: "«Narxi qancha? Yetkazasizmi?»", at: 22.95 },
+              ];
+              n.forEach((o) => RSB.notification(col, { flow: true, icon: "🛍️", iconBg: "#FF9500", title: o.title, time: "hozir", text: o.text, width: 790 }, tl, o.at));
+              return col;
+            },
+          }, tl, 20.45);
+          // correction line between kicker and headline, then re-centre the block
+          const wrong = RSB.line(b, { cls: "kicker", mt: 14, words: W([["👀", 20.9], ["ko‘rishlar", 21.0]]) }, tl);
+          b.insertBefore(wrong, b.slots.headline);
+          b.slots.headline.style.marginTop = "18px";
+          b.recentre();
+          RSB.strike(wrong.inner, {}, tl, 21.3);
+          RSB.selection(b.slots.headline.inner, {}, tl, 21.95);
         }
-        RSB.tx.dissolve(tl, P.s6, P.s7, 24.2);
+        RSB.tx.rgbGhost(tl, P.s6, P.s7, 23.6, { seed: 5 });
 
-        /* ---------- S7 · dark3: colour grid payoff (24.2 – 27.0) ---------- */
+        /* ---------- S7 · media — iPhone tutorial + glove tap (23.6 – 27.0) ---------- */
         {
-          const c = RSB.stack(P.s7.content, { top: 359,
-            kicker: { words: W([["6", 24.45], ["bo'lim", 24.55], ["×", 24.7], ["5", 24.8], ["mavzu", 24.9]]) },
-          }, tl, 24.45);
-          RSB.colorGrid(RSB.slot(c, 64), { startCol: 1, colGap: 0.24, tileStagger: 0.05 }, tl, 24.75);
-          RSB.line(c, { cls: "headline", mt: 70, words: W([["30", 26.2], ["ta", 26.32], ["kontent", 26.42]]) }, tl);
-        }
-        RSB.tx.rgbGhost(tl, P.s7, P.s8, 27.0, { seed: 5 });
-
-        /* ---------- S8 · paper: iPhone mockup + glove tap (27.0 – 29.6) ---------- */
-        {
-          RSB.caption(P.s8.content, { y: 286, size: 44, color: "#211F1E", from: "#BDBAB8", phrases: [
-            { words: W([["Trial", 27.25], ["knopkasini", 27.4], ["yoqing", 27.7]]) },
-          ] }, tl, 27.25).classList.add("phcap");
-          const ig = `<div class="ig"><div class="bar">New reel</div><div class="prev"></div>
+          const ig = `<div class="ig"><div class="bar">New reel</div><div class="prev"><i></i><b>Edit cover</b></div>
             <div class="row" style="top:470px">Tag people <span>›</span></div>
-            <div class="row" style="top:534px">Add location <span>›</span></div>
-            <div class="row" style="top:598px">Trial <div class="tg"><b></b><i></i></div></div>
-            <div class="row" style="top:662px">Audience <span>›</span></div>
+            <div class="row" style="top:542px">Add location <span>›</span></div>
+            <div class="row" style="top:614px">Trial <div class="tg"><b></b><i></i></div></div>
+            <div class="hint">Reel is shown to non-followers first. If it performs well, it is shown to followers.</div>
+            <div class="row" style="top:800px">Audience <span>Everyone ›</span></div>
             <div class="btns"><div>Save draft</div><div class="sh">Share</div></div></div>`;
-          const ph = RSB.iphone(P.s8.content, { y: 380, html: ig, enter: "rise", float: 2.4 }, tl, 27.1);
-          const tg = ph.screen.querySelector(".tg");
-          RSB.ft(tl, tg.querySelector("i"), { x: 0 }, { x: 30, duration: 0.2, ease: "power2.inOut" }, 28.55);
-          RSB.ft(tl, tg.querySelector("b"), { opacity: 0 }, { opacity: 1, duration: 0.2 }, 28.55);
-          // toggle centre in page px: phone x≈257, screen inset 24, row top 598+32, toggle at right-34-35
-          RSB.cursor(P.s8.content, { kind: "glove", path: [{ x: 760, y: 1500, at: 27.75 }, { x: 735, y: 1032, at: 28.15, dur: 0.27 }], taps: [28.45] }, tl, 27.75);
+          const b = L.media(P.s7.content, {
+            text: { words: W([["Trial", 23.85], ["knopkasini", 24.0], ["yoqing", 24.3]]), highlight: ["trial"] },
+            html: ig, enter: "pullout", deviceAt: 23.7,
+          }, tl, 23.85);
+          const tg = b.slots.device.screen.querySelector(".tg");
+          RSB.ft(tl, tg.querySelector("i"), { x: 0 }, { x: 32, duration: 0.2, ease: "power2.inOut" }, 25.55);
+          RSB.ft(tl, tg.querySelector("b"), { opacity: 0 }, { opacity: 1, duration: 0.2 }, 25.55);
+          const o = offsetIn(tg, P.s7.content); // exact toggle centre in page px
+          const tip = { x: o.x + 37, y: o.y + 21 };
+          RSB.cursor(P.s7.content, { kind: "glove", path: [{ x: tip.x + 40, y: 1500, at: 24.75 }, { x: tip.x, y: tip.y, at: 25.1, dur: 0.27 }], taps: [25.45] }, tl, 24.75);
         }
-        RSB.tx.datamosh(tl, P.s8, P.cta, 29.6, { frames: 8, seed: 9 });
+        RSB.tx.dissolve(tl, P.s7, P.s8, 27.0);
 
-        /* ---------- S9 · talking-head CTA (29.6 – 33.0) ---------- */
-        {
-          footage(P.cta);
-          RSB.ctaFollow(P.cta.content, { y: 860, avatarEmoji: "🧔🏻", name: ["Umar | Shaxsiy brend", "Marketing, Sotuv"], button: "Obuna bo'ling",
-            unrollAt: 30.35, typeAt: 30.6, pressAt: 31.4 }, tl, 29.85);
-          RSB.igProfile(P.cta.content, { y: 1180, handle: "0mar.uz", bio: "Umar Jamoldinov | Shaxsiy brend", avatarEmoji: "🧔🏻",
-            posts: [12, 22], followers: [0, 473], following: 1, buttonAt: 31.7, tapAt: 32.35,
-            chip: { text: "Foydali kontentlar", icon: "💡", at: 31.9 } }, tl, 31.0);
-          RSB.savePill(P.cta.content, { x: 165, y: 1640, tapAt: 32.1 }, tl, 31.45);
-        }
+        /* ---------- S8 · statement — breath (27.0 – 28.6) ---------- */
+        L.statement(P.s8.content, {
+          kicker: { words: W([["Natijada", 27.2]]) },
+          lines: [
+            { words: W([["30", 27.5], ["ta", 27.6], ["kontent", 27.7]]) },
+            { words: W([["bitta", 27.95], ["formuladan", 28.07]]), highlight: ["formuladan"] },
+          ],
+        }, tl, 27.2);
+        RSB.tx.datamosh(tl, P.s8, P.cta, 28.6, { frames: 8, seed: 9 });
+
+        /* ---------- S9 · head-side — CTA in the chest band (28.6 – 31.6) ---------- */
+        L["head-side"](P.cta.content, {
+          footage: BRAND.footage || {},
+          visuals: [
+            { type: "ctaFollow", at: 28.85, name: [BRAND.name, BRAND.handle], button: "Obuna bo‘ling", unrollAt: 29.3, typeAt: 29.55, pressAt: 30.45 },
+            { type: "savePill", at: 30.0, tapAt: 30.9 },
+          ],
+          caption: { phrases: [{ words: W([["Obuna", 29.0], ["bo‘ling", 29.18]]) }, { words: W([["va", 30.0], ["saqlab", 30.12], ["qo‘ying", 30.3]]) }] },
+        }, tl, 28.85);
 
         window.__timelines["rsb-demo"] = tl;
       })();

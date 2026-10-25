@@ -12,9 +12,10 @@ Everything is a file in `work/<slug>/` (see `references/contracts.md`). Every st
 ## 0 · Brief (talk to the user — never skip)
 1. Run `$SKILL/scripts/run doctor.py --work work/<slug>` and read `env.json`. Tell the user in one line which providers are active and which fallbacks will be used (e.g. "Uzbek TTS via edge-tts — add ELEVENLABS_API_KEY for studio quality"). Missing ElevenLabs is fine — continue with fallbacks.
 2. Collect and write `brief.json`. Ask only what is missing:
-   - **style** A or B (show one line each: A = dark/light 3D objects, keywords, voice only · B = Apple-like UI cards, literal words, soft bed + UI clicks);
+   - **style** A, B or C (show one line each: A = dark/light 3D objects, keywords, voice only · B = Apple-like UI cards, literal words, soft bed + UI clicks · C = "Keynote 3D" fusion — B chrome/UI scenes alternating with A-style 3D keyword scenes, whip between chapters, soft bed + sparse SFX, see `references/style-c.md`);
    - **mode**: `faceless` · `hook_cta` (talking head opens/closes) · `head_overlay` (talking head throughout + graphics);
    - **lang** ru / uz / kk; target length; topic/script; footage paths; CTA; brand.
+   - **CTA identity: always ask the client** for the name shown at the end and the Instagram handle (e.g. "Link HR" / "@linkhr"), an optional subtitle line ("Маркетинг | Продажи"), an avatar photo (`input/avatar.jpg`; if none, use the brand logo, never a drawn face), the real follower count if the CTA shows a profile card (never invent numbers), and the button text in the reel language ("Подписаться" / "Obuna bo'ling" / "Жазылу"). Never reuse names or handles from the reference videos.
    - **Voice (faceless only): always ask the client** — clone their voice from a sample (needs ElevenLabs) or use a stock voice. Record the answer in `brief.voice`.
 3. If a script is needed and not given, draft it in the target language in the reference cadence (hook ≤ 3 s, ~140–170 wpm, one idea per 3.5–4 s, CTA at the end) and get approval before spending money.
 

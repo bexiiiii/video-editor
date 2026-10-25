@@ -206,6 +206,31 @@ def contact_sheet(frames, work: Path, out: Path, scenes) -> str | None:
     return str(out)
 
 
+def variety_issues(scenes: list[dict]) -> list[str]:
+    """Plan-level anti-template rules from references/layouts.md §3."""
+    issues, motion = [], [s for s in scenes if s.get("kind", "motion") != "head"]
+    layouts = [s.get("layout") for s in motion]
+    for s, lay in zip(motion, layouts):
+        if not lay:
+            issues.append(f"{s['id']}: no layout")
+    for a, b in zip(motion, motion[1:]):
+        if a.get("layout") and a.get("layout") == b.get("layout"):
+            issues.append(f"{a['id']}→{b['id']}: same layout '{a['layout']}' twice in a row")
+    if len(motion) >= 4:
+        for lay in set(filter(None, layouts)):
+            share = layouts.count(lay) / len(motion)
+            if share > 0.30 + 1e-9:
+                issues.append(f"layout '{lay}' used in {share:.0%} of scenes (max 30%)")
+        if len(set(filter(None, layouts))) < min(4, len(motion)):
+            issues.append(f"only {len(set(filter(None, layouts)))} distinct layouts (need ≥ {min(4, len(motion))})")
+    types = [[c.get("type") for c in s.get("components", [])] for s in motion]
+    for i, ts in enumerate(types):
+        for t in ts:
+            if t and any(t in prev for prev in types[max(0, i - 3):i]):
+                issues.append(f"{motion[i]['id']}: component '{t}' reused within 3 scenes")
+    return issues
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--work", required=True)
@@ -217,9 +242,17 @@ def main() -> None:
     ap.add_argument("--reveal-early", type=float, default=0.10)
     ap.add_argument("--reveal-late", type=float, default=0.30)
     ap.add_argument("--freeze-max", type=float, default=3.0)
+    ap.add_argument("--plan-only", action="store_true", help="only check plan/scenes.json variety rules (before fan-out)")
     a = ap.parse_args()
 
     work = Path(a.work).resolve()
+    if a.plan_only:
+        plan = json.loads((work / "plan" / "scenes.json").read_text())
+        issues = variety_issues(sorted(plan.get("scenes", []), key=lambda s: float(s["start"])))
+        for i in issues:
+            log(f"FAIL variety: {i}")
+        print(json.dumps({"ok": not issues, "variety": issues}, ensure_ascii=False))
+        sys.exit(0 if not issues else 1)
     video = Path(a.video).resolve() if a.video else work / "renders" / "final.mp4"
     if not video.is_file():
         sys.exit(f"missing {video} — run render.py first")
@@ -262,6 +295,9 @@ def main() -> None:
             gaps.append(f"{sc['id']}: starts {sc['start']} vs prev end {t:.3f}")
         t = float(sc["end"])
     add("tiling", not gaps, "fail", gaps or "ok", "scenes tile with no gaps")
+
+    v_issues = variety_issues(scenes)
+    add("variety", not v_issues, "warn", v_issues or "ok", "layouts.md §3 variety rules")
 
     blacks, freezes = black_freeze(video, a.freeze_max)
     bad_black = [b for b in blacks if not all(intentional(s, "black") for s in scenes_at(scenes, b["s"], b["e"]))

@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>Style C demo — Keynote 3D</title>
+    <!-- Run ./prepare.sh first: copies runtime + Style A + Style B + Style C packs into ./lib (HyperFrames forbids "../" paths).
+         Hero objects: Microsoft Fluent Emoji 3D PNGs (MIT, github.com/microsoft/fluentui-emoji) as stand-ins for
+         generated art. Talking-head parts are a labelled neutral FOOTAGE SLOT — no drawn people. -->
+    <link rel="stylesheet" href="lib/tokens-a.css" />
+    <link rel="stylesheet" href="lib/tokens-b.css" />
+    <link rel="stylesheet" href="lib/tokens-c.css" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script src="lib/runtime.js"></script>
+    <script src="lib/a.js"></script>
+    <script src="lib/b.js"></script>
+    <script src="lib/c.js"></script>
+    <style>
+      body { margin: 0; background: #0B0D0D; }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; }
+      /* Link HR app screen inside the iPhone (demo stand-in for a real screenshot) */
+      .lh-title { position: absolute; left: 36px; top: 92px; font-size: 46px; font-weight: 700; letter-spacing: -0.03em; }
+      .lh-date { position: absolute; right: 36px; top: 108px; font-size: 24px; color: #8E8E93; }
+      .lh-seg { position: absolute; left: 36px; top: 172px; }
+      .lh-card { position: absolute; left: 36px; right: 36px; top: 290px; height: 236px; border-radius: 34px; background: #FFFFFF; box-shadow: 0 8px 24px rgba(0,0,0,.06); }
+      .lh-card .p { position: absolute; left: 32px; top: 30px; font-size: 26px; font-weight: 600; color: #3A3A3C; }
+      .lh-card .p i { display: inline-block; width: 14px; height: 14px; border-radius: 50%; background: #FF9F0A; margin-right: 12px; }
+      .lh-timer { position: absolute; left: 30px; top: 82px; font-size: 92px; font-weight: 700; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; color: #0B0B0B; }
+      .lh-btn { position: absolute; left: 36px; right: 36px; top: 560px; height: 96px; border-radius: 28px; display: grid; place-items: center; font-size: 34px; font-weight: 600; color: #FFFFFF; }
+      .lh-btn span { grid-area: 1 / 1; }
+      .lh-row { position: absolute; left: 36px; right: 36px; height: 84px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #E5E5EA; font-size: 28px; color: #1C1C1E; }
+      .lh-row b { font-weight: 600; font-variant-numeric: tabular-nums; color: #636366; }
+    </style>
+  </head>
+  <body>
+    <div id="root" class="rsc-stage" data-composition-id="main" data-start="0" data-width="1080" data-height="1920" data-duration="31">
+      <!-- clip windows from RSC.txWindow: portal [at, at+1.25] · dissolve [at, at+0.6] · whip [at−0.25, at+0.15] -->
+      <div id="s1" class="rsc-scene clip" data-start="0" data-duration="3.8" data-track-index="1"></div>
+      <div id="s2" class="rsc-scene clip" data-start="2.55" data-duration="4.65" data-track-index="2"></div>
+      <div id="s3" class="rsc-scene clip" data-start="6.6" data-duration="3.75" data-track-index="1"></div>
+      <div id="s4" class="rsc-scene clip" data-start="9.95" data-duration="4.45" data-track-index="2"></div>
+      <div id="s5" class="rsc-scene clip" data-start="13.8" data-duration="3.95" data-track-index="1"></div>
+      <div id="s6" class="rsc-scene clip" data-start="17.35" data-duration="4.45" data-track-index="2"></div>
+      <div id="s7" class="rsc-scene clip" data-start="21.2" data-duration="3.75" data-track-index="1"></div>
+      <div id="s8" class="rsc-scene clip" data-start="24.55" data-duration="3.7" data-track-index="2"></div>
+      <div id="s9" class="rsc-scene clip" data-start="27" data-duration="4" data-track-index="1"></div>
+    </div>
+    <script>
+      (async function () {
+        await RSC.ready();
+        const tl = gsap.timeline({ paused: true });
+        const root = document.getElementById("root");
+        const CTA = { name: "Link HR", handle: "@linkhr", button: "Подписаться" }; // brief.cta — ask the client, never copy refs
+        const IMG = (n) => `assets/img/${n}_3d.png`;
+        const W = (pairs) => pairs.map(([w, t]) => ({ w, t }));
+        const seq = (text, t0, st = 0.13) => text.split(" ").map((w, i) => ({ w, t: +(t0 + i * st).toFixed(3) }));
+        const host = (id) => document.getElementById(id);
+
+        /* pages — cinematic (A look) and UI (B look) alternate; talking head at both ends */
+        const P = {
+          s1: RSC.page(host("s1"), { theme: "dark", kind: "head" }),
+          s2: RSC.page(host("s2"), { theme: "dark", glow: "orange", kind: "cinematic" }),
+          s3: RSC.page(host("s3"), { theme: "light", kind: "ui" }),
+          s4: RSC.page(host("s4"), { theme: "dark", glow: "teal", kind: "cinematic" }),
+          s5: RSC.page(host("s5"), { theme: "light", kind: "ui" }),
+          s6: RSC.page(host("s6"), { theme: "dark", glow: "emerald", kind: "cinematic" }),
+          s7: RSC.page(host("s7"), { theme: "blue", kind: "ui" }),
+          s8: RSC.page(host("s8"), { theme: "light", glow: "lavender", kind: "cinematic" }),
+          s9: RSC.page(host("s9"), { theme: "dark", kind: "head" }),
+        };
+
+        /* persistent chrome — 4 chapters; hidden over the talking head */
+        RSC.chrome(root, { series: CTA.name, topic: "Учёт рабочего времени", dots: 4, theme: "dark", hidden: true, steps: [
+          { at: 3.15, active: 0, theme: "dark" }, { at: 6.6, active: 0, theme: "light" },
+          { at: 10.2, active: 1, theme: "dark" }, { at: 13.8, active: 1, theme: "light" },
+          { at: 17.6, active: 2, theme: "dark" }, { at: 21.2, active: 2, theme: "blue" },
+          { at: 24.8, active: 3, theme: "light" }, { at: 27.0, hidden: true },
+        ] }, tl, 0);
+
+        /* s1 · head — hook, literal word-synced captions + sticker (0 – 3.15) */
+        RSC.layout.head(P.s1, {
+          footage: { label: "FOOTAGE SLOT", sub: "edit/head.mp4 · хук, говорящая голова" },
+          sticker: { text: "Куда уходит рабочее время", emoji: "⏳", y: 1010, at: 0.15 },
+          phrases: [
+            { words: W([["Вы", 0.25], ["платите", 0.42], ["за", 0.78], ["восемь", 0.9], ["часов,", 1.15]]) },
+            { words: W([["а", 1.65], ["работают", 1.78], ["пять?", 2.2]]) },
+          ],
+        }, tl, 0);
+        RSC.tx.portal(tl, P.s1, P.s2, 2.55, { from: [900, 300], to: [540, 960] }, root);
+
+        /* ── chapter 1 · проблема ── */
+        /* s2 · cinematic · hero (3.15 – 6.6) */
+        RSC.layout.hero(P.s2, {
+          headline: { text: "куда уходят / часы?", words: seq("куда уходят часы?", 3.45, 0.15), highlight: ["часы"] },
+          hero: { src: IMG("alarm_clock"), size: 560, entry: "pop", at: 3.2, glow: "rgba(255,140,40,.40)", idle: { until: 7.2 } },
+          caption: { text: "в среднем 2,5 часа в день — мимо задач", at: 4.7 },
+        }, tl, 3.2);
+        RSC.tx.dissolve(tl, P.s2, P.s3, 6.6);
+
+        /* s3 · UI · number (6.6 – 10.2) */
+        RSC.layout.number(P.s3, {
+          kicker: { words: seq("команда из 40 человек теряет", 6.75, 0.12) },
+          value: { from: 0, to: 400, dur: 1.0, at: 7.45, size: 380, suffix: "ч" },
+          sub: { words: seq("каждую неделю", 8.55) },
+          badge: { text: "−1,7 млн ₸ в месяц", kind: "red", at: 9.1 },
+        }, tl, 6.75);
+        RSC.tx.whip(tl, P.s3, P.s4, 10.2, { dir: "up" });
+
+        /* ── chapter 2 · решение ── */
+        /* s4 · cinematic · visual-top (10.2 – 13.8) */
+        RSC.layout.visualTop(P.s4, {
+          hero: { src: IMG("stopwatch"), size: 600, entry: "rise", at: 10.18, glow: "rgba(30,170,220,.42)", idle: { until: 14.4 } },
+          extra: (s) => RSA.glassPill(s, { text: "старт", icon: "▶", x: 500, y: 520, size: 44 }, tl, 11.05),
+          headline: { text: "один тап — / таймер идёт", words: seq("один тап — таймер идёт", 11.3, 0.13), highlight: ["таймер"] },
+          caption: { text: "никаких таблиц и напоминаний", at: 12.45 },
+        }, tl, 10.18);
+        RSC.tx.dissolve(tl, P.s4, P.s5, 13.8);
+
+        /* s5 · UI · media — iPhone with the app, glove tap starts the timer (13.8 – 17.6) */
+        const app = `<div class="rsc-app">
+          <div class="lh-title">Сегодня</div><div class="lh-date">чт, 16 мая</div>
+          <div class="lh-seg"></div>
+          <div class="lh-card"><div class="p"><i></i>Отчёт Q3 · Финансы</div><div class="lh-timer">02:14:37</div></div>
+          <div class="lh-btn"><span class="go" style="background:#007AFF;border-radius:28px;width:100%;height:100%;display:grid;place-items:center">Старт</span><span class="on" style="background:#34C759;border-radius:28px;width:100%;height:100%;display:grid;place-items:center">Идёт запись</span></div>
+          <div class="lh-row" style="top:700px">Созвон с клиентом <b>0:40</b></div>
+          <div class="lh-row" style="top:784px">Ревью задач <b>1:05</b></div>
+          <div class="lh-row" style="top:868px">Почта и чаты <b>0:22</b></div></div>`;
+        RSC.layout.media(P.s5, {
+          kicker: { words: seq("отметка без усилий", 14.0) },
+          headline: { words: seq("Считает за вас", 14.35, 0.14) },
+          phone: { width: 460, html: app, enter: "rise", at: 13.95 },
+          after: (slot, phone, geo) => {
+            const scr = phone.screen;
+            RSB.segmented(scr.querySelector(".lh-seg"), { items: ["День", "Неделя", "Месяц"], active: 0, steps: [{ at: 16.75, active: 1 }] }, tl, 14.5);
+            const tap = 15.55;
+            const timer = scr.querySelector(".lh-timer"), go = scr.querySelector(".go"), on = scr.querySelector(".on");
+            tl.fromTo(on, { opacity: 0 }, { opacity: 0, duration: 0.01 }, 13.95);
+            RSB.ft(tl, on, { opacity: 0 }, { opacity: 1, duration: 0.15 }, tap + 0.05);
+            RSB.ft(tl, go, { opacity: 1 }, { opacity: 0, duration: 0.15 }, tap + 0.05);
+            const fmt = (s) => [Math.floor(s / 3600), Math.floor(s / 60) % 60, s % 60].map((n) => String(n).padStart(2, "0")).join(":");
+            const o = { v: 0 }, base = 2 * 3600 + 14 * 60 + 37;
+            tl.fromTo(o, { v: 0 }, { v: 2.2, duration: 2.2, ease: "none", immediateRender: false, onUpdate: () => { timer.textContent = fmt(base + Math.floor(o.v)); } }, tap);
+            const b = geo.toSlot(258, 608);
+            RSB.cursor(slot, { kind: "glove", path: [{ x: b.x + 150, y: b.y + 330, at: 14.95 }, { x: b.x, y: b.y, at: 15.25, dur: 0.27 }, { x: b.x + 190, y: b.y + 400, at: 16.05, dur: 0.35 }], taps: [tap] }, tl, 14.95);
+          },
+        }, tl, 14.0);
+        RSC.tx.whip(tl, P.s5, P.s6, 17.6, { dir: "left" });
+
+        /* ── chapter 3 · результат ── */
+        /* s6 · cinematic · compare (17.6 – 21.2) */
+        RSC.layout.compare(P.s6, {
+          headline: { text: "+2 часа / фокуса", words: seq("+2 часа фокуса", 17.66, 0.14), highlight: ["+2"] },
+          left: { title: "без учёта", src: IMG("money_with_wings"), value: "5,1", unit: "ч", color: "#FF453A", note: "работы над задачами", at: 17.95 },
+          right: { title: "с Link HR", src: IMG("chart_increasing"), value: "7,2", unit: "ч", color: "#30D158", note: "работы над задачами", at: 18.55 },
+          caption: { text: "пилот: 3 команды, 6 недель", at: 19.95 },
+        }, tl, 17.66);
+        RSC.tx.dissolve(tl, P.s6, P.s7, 21.2);
+
+        /* s7 · UI · list on blue (glass rows) (21.2 – 24.8) */
+        RSC.layout.list(P.s7, {
+          kicker: { words: seq("руководитель видит", 21.35) },
+          headline: { words: seq("Всю неделю сразу", 21.65, 0.14) },
+          notification: { title: CTA.name, time: "сейчас", text: "Отчёт за неделю готов", icon: "⏱️", iconBg: "#0A84FF", at: 21.45 },
+          enterAt: 22.25,
+          rows: [
+            { emoji: "📊", caption: "Проекты", title: "Отчёт Q3 — 38 ч", at: 22.7 },
+            { emoji: "🕒", caption: "Переработки", title: "Oʻtkir — 47 ч за неделю", at: 23.15 },
+            { emoji: "🏖️", caption: "Отпуска", title: "Айгерім — 12–19 мая", at: 23.6 },
+          ],
+        }, tl, 21.35);
+        RSC.tx.whip(tl, P.s7, P.s8, 24.8, { dir: "up" });
+
+        /* ── chapter 4 ── */
+        /* s8 · statement (24.8 – 27.0) */
+        RSC.layout.statement(P.s8, {
+          headline: { text: "учёт без таблиц / и без споров", words: seq("учёт без таблиц и без споров", 24.84, 0.13), highlight: ["споров"] },
+        }, tl, 24.84);
+        RSC.tx.portal(tl, P.s8, P.s9, 27.0, { from: [180, 320], to: [540, 1000] }, root);
+
+        /* s9 · head-side — CTA in the chest band + literal captions (27.6 – 31.0) */
+        RSC.layout.headSide(P.s9, {
+          footage: { label: "FOOTAGE SLOT", sub: "edit/head.mp4 · призыв, говорящая голова" },
+          bandY: 900, bandH: 380,
+          component: (band) => RSB.ctaFollow(band, { x: 140, y: 87, avatar: IMG("stopwatch"), name: [CTA.name, CTA.handle], button: CTA.button,
+            unrollAt: 28.3, typeAt: 28.6, pressAt: 30.0 }, tl, 27.8),
+          captionY: 1420,
+          phrases: [
+            { words: W([["Попробуйте", 27.9], ["Link", 28.3], ["HR", 28.45]]) },
+            { words: W([["ссылка", 29.25], ["в", 29.5], ["профиле", 29.6]]) },
+          ],
+        }, tl, 27.8);
+
+        window.__RSC_PAGES = P; // QA hook (RSC.audit)
+        window.__timelines = window.__timelines || {};
+        window.__timelines["main"] = tl;
+      })();
+    </script>
+  </body>
+</html>

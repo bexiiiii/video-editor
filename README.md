@@ -6,7 +6,9 @@ Multi-agent production of vertical reels (Instagram Reels / TikTok / Shorts, 108
 - **Styles:**
   - **A "3D Keyword"**: faceless 3D motion, keyword headlines, voice only.
   - **B "iOS Keynote"**: Apple-UI motion, literal word-synced text, soft music bed and UI clicks.
-  - Both were reverse-engineered frame by frame from reference reels. See `skills/reels-studio/references/teardowns/`.
+  - **C "Keynote 3D"**: hybrid. Chapters alternate a cinematic 3D scene in the A look with an iOS UI scene in the B look, held together by B's chrome.
+  - A and B were reverse-engineered frame by frame from reference reels (`skills/reels-studio/references/teardowns/`). C is built on top of both.
+- **Layouts:** 10 layout types (`references/layouts.md`) with enforced spacing and variety rules: no layout twice in a row, no component reused within 3 scenes, no drawn people, no emoji or placeholder heroes.
 - **Modes:** faceless · talking-head hook/CTA + motion body · talking head with overlays.
 - **Languages:** Russian, Uzbek, Kazakh. Speech recognition always runs with the language forced.
 - **Output:**
@@ -50,11 +52,11 @@ Copy `.env.example` → `.env` and fill any subset of the keys. With no keys at 
 In Claude Code or Codex, inside any folder:
 > сделай рилс в стиле B на узбекском из `input/take1.mov`, режим hook_cta, CTA — подписка
 
-The orchestrator asks for anything missing, including clone vs stock voice for faceless reels. It then shows the scene plan and delivers `work/<slug>/renders/final.mp4`.
+The orchestrator asks for anything missing: clone vs stock voice for faceless reels, and the name, Instagram handle and avatar shown in the final CTA. It then shows the scene plan and delivers `work/<slug>/renders/final.mp4`.
 
 ## Repo layout
 ```
-skills/reels-studio/   orchestrator: SKILL.md, references/, scripts/, assets/{shared,style-a,style-b,sfx}
+skills/reels-studio/   orchestrator: SKILL.md, references/, scripts/, assets/{shared,style-a,style-b,style-c,sfx}, examples/
 skills/reels-{scene,art,sound,editor,qa}/   worker skills
 tools/agents.yaml      worker roster → agents/*.md (Claude) + codex/agents/*.toml (Codex) via tools/gen_agents.py
 .claude-plugin/        Claude Code plugin + marketplace manifests

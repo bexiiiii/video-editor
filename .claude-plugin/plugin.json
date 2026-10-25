@@ -1,6 +1,6 @@
 {
   "name": "reels-studio",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Multi-agent vertical reel production: talking-head edits and faceless motion in two reference styles, ru/uz/kk, captions, generated images, sound design, −14 LUFS master.",
   "author": { "name": "bexiiiii" },
   "repository": "https://github.com/bexiiiii/video-editor",

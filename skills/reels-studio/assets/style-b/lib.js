@@ -15,7 +15,7 @@
   "use strict";
   const RS = window.RS;
   if (!RS) throw new Error("RSB needs shared/runtime.js (RS) loaded first");
-  const RSB = { version: "1.0.0" };
+  const RSB = { version: "1.1.0" };
   const el = RS.el;
 
   /* ------------------------------------------------------------------ *
@@ -28,16 +28,19 @@
   }
   RSB.ft = ft;
 
-  /** Absolute placement from props: {x,y} (left/top px), {center:true} centres horizontally, {z}. */
+  /** Absolute placement from props: {x,y} (left/top px), {center:true} centres horizontally, {z}.
+   *  {flow:true} keeps the node in normal flow (position:relative, x/y ignored) — used by RSB.layout.* slots. */
   function place(node, p) {
-    if (p.x != null || p.y != null || p.center) {
+    if (p.flow) {
+      node.style.position = "relative";
+    } else if (p.x != null || p.y != null || p.center) {
       node.style.position = "absolute";
       if (p.center) { node.style.left = "0"; node.style.right = "0"; node.style.marginLeft = "auto"; node.style.marginRight = "auto"; node.style.width = node.style.width || "max-content"; }
       else if (p.x != null) node.style.left = p.x + "px";
       if (p.y != null) node.style.top = p.y + "px";
     }
     if (p.z != null) node.style.zIndex = p.z;
-    if (p.style) Object.assign(node.style, p.style);
+    if (p.style && typeof p.style === "object") Object.assign(node.style, p.style);
     return node;
   }
 
@@ -77,6 +80,14 @@
   const CHECK_SVG = (stroke = "#fff", w = 3.2) =>
     `<svg viewBox="0 0 24 24"><path d="M5 12.5l4.6 4.6L19 7.7" fill="none" stroke="${stroke}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
   const BOOKMARK_SVG = (c) => `<svg viewBox="0 0 22 28"><path d="M2 3a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v23l-9-6-9 6z" fill="${c}"/></svg>`;
+
+  /** Initials avatar ("Link HR" → "LH") — the fallback when no real photo is supplied. Never a drawn/emoji face. */
+  function monogram(host, name) {
+    const letters = String(name || "?").replace(/[@|·,]/g, " ").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("");
+    const m = el("span", "rsb-mono", host); m.textContent = letters || "?";
+    return m;
+  }
+  RSB.monogram = monogram;
 
   /** Wait for the fonts the library uses (call before building; measuring depends on it). */
   RSB.ready = function () {
@@ -264,12 +275,21 @@
    * @param {{meta?:{left?:string, right?:{text,kind,at}}, head?:{emoji?:string, text?:string|object},
    *          lines?:Array<{words|text, at, cls?:'quote'|'note', highlight?:string[]}>,
    *          rows?:Array<{text:string, at:number, capsule?:{text,kind,at}}>, slot?:boolean, width?:number,
-   *          x?,y?,center?}} props
+   *          allowEmpty?:boolean, x?,y?,center?,flow?}} props
+   *   No empty cards: if the first text starts > 0.35 s after `at`, the card enters 0.25 s before it (allowEmpty opts out).
    * @returns {HTMLElement} card; `.lines`, `.rows`, `.slotEl` (free area under the lines), `.badge`.
    */
   RSB.card = function (container, props = {}, tl, at) {
     const card = place(el("div", "rsb-card", container), props);
     if (props.width) card.style.width = props.width + "px";
+    // never show an empty card (layouts.md §1): if the first text arrives > 0.35 s after `at`,
+    // the card enters 0.25 s before that text instead.
+    const firstT = [
+      props.head ? words(props.head.words || props.head.text, props.head.at ?? at + 0.2, props.head.stagger)[0] : null,
+      ...(props.lines || []).map((ln) => words(ln.words || ln.text, ln.at, ln.stagger)[0]),
+      ...(props.rows || []).map((r) => words(r.words || r.text, r.at, r.stagger)[0]),
+    ].filter((w) => w && w.t != null).map((w) => w.t);
+    if (props.allowEmpty !== true && firstT.length && Math.min(...firstT) - at > 0.35) at = Math.min(...firstT) - 0.25;
     enter(tl, card, at);
     if (props.meta) {
       const m = el("div", "meta", card);
@@ -396,10 +416,12 @@
   /**
    * Audio-player pill 608×112 (DeZREMAtvBf §5D): rises (y+12, blur 6, 0.3 s), red bar scaleX 0→1 in
    * 0.22 s power2.inOut at at+0.28, time label fades 0.12 s at at+0.52.
-   * @param {{time?:string, fillAt?:number, fillDur?:number, fillTo?:number, color?:string, x?,y?,center?}} props
+   * @param {{time?:string, fillAt?:number, fillDur?:number, fillTo?:number, color?:string, scale?:number, x?,y?,center?,flow?}} props
+   *   scale = layout-affecting size-up (CSS zoom), e.g. 1.3 → 790 px wide in RSB.layout.stack
    */
   RSB.player = function (container, props = {}, tl, at) {
     const p = place(el("div", "rsb-player", container), props);
+    if (props.scale && props.scale !== 1) { p.style.zoom = props.scale; } // layout-affecting size-up (e.g. 1.3 → 790 px wide)
     el("div", "play", p);
     const tr = el("div", "track", p);
     const fill = el("div", "fill", tr); if (props.color) fill.style.background = props.color;
@@ -500,7 +522,7 @@
     g.style.gridTemplateColumns = `repeat(${cols}, 82px)`;
     const cells = Array.from({ length: cols * rows }, (_, i) => { const c = el("i", null, g); if (i < n) { const b = el("b", null, c); b.textContent = String(i + 1); b.style.color = props.fillInk || "#4A6FA5"; } return c; });
     tl.fromTo(cells, { opacity: 0, scale: 0.85, filter: "blur(8px)" }, { opacity: 1, scale: 1, filter: "blur(0px)", duration: 0.35, ease: "power3.out", stagger: 0.012 }, at);
-    const fa = props.fillAt ?? at + 0.9, st = props.stagger ?? 0.055;
+    const fa = props.fillAt ?? at + 0.35, st = props.stagger ?? 0.055;
     const cs = getComputedStyle(cells[0]);
     cells.slice(0, n).forEach((c, i) => {
       ft(tl, c, { backgroundColor: cs.backgroundColor, borderColor: cs.borderTopColor },
@@ -674,7 +696,7 @@
    * Skeleton list rows → content (DelZA2dtAE6 1-qadam): rows enter with skeleton placeholders (grey tile +
    * 2 bars), each fills on its spoken word: skeleton blurs out 0.15 s, content blurs in from x+20 0.25 s expo.out.
    * @param {{rows:Array<{emoji:string, caption?:string, title:string, at:number}>, enterAt?:number, stagger?:number,
-   *          height?:number, x?,y?,center?}} props
+   *          height?:number, maxSkeleton?:number, x?,y?,center?}} props  a row's skeleton shows ≤ maxSkeleton (0.45 s) before its content
    */
   RSB.skeletonRows = function (container, props, tl, at) {
     const list = place(el("div", "rsb-rows", container), props);
@@ -691,7 +713,9 @@
       const tx = el("div", null, ct);
       if (r.caption) el("div", "cap", tx).textContent = r.caption;
       el("div", "ttl", tx).textContent = r.title;
-      enter(tl, row, (props.enterAt ?? at) + i * (props.stagger ?? 0.08), { y: 30, dur: 0.35 });
+      // skeleton is visible at most `maxSkeleton` (0.45 s) before its content — no long-lived empty rows
+      const t0 = (props.enterAt ?? at) + i * (props.stagger ?? 0.08);
+      enter(tl, row, Math.max(t0, r.at - (props.maxSkeleton ?? 0.45)), { y: 30, dur: 0.35 });
       ft(tl, sk, { opacity: 1, filter: "blur(0px)" }, { opacity: 0, filter: "blur(6px)", duration: 0.15 }, r.at);
       tl.fromTo(ct, { opacity: 0, x: 20, filter: "blur(8px)" }, { opacity: 1, x: 0, filter: "blur(0px)", duration: 0.25, ease: "expo.out" }, r.at + 0.05);
       return row;
@@ -768,13 +792,14 @@
    * framework-owned <video> statically in the HTML and pass it as `node`), or HTML.
    * enter 'rise': y+260, scale .85 → 1, 0.33 s expo.out (Dd1b9kEA-KL); 'pullout': scale 2→1 0.333 s expo.out
    * (Dd3Uz4Mgbn-). float: gentle 10–20px drift for `float` seconds.
-   * @param {{x?:number, y?:number, width?:number, src?:string, node?:HTMLElement, html?:string, enter?:'rise'|'pullout'|'fade',
-   *          floor?:boolean, float?:number}} props
+   * Nothing supplied → labelled "ваше видео" footage slot on the screen. `flow:true` = in-flow (RSB.layout.media).
+   * @param {{x?:number, y?:number, flow?:boolean, width?:number, src?:string, node?:HTMLElement, html?:string, label?:string,
+   *          enter?:'rise'|'pullout'|'fade', floor?:boolean, float?:number}} props
    * @returns {HTMLElement} phone; `.screen` for overlays.
    */
   RSB.iphone = function (container, props = {}, tl, at) {
     const k = (props.width || 565) / 565;
-    const holder = place(el("div", null, container), { x: props.x ?? Math.round((1080 - 565 * k) / 2), y: props.y ?? 380 });
+    const holder = place(el("div", null, container), { flow: props.flow, x: props.x ?? Math.round((1080 - 565 * k) / 2), y: props.y ?? 380 });
     holder.style.width = 565 * k + "px"; holder.style.height = 1160 * k + "px";
     const scaler = el("div", null, holder); scaler.style.transformOrigin = "0 0"; scaler.style.transform = `scale(${k})`; scaler.style.position = "relative"; scaler.style.width = "565px"; scaler.style.height = "1160px";
     let floor = null;
@@ -786,6 +811,7 @@
     if (props.node) screen.appendChild(props.node);
     else if (props.src) { const img = el("img", null, screen); img.src = props.src; img.alt = ""; }
     else if (props.html) { const h = el("div", null, screen); h.style.position = "absolute"; h.style.inset = "0"; h.innerHTML = props.html; }
+    else RSB.footage(screen, { compact: true, label: props.label }); // nothing supplied → labelled neutral slot, never a drawing
     const mode = props.enter || "rise";
     if (mode === "rise") {
       tl.fromTo(phone, { y: 260, scale: 0.85, opacity: 0 }, { y: 0, scale: 1, opacity: 1, duration: 0.33, ease: "expo.out" }, at);
@@ -806,15 +832,20 @@
    * CTA follow pill (Dd1b9kEA-KL / Dd3Uz4Mgbn-): B&W avatar tile pops (0→1.15→1, 5 frames) → pill unrolls right
    * (206→619, back.out(1.2) 0.3 s) with the blue #227DE5 button bar → name types word by word with a text cursor →
    * button pressed: scale .5 + #2B2B2B over 4 frames (subscribed chip). Off-white #EEEEEC, radius 70, white glow.
-   * @param {{x?:number, y?:number, avatar?:string, avatarEmoji?:string, name:string[], button?:string,
+   * Identity comes from props (brief → name/handle/photo); never hard-code a creator. No `avatar` photo → initials
+   * monogram (`monogram` or derived from name[0]) — never a drawn or emoji face.
+   * @param {{x?:number, y?:number, flow?:boolean, avatar?:string, monogram?:string, avatarEmoji?:string, name:string[], button?:string,
    *          unrollAt?:number, typeAt?:number, pressAt?:number, width?:number}} props
    */
   RSB.ctaFollow = function (container, props, tl, at) {
     const W = props.width || 619;
-    const pill = place(el("div", "rsb cta-wrap", container), { x: props.x ?? Math.round((1080 - W) / 2), y: props.y ?? 1184 });
+    const pill = place(el("div", "rsb cta-wrap", container), { flow: props.flow, x: props.x ?? Math.round((1080 - W) / 2), y: props.y ?? 1184 });
+    if (props.flow) { pill.style.width = W + "px"; pill.style.height = "206px"; }
     const box = el("div", "rsb-cta", pill); box.style.position = "relative"; box.style.width = W + "px";
     const ava = el("div", "ava", box);
-    if (props.avatar) { const i = el("img", null, ava); i.src = props.avatar; i.alt = ""; } else el("span", "emo", ava, props.avatarEmoji || "🙂");
+    if (props.avatar) { const i = el("img", null, ava); i.src = props.avatar; i.alt = ""; }
+    else if (props.avatarEmoji) el("span", "emo", ava, props.avatarEmoji);
+    else monogram(ava, props.monogram || (props.name || [])[0] || props.handle);
     const name = el("div", "name", box);
     const lines = (props.name || []).map((t) => el("div", null, name));
     const btn = el("div", "btn", box); const bt = el("span", null, btn); bt.textContent = props.button || "Obuna bo'ling";
@@ -848,15 +879,18 @@
    * Fake Instagram profile card (De1roE4t7Lf CTA): white r44 780 wide; gradient story ring avatar, handle +
    * verified, uppercase bio; stats count up (posts, followers) over 0.6 s; "Obuna bo'lish" button fades in;
    * tap ripple → button turns grey "Obuna bo'ldingiz", green ✓ pops, followers tick +1.
-   * @param {{x?:number, y?:number, avatar?:string, avatarEmoji?:string, handle:string, verified?:boolean, bio?:string,
+   * No `avatar` photo → initials monogram. `flow:true` = in-flow (layout slots); the chip sits inside the card.
+   * @param {{x?:number, y?:number, flow?:boolean, avatar?:string, monogram?:string, avatarEmoji?:string, handle:string, verified?:boolean, bio?:string,
    *          posts?:[number,number], followers?:[number,number], following?:string|number, button?:string, done?:string,
    *          buttonAt?:number, tapAt?:number, chip?:{text:string, icon?:string, at:number}}} props
    */
   RSB.igProfile = function (container, props, tl, at) {
-    const card = place(el("div", "rsb rsb-ig", container), { x: props.x ?? 150, y: props.y ?? 1045 });
+    const card = place(el("div", "rsb rsb-ig", container), { flow: props.flow, x: props.x ?? 150, y: props.y ?? 1045 });
     const top = el("div", "top", card);
     const ring = el("div", "ring", top); const av = el("div", null, ring);
-    if (props.avatar) { const i = el("img", null, av); i.src = props.avatar; i.alt = ""; Object.assign(i.style, { width: "100%", height: "100%", objectFit: "cover" }); } else el("span", "emo", av, props.avatarEmoji || "🙂");
+    if (props.avatar) { const i = el("img", null, av); i.src = props.avatar; i.alt = ""; Object.assign(i.style, { width: "100%", height: "100%", objectFit: "cover" }); }
+    else if (props.avatarEmoji) el("span", "emo", av, props.avatarEmoji);
+    else monogram(av, props.monogram || props.bio || props.handle);
     const info = el("div", null, top);
     const h = el("div", "handle", info); el("span", null, h).textContent = props.handle;
     if (props.verified !== false) el("span", "verified", h, "✓");
@@ -883,7 +917,7 @@
     const chk = RSB.checkBadge(follow, { x: 690 - 24, y: -14, size: 40, color: "#34C759", ring: "#fff" }, tl, ta + 0.2);
     follow.style.overflow = "visible";
     if (props.chip) {
-      const chip = RSB.capsule(container, { text: props.chip.text, icon: props.chip.icon, kind: "grey", x: (props.x ?? 150) + 60, y: (props.y ?? 1045) - 64 }, tl, props.chip.at);
+      const chip = RSB.capsule(card, { text: props.chip.text, icon: props.chip.icon, kind: "grey", x: 60, y: -64 }, tl, props.chip.at);
       Object.assign(chip.style, { background: "#FFFFFF", color: "#000", boxShadow: "0 6px 16px rgba(0,0,0,.18)" });
       card.chip = chip;
     }
@@ -894,10 +928,10 @@
   /**
    * "Saqlash" → "Saqlandi" pill (DelZA2dtAE6 CTA): appears frosted grey → white; on tap a white ring ripple
    * expands and the pill turns #007AFF "Saqlandi" (filled bookmark).
-   * @param {{x?:number, y?:number, text?:string, done?:string, tapAt?:number}} props
+   * @param {{x?:number, y?:number, flow?:boolean, text?:string, done?:string, tapAt?:number}} props
    */
   RSB.savePill = function (container, props, tl, at) {
-    const p = place(el("div", "rsb rsb-save", container), { x: props.x ?? 165, y: props.y ?? 1418 });
+    const p = place(el("div", "rsb rsb-save", container), { flow: props.flow, x: props.x ?? 165, y: props.y ?? 1418 });
     const off = el("div", "off", p, BOOKMARK_SVG("none") + `<span>${props.text || "Saqlash"}</span>`);
     off.querySelector("path").setAttribute("stroke", "#000"); off.querySelector("path").setAttribute("stroke-width", "2.4");
     const on = el("div", "on", p, BOOKMARK_SVG("#fff") + `<span>${props.done || "Saqlandi"}</span>`);
@@ -908,8 +942,7 @@
     ft(tl, p, { scale: 1 }, { scale: 0.94, duration: 0.07, yoyo: true, repeat: 1, ease: "power2.inOut" }, ta);
     ft(tl, on, { opacity: 0 }, { opacity: 1, duration: 0.15 }, ta + 0.05);
     ft(tl, off, { opacity: 1 }, { opacity: 0, duration: 0.15 }, ta + 0.05);
-    const w = p.getBoundingClientRect().width;
-    RSB.ripple(container, { x: (props.x ?? 165) + w / 2, y: (props.y ?? 1418) + 32 }, tl, ta);
+    RSB.ripple(p, { x: p.offsetWidth / 2, y: 32 }, tl, ta); // ripple lives in the pill → correct in flow and absolute modes
     return p;
   };
 
@@ -965,6 +998,379 @@
     const l = el("div", "rsb-lens", container);
     if (props.blur) l.style.backdropFilter = l.style.webkitBackdropFilter = `blur(${props.blur}px)`;
     return l;
+  };
+
+  /* ================================================================== *
+   * FOOTAGE — real talking-head video / photo, or a labelled neutral slot
+   * ================================================================== */
+  const CAMERA_SVG = `<svg viewBox="0 0 48 36" width="64" height="48"><rect x="2" y="7" width="32" height="24" rx="6" fill="none" stroke="currentColor" stroke-width="3"/><path d="M34 15l11-6v18l-11-6z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/></svg>`;
+
+  /**
+   * Talking-head footage layer. A human on screen is ALWAYS real material (layouts.md §4): pass `node` (a
+   * framework-owned <video> authored statically in the HTML — HyperFrames owns playback) or `src` (photo/still).
+   * Without a source it renders a clearly labelled neutral "footage slot": dark frosted rounded rectangle with a
+   * camera icon and the label "ваше видео" — never a drawn figure.
+   * @param {HTMLElement} container  usually `page.content`
+   * @param {{node?:HTMLElement, src?:string, fit?:'cover'|'contain', lens?:number|boolean,
+   *          slot?:{x:number,y:number,w:number,h:number}, label?:string, sub?:string, compact?:boolean}} props
+   *   slot = where the placeholder rectangle sits (default: face+torso area x 140, y 300, 800×1000);
+   *   lens = edge-blur px for real footage (Dd1b9kEA-KL §1); compact = small inline slot (inside a phone/screenshot).
+   * @returns {HTMLElement} layer; `.media` (video/img) or `.slot` (placeholder).
+   */
+  RSB.footage = function (container, props = {}, tl, at) {
+    const f = el("div", "rsb rsb-footage" + (props.compact ? " compact" : ""), container);
+    if (props.node || props.src) {
+      const m = props.node || el("img", null, null);
+      if (!props.node) { m.src = props.src; m.alt = ""; }
+      f.appendChild(m); m.classList.add("media"); m.style.objectFit = props.fit || "cover";
+      f.media = m;
+      if (props.lens) RSB.lens(f, { blur: props.lens === true ? 14 : props.lens });
+    } else {
+      f.classList.add("empty");
+      const s = el("div", "slot", f);
+      if (!props.compact) {
+        const r = Object.assign({ x: 140, y: 300, w: 800, h: 1000 }, props.slot || {});
+        Object.assign(s.style, { left: r.x + "px", top: r.y + "px", width: r.w + "px", height: r.h + "px" });
+      }
+      el("div", "ic", s, CAMERA_SVG);
+      el("div", "lb", s).textContent = props.label || "ваше видео";
+      if (!props.compact) el("div", "sb", s).textContent = props.sub || "talking head · 9:16";
+      f.slot = s;
+    }
+    if (tl && at != null) tl.fromTo(f, { opacity: 0 }, { opacity: 1, duration: 0.25, ease: "power1.out" }, at);
+    return f;
+  };
+
+  /* ================================================================== *
+   * LIST ROWS / COMPARE / SCREENSHOT (used by the layouts, usable alone)
+   * ================================================================== */
+
+  /**
+   * Rows that build downward (DelZA2dtAE6 "1-qadam", DeZREMAtvBf 39.5 s timeline). Each row appears WITH its
+   * content on its word (`at`): rise y+30 + blur 8 → 0.35 s power3.out. Optional skeleton morph: the row shows
+   * grey skeleton bars for `skeleton` seconds (≤ 0.45) before the content blurs in.
+   * @param {{rows:Array<{emoji?:string, num?:string|number, caption?:string, title:string, at:number,
+   *          right?:{type?:'capsule'|'check', text?:string, kind?:string, at?:number}}>,
+   *          variant?:'cards'|'timeline', width?:number, rowH?:number, gap?:number, skeleton?:number, x?,y?,center?,flow?}} props
+   * @returns {HTMLElement} list; `.rows` = row elements.
+   */
+  RSB.listRows = function (container, props, tl, at) {
+    const tlStyle = (props.variant || props.style) === "timeline";
+    const list = place(el("div", "rsb-list" + (tlStyle ? " timeline" : ""), container), props);
+    const W = props.width || (tlStyle ? 700 : 790), H = props.rowH || 168, G = props.gap ?? 30;
+    list.style.gap = G + "px";
+    let rail = null;
+    if (tlStyle) { rail = el("div", "rail", list); rail.style.top = H / 2 + "px"; rail.style.bottom = H / 2 + "px"; }
+    const rows = props.rows.map((r, i) => {
+      const row = el("div", "rsb-lrow", list);
+      row.style.width = W + "px"; row.style.height = H + "px";
+      const ct = el("div", null, row);
+      if (r.emoji) el("div", "ico emo", ct, r.emoji);
+      else if (r.num != null) el("div", "ico num", ct).textContent = String(r.num);
+      const tx = el("div", null, ct); tx.style.flex = "1";
+      if (r.caption) el("div", "cap", tx).textContent = r.caption;
+      el("div", "ttl", tx).textContent = r.title;
+      let dot = null;
+      if (tlStyle) { dot = el("div", "dot", row); dot.textContent = String(i + 1); }
+      const sk = props.skeleton ? Math.min(0.45, props.skeleton) : 0;
+      enter(tl, row, r.at - 0.1 - sk, { y: 30, dur: 0.35 });
+      if (sk) {
+        const s = el("div", "skel", row);
+        el("div", "sk-ico", s); const bars = el("div", null, s); bars.style.flex = "1";
+        el("div", "sk", bars).style.width = "30%"; const b2 = el("div", "sk", bars); b2.style.width = "62%"; b2.style.marginTop = "18px";
+        ft(tl, s, { opacity: 1, filter: "blur(0px)" }, { opacity: 0, filter: "blur(6px)", duration: 0.15 }, r.at - 0.05);
+        tl.fromTo(ct, { opacity: 0, x: 20, filter: "blur(8px)" }, { opacity: 1, x: 0, filter: "blur(0px)", duration: 0.25, ease: "expo.out" }, r.at);
+      }
+      if (dot) pop(tl, dot, r.at - 0.1, { from: 0.4 });
+      if (r.right) {
+        const ra = r.right.at ?? r.at + 0.35;
+        if (r.right.type === "check") { const b = RSB.checkBadge(row, { size: 52, ring: false, color: r.right.color }, tl, ra); b.style.left = ""; b.style.right = "30px"; b.style.top = (H - 52) / 2 + "px"; }
+        else { const c = RSB.capsule(ct, Object.assign({ kind: "green" }, r.right), tl, ra); c.style.flex = "none"; }
+      }
+      return row;
+    });
+    if (rail) tl.fromTo(rail, { scaleY: 0 }, { scaleY: 1, duration: Math.max(0.3, props.rows[props.rows.length - 1].at - props.rows[0].at), ease: "none" }, props.rows[0].at);
+    list.rows = rows;
+    return list;
+  };
+
+  /**
+   * Two-way comparison (DeRXnpgtYe6 "Oldin/Keyin", DeZREMAtvBf 53.6 s ✓/✕): two tiles side by side (columns) or
+   * stacked (rows). Each tile = tag capsule + quote + optional retention meter that fills. At `pickAt` the winner
+   * gets a ✓ badge and lifts, the loser dims to 50 %.
+   * @param {{mode?:'columns'|'stacked', left:Side, right:Side, pick?:'left'|'right', pickAt?:number, width?:number,
+   *          x?,y?,center?,flow?}} props
+   *   Side = {tag?:{text,kind}, emoji?:string, quote:string|{words|text,at}, meter?:{value:number(0–1), label?:string,
+   *          color?:string}, at:number}
+   * @returns {HTMLElement} wrapper; `.left`, `.right` tiles.
+   */
+  RSB.compare = function (container, props, tl, at) {
+    const mode = props.mode || "columns";
+    const w = place(el("div", "rsb-cmp " + mode, container), props);
+    w.style.width = (props.width || 790) + "px";
+    const tile = (s) => {
+      const t = el("div", "side", w);
+      enter(tl, t, s.at, { y: 40, dur: 0.4 });
+      if (s.tag) RSB.capsule(t, Object.assign({ kind: "grey" }, s.tag), tl, s.at + 0.05);
+      if (s.emoji) { const e = el("div", "emo big", t, s.emoji); pop(tl, e, s.at + 0.1, { from: 0.5, dur: 0.3 }); }
+      const q = el("div", "q", t);
+      const qs = typeof s.quote === "object" ? s.quote : { text: s.quote };
+      revealWords(q, words(qs.words || qs.text, qs.at ?? s.at + 0.3, qs.stagger ?? 0.1), tl);
+      if (s.meter) {
+        const m = el("div", "meter", t); const bar = el("div", "bar", m); const fill = el("i", null, bar);
+        fill.style.background = s.meter.color || "#34C759";
+        const lab = el("div", "ml", m); lab.textContent = s.meter.label || Math.round(s.meter.value * 100) + "%";
+        tl.fromTo(fill, { scaleX: 0 }, { scaleX: s.meter.value, duration: 0.7, ease: "power2.out" }, s.at + 0.5);
+        tl.fromTo(lab, { opacity: 0 }, { opacity: 1, duration: 0.2 }, s.at + 0.7);
+      }
+      return t;
+    };
+    w.left = tile(props.left); w.right = tile(props.right);
+    if (props.pick && props.pickAt != null) {
+      const win = props.pick === "left" ? w.left : w.right, lose = props.pick === "left" ? w.right : w.left;
+      ft(tl, lose, { opacity: 1 }, { opacity: 0.5, duration: 0.3 }, props.pickAt);
+      ft(tl, win, { scale: 1 }, { scale: 1.03, duration: 0.3, ease: "back.out(2)" }, props.pickAt);
+      const b = RSB.checkBadge(win, { size: 56 }, tl, props.pickAt + 0.1); b.style.left = ""; b.style.right = "-14px"; b.style.top = "-14px";
+      w.check = b;
+    }
+    return w;
+  };
+
+  /**
+   * Framed screenshot / screen recording without a device (proof shots): rounded card with hairline + shadow.
+   * Pass `src` (image), `node` (static framework <video>) or `html`; nothing → labelled footage slot.
+   * enter: rise y+80/scale .94 0.4 s expo.out; `tilt` = slight 3D tilt degrees (ref imperfection).
+   * @param {{src?:string, node?:HTMLElement, html?:string, width?:number, height?:number, radius?:number,
+   *          tilt?:number, label?:string, x?,y?,center?,flow?}} props
+   * @returns {HTMLElement} frame; `.screen` for overlays.
+   */
+  RSB.screenshot = function (container, props = {}, tl, at) {
+    const f = place(el("div", "rsb-shot", container), props);
+    f.style.width = (props.width || 790) + "px"; f.style.height = (props.height || 1150) + "px";
+    if (props.radius != null) f.style.borderRadius = props.radius + "px";
+    const scr = el("div", "screen", f);
+    if (props.node) scr.appendChild(props.node);
+    else if (props.src) { const i = el("img", null, scr); i.src = props.src; i.alt = ""; }
+    else if (props.html) scr.innerHTML = props.html;
+    else RSB.footage(scr, { compact: true, label: props.label || "скриншот" });
+    tl.fromTo(f, { opacity: 0, y: 80, scale: 0.94, rotationX: props.tilt ? props.tilt * 2 : 0, filter: "blur(8px)" },
+      { opacity: 1, y: 0, scale: 1, rotationX: props.tilt || 0, filter: "blur(0px)", duration: 0.4, ease: "expo.out" }, at);
+    f.screen = scr;
+    return f;
+  };
+
+  /* ================================================================== *
+   * LAYOUTS — RSB.layout.<id>(container, props, tl, at) → block
+   * references/layouts.md: live area y 230–1575 / x 90–990; the content block (union of everything in the
+   * scene at its final state) is centred at y≈880 and fills ≥ 45 % (≥ 600 px) except `statement`.
+   * Rhythm (same in every scene): kicker→headline 34 · headline→sub 26 · headline→visual 96 · visual→caption 76.
+   *
+   * Common props: kicker / headline / sub / second = RSB.line props ({words|text, at, highlight, emoji…}),
+   *   step = capsule above the kicker ({text, at, kind}), cy = block centre (default 880),
+   *   visual = component spec placed in a centred flow slot:
+   *     • function (slot, tl) → HTMLElement  (build anything; absolute children are relative to the slot), or
+   *     • {type:'card'|'player'|…, at, …props} → RSB[type](slot, props, tl, at)  (flow:true is added).
+   * Returns the block (absolute, x 90–990) with `.slots` {step,kicker,headline,sub,visual,…}, `.metrics`
+   * {top,bottom,height,centre,fill} and `.recentre()` (call if you add content afterwards).
+   * ================================================================== */
+  const LIVE = { top: 230, bottom: 1575, left: 90, right: 990, cy: 880, minFill: 600 };
+  const RHYTHM = { sk: 46, kh: 34, hs: 26, hv: 96, vc: 76, cc: 14 };
+  const layout = (RSB.layout = { LIVE, RHYTHM });
+
+  function block(container, name, props) {
+    const b = el("div", `rsb-block rsb-layout-${name}`, container);
+    b.slots = {}; b.dataset.layout = name;
+    b._props = props;
+    return b;
+  }
+  function settle(b, props, opt = {}) {
+    const lo = opt.minTop ?? props.minTop ?? 250, hi = opt.maxBottom ?? props.maxBottom ?? LIVE.bottom;
+    const cy = props.cy ?? opt.cy ?? LIVE.cy;
+    const h = b.offsetHeight;
+    const top = Math.round(Math.max(lo, Math.min(cy - h / 2, hi - h)));
+    b.style.top = top + "px";
+    b.metrics = { top, bottom: top + h, height: h, centre: Math.round(top + h / 2), fill: +(h / (LIVE.bottom - LIVE.top)).toFixed(2) };
+    b.dataset.top = top; b.dataset.height = h;
+    if (!opt.noFill && h < LIVE.minFill && typeof console !== "undefined") console.warn(`[RSB.layout.${b.dataset.layout}] block is ${h}px tall (< ${LIVE.minFill}px = 45 % of the live area) — use bigger components or layout 'statement'`);
+    b.recentre = () => settle(b, props, opt);
+    return b;
+  }
+  function textLine(b, cls, spec, tl, at, mt) {
+    if (!spec) return null;
+    const s = typeof spec === "string" ? { text: spec } : spec;
+    return RSB.line(b, Object.assign({ cls, mt }, s), tl, s.at ?? at);
+  }
+  function visualSlot(b, spec, tl, at, mt) {
+    if (!spec) return null;
+    const slot = RSB.slot(b, mt); slot.style.width = "100%";
+    const out = typeof spec === "function" ? spec(slot, tl) : RSB[spec.type](slot, Object.assign({ flow: true }, spec), tl, spec.at ?? at);
+    slot.component = out;
+    return slot;
+  }
+  /** kicker/headline/sub/second group. Returns the gap the next element should use. */
+  function textGroup(b, props, tl, at, first) {
+    let mt = first ? 0 : RHYTHM.hv;
+    const S = b.slots;
+    if (props.step) {
+      const h = el("div", null, b); h.style.marginTop = mt + "px";
+      S.step = RSB.capsule(h, Object.assign({ kind: "step" }, props.step), tl, props.step.at ?? at);
+      mt = RHYTHM.sk;
+    }
+    if (props.kicker) { S.kicker = textLine(b, "kicker", props.kicker, tl, at, mt); mt = RHYTHM.kh; }
+    if (props.headline) { S.headline = textLine(b, "headline", props.headline, tl, at, mt); mt = RHYTHM.cc + 6; }
+    if (props.sub) { S.sub = textLine(b, "sub", props.sub, tl, at, RHYTHM.hs); }
+    if (props.second) { S.second = textLine(b, "second", props.second, tl, at, RHYTHM.hs); }
+  }
+  function captionGroup(b, props, tl, at) {
+    const c = props.caption; if (!c) return;
+    const spec = typeof c === "string" || c.words || c.text ? { kicker: c } : c;
+    let mt = RHYTHM.vc;
+    if (spec.kicker) { b.slots.captionKicker = textLine(b, "kicker", spec.kicker, tl, at, mt); mt = RHYTHM.cc; }
+    if (spec.second) b.slots.caption = textLine(b, "second", spec.second, tl, at, mt);
+    if (spec.headline) b.slots.caption = textLine(b, "headline", spec.headline, tl, at, mt);
+  }
+
+  /**
+   * `stack` — [step] → kicker → headline → [sub] → visual → [caption], whole block centred (style B default).
+   * @param {{step?, kicker?, headline?, sub?, second?, visual?, visuals?:Array, caption?:string|object|{kicker?,second?},
+   *          cy?:number}} props   visuals = several components with 40 px gaps
+   */
+  layout.stack = function (container, props, tl, at) {
+    const b = block(container, "stack", props);
+    textGroup(b, props, tl, at, true);
+    const vs = props.visuals || (props.visual ? [props.visual] : []);
+    b.slots.visuals = vs.map((v, i) => visualSlot(b, v, tl, at, i ? (props.visualGap ?? 40) : RHYTHM.hv));
+    b.slots.visual = b.slots.visuals[0] || null;
+    captionGroup(b, props, tl, at);
+    return settle(b, props);
+  };
+
+  /**
+   * `visual-top` — big visual first (≤ 55 % height), then kicker + headline underneath (headline lands
+   * y ≈ 1250–1450). Asymmetric: mass sits high.
+   * @param {{visual, kicker?, headline?, sub?, cy?:number}} props
+   */
+  layout["visual-top"] = layout.visualTop = function (container, props, tl, at) {
+    const b = block(container, "visual-top", props);
+    b.slots.visual = visualSlot(b, props.visual, tl, at, 0);
+    const g = el("div", null, b); g.style.height = RHYTHM.hv + "px"; g.style.flex = "none";
+    textGroup(b, Object.assign({}, props, { step: null }), tl, at, true);
+    return settle(b, props, { cy: props.cy ?? 900 });
+  };
+
+  /**
+   * `number` — giant counter centre (font 400 px ≈ 290 px digits) with label above and below.
+   * @param {{step?, kicker?, number:{from?:number,to:number,dur?:number,size?:number,suffix?:{text,size?},color?,at?},
+   *          headline?, sub?, below?:visual spec (e.g. capsule row), cy?}} props
+   */
+  layout.number = function (container, props, tl, at) {
+    const b = block(container, "number", props);
+    textGroup(b, { step: props.step, kicker: props.kicker }, tl, at, true);
+    const n = props.number;
+    const slot = RSB.slot(b, props.kicker || props.step ? 10 : 0);
+    const c = RSB.counter(slot, Object.assign({ size: 400, dur: 0.75, blur: 8 }, n, { suffix: n.suffix ? Object.assign({ size: 96 }, n.suffix) : undefined }), tl, n.at ?? at);
+    c.style.lineHeight = "1"; c.num.style.lineHeight = "0.92";
+    b.slots.number = c;
+    if (props.headline) b.slots.headline = textLine(b, "headline", props.headline, tl, at, 6);
+    if (props.sub) b.slots.sub = textLine(b, "sub", props.sub, tl, at, RHYTHM.cc);
+    if (props.below) b.slots.below = visualSlot(b, props.below, tl, at, 64);
+    return settle(b, props);
+  };
+
+  /**
+   * `media` — iPhone mockup (≥ 60 % frame height: width 565 → 1160 px) or framed screenshot with a short line of
+   * text above (default), below, or as an overlay pill. Proof / tutorials.
+   * @param {{device?:'iphone'|'screenshot', src?, node?, html?, width?:number, height?:number, enter?:string,
+   *          text?:RSB.line props, textCls?:'kicker'|'callout'|'sub', textPos?:'top'|'bottom', float?:number, cy?}} props
+   * @returns block; `.slots.device` (iphone holder: `.screen`) for cursors/toggles.
+   */
+  layout.media = function (container, props, tl, at) {
+    const b = block(container, "media", props);
+    const top = props.textPos !== "bottom";
+    const txt = () => props.text ? textLine(b, props.textCls || "kicker", props.text, tl, at, top ? 0 : 48) : null;
+    if (top) b.slots.text = txt();
+    const slot = RSB.slot(b, top && props.text ? 44 : 0); slot.style.width = "100%";
+    const dev = props.device === "screenshot"
+      ? RSB.screenshot(slot, Object.assign({ flow: true, width: 790, height: 1150 }, props), tl, props.deviceAt ?? at)
+      : RSB.iphone(slot, Object.assign({ flow: true, width: 565 }, props, { floor: props.floor }), tl, props.deviceAt ?? at);
+    b.slots.device = dev; b.slots.visual = slot;
+    if (!top) b.slots.text = txt();
+    return settle(b, props, { cy: props.cy ?? 905, minTop: 248 });
+  };
+
+  /**
+   * `list` — kicker + headline + 3–4 rows building downward (RSB.listRows), centred column.
+   * @param {{step?, kicker?, headline?, rows:Array, variant?:'cards'|'timeline', skeleton?:number, rowH?, gap?, caption?, cy?}} props
+   */
+  layout.list = function (container, props, tl, at) {
+    const b = block(container, "list", props);
+    textGroup(b, props, tl, at, true);
+    b.slots.visual = visualSlot(b, (slot, tl2) => RSB.listRows(slot, { flow: true, rows: props.rows, variant: props.variant || props.style, skeleton: props.skeleton, rowH: props.rowH, gap: props.gap, width: props.width }, tl2, at), tl, at, props.headline || props.kicker ? RHYTHM.hv : 0);
+    b.slots.rows = b.slots.visual.component.rows;
+    captionGroup(b, props, tl, at);
+    return settle(b, props);
+  };
+
+  /**
+   * `compare` — two columns or two stacked states (before → after, A vs B) under a kicker/headline.
+   * @param {{kicker?, headline?, mode?:'columns'|'stacked', left, right, pick?, pickAt?, caption?, cy?}} props see RSB.compare
+   */
+  layout.compare = function (container, props, tl, at) {
+    const b = block(container, "compare", props);
+    textGroup(b, props, tl, at, true);
+    b.slots.visual = visualSlot(b, (slot, tl2) => RSB.compare(slot, Object.assign({ flow: true }, props), tl2, at), tl, at, RHYTHM.hv);
+    b.slots.compare = b.slots.visual.component;
+    captionGroup(b, props, tl, at);
+    return settle(b, props);
+  };
+
+  /**
+   * `statement` — breath scene: optional kicker + 2 big one-line headlines (≤ 120 px, fit ≤ 840 px), no visual.
+   * Max 1 per 6 scenes.
+   * @param {{kicker?, lines:Array<RSB.line props>, size?:number, cy?}} props
+   */
+  layout.statement = function (container, props, tl, at) {
+    const b = block(container, "statement", props);
+    if (props.kicker) b.slots.kicker = textLine(b, "kicker", props.kicker, tl, at, 0);
+    b.slots.lines = (props.lines || []).map((ln, i) => textLine(b, "headline", Object.assign({ maxPx: props.size || 120, maxW: 840 }, typeof ln === "string" ? { text: ln } : ln), tl, at, i ? 4 : (props.kicker ? RHYTHM.kh : 0)));
+    return settle(b, props, { noFill: true, cy: props.cy ?? 900 });
+  };
+
+  /**
+   * `head` — full-frame talking head (REAL footage only: `footage.node`/`footage.src`; otherwise a labelled slot)
+   * + optional title sticker and chest-band captions. Hide the chrome over footage.
+   * @param {{footage?:object (RSB.footage props), sticker?:{text,emoji?,at?,y?}, caption?:{phrases,y?,size?}}} props
+   */
+  layout.head = function (container, props, tl, at) {
+    const b = block(container, "head", props);
+    b.style.top = "0"; b.style.left = "0"; b.style.width = "1080px"; b.style.height = "1920px";
+    b.slots.footage = RSB.footage(b, Object.assign({ slot: { x: 140, y: 300, w: 800, h: 700 } }, props.footage || {}));
+    if (props.sticker) b.slots.sticker = RSB.sticker(b, Object.assign({ y: 1060 }, props.sticker), tl, props.sticker.at ?? at);
+    if (props.caption) b.slots.caption = RSB.caption(b, Object.assign({ y: 1350 }, props.caption), tl, at);
+    b.metrics = { top: 0, bottom: 1920, height: 1920, centre: 960, fill: 1 };
+    b.recentre = () => b;
+    return b;
+  };
+
+  /**
+   * `head-side` — talking head with ONE component group in the chest band (y 880–1460), centred in the band;
+   * optional caption line under it. Face area (y ≈ 250–860) stays clear.
+   * @param {{footage?:object, visual?, visuals?:Array, kicker?, headline?, caption?:{phrases,y?}, band?:[number,number]}} props
+   */
+  layout["head-side"] = layout.headSide = function (container, props, tl, at) {
+    const root = el("div", "rsb-layout-head-side-root", container);
+    Object.assign(root.style, { position: "absolute", inset: "0" });
+    const foot = RSB.footage(root, Object.assign({ slot: { x: 190, y: 270, w: 700, h: 560 } }, props.footage || {}));
+    const b = block(root, "head-side", props);
+    const band = props.band || [880, 1460];
+    textGroup(b, { kicker: props.kicker, headline: props.headline }, tl, at, true);
+    const vs = props.visuals || (props.visual ? [props.visual] : []);
+    b.slots.visuals = vs.map((v, i) => visualSlot(b, v, tl, at, i ? (props.visualGap ?? 40) : (props.kicker || props.headline ? 60 : 0)));
+    b.slots.visual = b.slots.visuals[0] || null;
+    settle(b, props, { cy: (band[0] + band[1]) / 2, minTop: band[0], maxBottom: band[1], noFill: true });
+    if (props.caption) b.slots.caption = RSB.caption(root, Object.assign({ y: band[1] + 30, size: 54 }, props.caption), tl, at);
+    b.slots.footage = foot; b.root = root;
+    return b;
   };
 
   /* ================================================================== *

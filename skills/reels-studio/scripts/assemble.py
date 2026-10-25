@@ -177,20 +177,23 @@ def main() -> None:
         shutil.copy2(rt, lib / "runtime.js")
     else:
         warnings.append("assets/shared/runtime.js missing")
-    sdir = SKILL / "assets" / f"style-{style}"
+    # style "c" (Keynote 3D) is built on the A and B packs: copy + load a → b → c
+    packs = ["a", "b", "c"] if style == "c" else [style]
     head_links = []
-    if sdir.is_dir() and any(sdir.iterdir()):
-        copy_tree(sdir, lib / f"style-{style}", skip=("demo", "examples", "README.md"))
-    for src, names in (("tokens.css", [f"tokens-{style}.css", "tokens.css"]), ("lib.js", [f"{style}.js", "lib.js"])):
-        if (sdir / src).is_file():
-            for n in names:
-                shutil.copy2(sdir / src, lib / n)
-        else:
-            warnings.append(f"style pack file missing: assets/style-{style}/{src}")
+    for pk in packs:
+        sdir = SKILL / "assets" / f"style-{pk}"
+        if sdir.is_dir() and any(sdir.iterdir()):
+            copy_tree(sdir, lib / f"style-{pk}", skip=("demo", "examples", "README.md"))
+        for src, names in (("tokens.css", [f"tokens-{pk}.css"] + (["tokens.css"] if pk == style else [])),
+                           ("lib.js", [f"{pk}.js"] + (["lib.js"] if pk == style else []))):
+            if (sdir / src).is_file():
+                for n in names:
+                    shutil.copy2(sdir / src, lib / n)
+            else:
+                warnings.append(f"style pack file missing: assets/style-{pk}/{src}")
     gsap_src = gsap_local(lib, a.gsap)
-    if (lib / f"tokens-{style}.css").is_file():
-        head_links.append(f'<link rel="stylesheet" href="lib/tokens-{style}.css" />')
-    scripts = [gsap_src] + [p for p in ("lib/runtime.js", f"lib/{style}.js") if (comp / p).is_file()]
+    head_links += [f'<link rel="stylesheet" href="lib/tokens-{pk}.css" />' for pk in packs if (lib / f"tokens-{pk}.css").is_file()]
+    scripts = [gsap_src] + [p for p in ["lib/runtime.js"] + [f"lib/{pk}.js" for pk in packs] if (comp / p).is_file()]
 
     # ---- media
     media = comp / "media"
@@ -286,7 +289,7 @@ def main() -> None:
         body.append(f'    <audio id="mix" src="media/mix.wav" data-start="0" data-duration="{f3(duration)}" '
                     f'data-track-index="9" data-volume="1"></audio>')
 
-    bg = a.bg or ("#0B0D0D" if style == "a" else "#1A1A1C")
+    bg = a.bg or ("#0B0D0D" if style in ("a", "c") else "#1A1A1C")
     script_tags = "\n".join(f'    <script src="{s}"></script>' for s in scripts)
     doc = f"""<!doctype html>
 <html lang="{html.escape(brief.get('lang', 'ru'))}">

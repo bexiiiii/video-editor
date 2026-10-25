@@ -1,0 +1,154 @@
+/* reels-studio · Style C "Keynote 3D" — fusion of Style A (3D Keyword) and Style B (iOS Keynote).
+ * Loaded AFTER assets/style-a/tokens.css and assets/style-b/tokens.css (order a → b → c); every rule is
+ * scoped to `.rsc*` so A and B stay untouched. Frame 1080×1920, live area y 230–1575, x 90–990.
+ *
+ * TYPE: one family — Inter 4 variable (opsz 14–32 → "Inter Display" cut at display sizes), already imported by
+ * style-b/tokens.css. Why: it is the only Google family in the stack that covers Russian, Kazakh Cyrillic
+ * (ә ғ қ ң ө ұ ү һ і) and Uzbek Latin (oʻ gʻ with U+02BB) in every weight 300–800; Google Sans (A) lacks the
+ * Kazakh letters, SF Pro (B) cannot be embedded. Headlines use B's tight tracking at sizes between A (74) and B (108).
+ */
+
+:root {
+  /* palette — A neutrals + B Apple system colours */
+  --rsc-dark: #0B0D0D;
+  --rsc-light: #FBFDFD;
+  --rsc-blue-a: #1B88FB;  --rsc-blue-b: #0F539A;      /* blue takeover (B) */
+  --rsc-accent-dark: #0A84FF;                         /* iOS blue on dark */
+  --rsc-accent-light: #007AFF;                        /* iOS blue on light */
+  --rsc-green: #30D158; --rsc-red: #FF453A; --rsc-orange: #FF9F0A; --rsc-yellow: #FFCC00;
+
+  /* type */
+  --rsc-font: "Inter", "SF Pro Display", system-ui, sans-serif;
+  --rsc-fs-crumb: 24px;
+  --rsc-fs-kicker: 46px;     /* Light 300 */
+  --rsc-fs-key: 92px;        /* keyword headline, Bold, ≤2 lines; shrinks to fit 900 px */
+  --rsc-fs-ui: 100px;        /* UI headline, Bold, ONE line; shrinks to fit 900 px (min 72) */
+  --rsc-fs-statement: 124px; /* breath scene */
+  --rsc-fs-sub: 46px;        /* Light 300 */
+  --rsc-fs-caption: 40px;    /* Regular, A grey */
+  --rsc-fs-number: 330px;    /* hero number (layouts.md: 300–420 tall) */
+  --rsc-track-head: -0.035em;
+  --rsc-track-kicker: -0.01em;
+  --rsc-track-number: -0.05em;
+
+  /* rhythm (layouts.md §1) */
+  --rsc-kh: 34px;   /* kicker → headline */
+  --rsc-hv: 90px;   /* headline → visual */
+  --rsc-vc: 74px;   /* visual → caption */
+
+  /* glass (A rim on B components) */
+  --rsc-glass-fill: linear-gradient(180deg, rgba(255,255,255,.085) 0%, rgba(255,255,255,.035) 100%);
+  --rsc-glass-rim: linear-gradient(160deg, rgba(255,255,255,.62) 0%, rgba(255,255,255,.14) 34%, rgba(255,255,255,.05) 66%, rgba(255,255,255,.26) 100%);
+  --rsc-glass-shadow: inset 0 0 26px rgba(255,255,255,.07), inset 0 1px 0 rgba(255,255,255,.18), 0 30px 60px rgba(0,0,0,.45);
+}
+
+/* ───────────── stage / page ───────────── */
+.rsc-stage { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--rsc-dark);
+  font-family: var(--rsc-font); -webkit-font-smoothing: antialiased; font-optical-sizing: auto; }
+.rsc-scene { position: absolute; inset: 0; }
+.rsc-page { position: absolute; inset: 0; overflow: hidden; font-family: var(--rsc-font); transform-origin: 50% 50%;
+  --rsa-font: var(--rsc-font); }
+.rsc-bg, .rsc-content, .rsc-inner, .rsc-glow, .rsc-plate, .rsc-gridc { position: absolute; inset: 0; }
+.rsc-content, .rsc-inner { pointer-events: none; }
+
+/* ink per theme (C variables; A/B ink comes from their own theme classes set on the same node) */
+.rsc-dark, .rsc-blue { --rsc-ink: #FBFDFD; --rsc-kick: #9A9A9D; --rsc-cap: #8A8C8C; --rsc-acc: var(--rsc-accent-dark); }
+.rsc-light { --rsc-ink: #0B0D0D; --rsc-kick: #7B7B7E; --rsc-cap: #686B6B; --rsc-acc: var(--rsc-accent-light); }
+.rsc-blue { --rsc-kick: rgba(255,255,255,.74); --rsc-cap: rgba(255,255,255,.74); --rsc-acc: #FFFFFF; }
+
+/* blue takeover plate (B gradient + A dot grid in white) */
+.rsc-plate--blue { background: linear-gradient(180deg, #1C86FD 0%, #1A7FEF 25%, #176ECD 50%, #115BAD 75%, #0D4C90 100%); }
+.rsc-gridc--blue { background-image: radial-gradient(circle, rgba(255,255,255,.16) 1.5px, transparent 2.1px);
+  background-size: 36px 36px; background-position: -17px -17px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, #000 50%, rgba(0,0,0,.4) 100%);
+          mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, #000 50%, rgba(0,0,0,.4) 100%); }
+
+/* A accent glows layered over the dark plate (dot grid stays visible) */
+.rsc-glow--orange  { background: radial-gradient(1300px 760px at 820px 260px, rgba(200,74,0,.78) 0%, rgba(138,44,0,.42) 40%, rgba(19,2,0,0) 72%); }
+.rsc-glow--teal    { background: radial-gradient(120% 50% at 50% 100%, rgba(4,109,152,.85) 0%, rgba(4,72,102,.5) 26%, rgba(0,23,31,0) 62%); }
+.rsc-glow--emerald { background: radial-gradient(120% 50% at 50% 100%, rgba(7,122,82,.85) 0%, rgba(4,82,54,.5) 26%, rgba(0,25,15,0) 62%); }
+.rsc-glow--navy    { background: linear-gradient(135deg, rgba(89,103,202,.55) 0%, rgba(53,62,136,.35) 22%, rgba(19,26,67,0) 60%); }
+.rsc-glow--violet  { background: radial-gradient(70% 40% at 0% 0%, rgba(45,4,79,.9) 0%, rgba(45,4,79,0) 100%),
+                                 radial-gradient(70% 40% at 100% 100%, rgba(55,0,64,.9) 0%, rgba(55,0,64,0) 100%); }
+.rsc-glow--lavender{ background: radial-gradient(130% 60% at 50% 0%, rgba(195,211,250,.9) 0%, rgba(228,235,251,.5) 50%, rgba(251,253,253,0) 75%); }
+
+/* ───────────── layout ───────────── */
+/* live area: flex column centred → block centre lands at y ≈ 902 (layouts.md: 860–940) */
+.rsc-live { position: absolute; left: 90px; width: 900px; top: 230px; height: 1345px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; text-align: center; }
+.rsc-slot { position: relative; flex: none; display: flex; flex-direction: column; align-items: center; }
+.rsc-row { position: relative; flex: none; display: flex; flex-direction: row; justify-content: center; align-items: stretch; gap: 40px; }
+/* fixed tiers (layout `hero`): 1000-px flex box centred on a y */
+.rsc-tier { position: absolute; left: 0; right: 0; height: 1000px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+/* ───────────── type ───────────── */
+.rsc-kicker { display: block; width: 100%; white-space: nowrap; font-size: var(--rsc-fs-kicker); font-weight: 300; line-height: 1.15;
+  letter-spacing: var(--rsc-track-kicker); color: var(--rsc-kick); }
+.rsc-sub { display: block; width: 100%; white-space: nowrap; font-size: var(--rsc-fs-sub); font-weight: 300; line-height: 1.2;
+  letter-spacing: var(--rsc-track-kicker); color: var(--rsc-kick); }
+.rsc-h { display: flex; flex-direction: column; align-items: center; width: 100%; color: var(--rsc-ink); font-weight: 700;
+  letter-spacing: var(--rsc-track-head); line-height: 1.04; }
+.rsc-h--keyword { font-size: var(--rsc-fs-key); }
+.rsc-h--ui { font-size: var(--rsc-fs-ui); line-height: 1.08; }
+.rsc-h--statement { font-size: var(--rsc-fs-statement); line-height: 1.0; letter-spacing: -0.045em; }
+.rsc-hl { display: block; white-space: nowrap; }
+.rsc-hl .w, .rsc-kicker .w, .rsc-sub .w { display: inline-block; will-change: transform, filter, opacity; }
+.rsc-accent { color: var(--rsc-acc); }
+.rsc-caption { display: block; width: 100%; font-size: var(--rsc-fs-caption); font-weight: 400; line-height: 1.2; letter-spacing: -0.01em; color: var(--rsc-cap); }
+.rsc-caption .tw { display: inline-block; white-space: nowrap; }
+.rsc-caption .c { display: inline-block; }
+.rsc-num { color: var(--rsc-ink); }
+.rsc-num .rsb-num { letter-spacing: var(--rsc-track-number); }
+
+/* ───────────── hero 3D (A object, C framing: accent glow + floor reflection) ───────────── */
+.rsc-hero { position: relative; flex: none; }
+.rsc-hero-glow { position: absolute; left: -18%; top: -18%; width: 136%; height: 136%; border-radius: 50%;
+  background: radial-gradient(closest-side, var(--glow, rgba(10,132,255,.42)) 0%, rgba(0,0,0,0) 72%); filter: blur(30px); }
+.rsc-hero-floor { position: absolute; left: 14%; width: 72%; top: 94%; height: 9%; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(0,0,0,.55), rgba(0,0,0,0)); filter: blur(10px); }
+.rsc-light .rsc-hero-floor { background: radial-gradient(closest-side, rgba(0,0,0,.22), rgba(0,0,0,0)); }
+.rsc-hero .rsa-obj img { filter: drop-shadow(0 24px 30px rgba(0,0,0,.35)); }
+
+/* ───────────── glass on dark: B components restyled with A's lit rim ───────────── */
+.rsc-glass, .rsc-glass-el {
+  --rsb-card-bg: rgba(255,255,255,.06); --rsb-card-border: transparent; --rsb-card-ink: #FBFDFD; --rsb-card-meta: #9A9A9D;
+  --rsb-divider: rgba(255,255,255,.10); --rsb-skel: rgba(255,255,255,.12); --rsb-icon-tile: rgba(255,255,255,.09);
+  --rsb-seg-track: rgba(255,255,255,.09); --rsb-seg-ink: #C7C7CC; --rsb-track: rgba(255,255,255,.12); --rsb-tile-empty: rgba(255,255,255,.08);
+}
+.rsc-glass :is(.rsb-card, .rsb-lrow, .rsb-notif, .rsb-qcard, .rsb-seg, .rsb-player),
+:is(.rsb-card, .rsb-lrow, .rsb-notif, .rsb-qcard, .rsb-seg, .rsb-player).rsc-glass-el {
+  background: var(--rsc-glass-fill) !important; color: #FBFDFD; border-color: transparent; box-shadow: var(--rsc-glass-shadow); }
+.rsc-glass :is(.rsb-card, .rsb-lrow, .rsb-notif, .rsb-qcard, .rsb-seg, .rsb-player)::before,
+:is(.rsb-card, .rsb-lrow, .rsb-notif, .rsb-qcard, .rsb-seg, .rsb-player).rsc-glass-el::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px; pointer-events: none; background: var(--rsc-glass-rim);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+.rsc-glass .rsb-notif .t, .rsb-notif.rsc-glass-el .t { color: #FBFDFD; }
+.rsc-glass .rsb-notif .l, .rsb-notif.rsc-glass-el .l { color: rgba(235,235,245,.66); }
+.rsc-glass .rsb-notif .sk { background: rgba(255,255,255,.14); }
+.rsc-glass .rsb-notif .t small, .rsb-notif.rsc-glass-el .t small { color: rgba(235,235,245,.6); }
+.rsc-glass .rsb-seg .thumb { background: rgba(255,255,255,.92); }
+.rsc-blue.rsc-glass { --rsb-card-meta: rgba(255,255,255,.7); }
+.rsc-blue.rsc-glass .rsb-lrow .cap { color: rgba(255,255,255,.7); }
+
+/* A glass card inside C: slightly brighter rim to match the B components above */
+.rsc-page .rsa-card--glass { background: rgba(255,255,255,.05); }
+.rsc-card-title { font-size: 36px; font-weight: 600; letter-spacing: -0.015em; color: #FBFDFD; white-space: nowrap; }
+.rsc-card-note { font-size: 30px; font-weight: 400; letter-spacing: -0.01em; color: #9A9A9D; white-space: nowrap; }
+
+/* ───────────── chrome C variant (B chrome; blue pill glows on dark) ───────────── */
+.rsc-chrome .rsb-dots { filter: drop-shadow(0 0 6px rgba(10,132,255,.45)); }
+.rsc-chrome .rsb-crumb b { letter-spacing: -0.01em; }
+
+/* ───────────── footage slot (no drawn people — a labelled neutral placeholder) ───────────── */
+.rsc-footage { position: absolute; inset: 0; overflow: hidden;
+  background: repeating-linear-gradient(135deg, rgba(255,255,255,.028) 0 2px, transparent 2px 26px),
+              radial-gradient(80% 50% at 50% 40%, #2E3133 0%, #1A1C1D 60%, #111313 100%); }
+.rsc-footage-label { position: absolute; left: 190px; right: 190px; top: 470px; height: 300px; border: 3px dashed rgba(255,255,255,.22); border-radius: 44px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; color: rgba(255,255,255,.55);
+  font-family: var(--rsc-font); text-align: center; }
+.rsc-footage-label b { font-size: 34px; font-weight: 700; letter-spacing: .14em; }
+.rsc-footage-label span { font-size: 26px; font-weight: 400; letter-spacing: 0; }
+.rsc-footage-label svg { width: 64px; height: 64px; }
+
+/* ───────────── demo-only app screen helpers (iPhone content) ───────────── */
+.rsc-app { position: absolute; inset: 0; background: #F2F2F7; color: #0B0B0B; font-family: var(--rsc-font); text-align: left; letter-spacing: -0.01em; }

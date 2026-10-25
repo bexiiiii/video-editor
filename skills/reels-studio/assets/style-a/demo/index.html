@@ -17,124 +17,113 @@
   </head>
   <body>
     <!--
-      Showcase of every Style A component / background / transition. Placeholder 3D objects are emoji and
-      CSS/SVG "inflated" blobs; real runs pass generated transparent PNGs via `src` (work/<slug>/assets/img).
-      Scene clips are created by the script below from SCENES (start = previous transition − 0.25 s,
-      end = next transition + 0.15 s) so the overlapping layers can cross-fade.
+      A 31.5 s reel ("подписки съедают бюджет") built from the layout catalogue (references/layouts.md):
+      hero · number · list · stack · media · compare · statement · visual-top · CTA — no layout twice in a row,
+      entrances pop → roll → build-down → rise → slide → side-slide/cut → selection → drop → rise.
+      3D objects are Microsoft Fluent Emoji 3D PNGs (MIT, img/LICENSE.md) standing in for generated renders.
+      Clip windows: start = previous transition − 0.25 s, end = next transition + 0.15 s (RSA.transitionWindow).
     -->
     <div id="root" class="rsa-stage" data-composition-id="main" data-start="0" data-width="1080" data-height="1920" data-duration="31.5">
-      <div id="s01" class="scene clip" data-start="0" data-duration="2.1" data-track-index="1"></div>
-      <div id="s02" class="scene clip" data-start="2.1" data-duration="2.85" data-track-index="2"></div>
-      <div id="s03" class="scene clip" data-start="4.55" data-duration="2.9" data-track-index="1"></div>
-      <div id="s04" class="scene clip" data-start="7.05" data-duration="3.2" data-track-index="2"></div>
-      <div id="s05" class="scene clip" data-start="9.85" data-duration="3.0" data-track-index="1"></div>
-      <div id="s06" class="scene clip" data-start="12.45" data-duration="2.9" data-track-index="2"></div>
-      <div id="s07" class="scene clip" data-start="14.95" data-duration="3.1" data-track-index="1"></div>
-      <div id="s08" class="scene clip" data-start="17.65" data-duration="3.5" data-track-index="2"></div>
-      <div id="s09" class="scene clip" data-start="20.75" data-duration="2.7" data-track-index="1"></div>
-      <div id="s10" class="scene clip" data-start="23.05" data-duration="2.3" data-track-index="2"></div>
-      <div id="s11" class="scene clip" data-start="24.95" data-duration="2.3" data-track-index="1"></div>
-      <div id="s12" class="scene clip" data-start="26.85" data-duration="2.3" data-track-index="2"></div>
-      <div id="s13" class="scene clip" data-start="28.75" data-duration="2.75" data-track-index="1"></div>
+      <div id="s01" class="scene clip" data-start="0" data-duration="3.75" data-track-index="1"></div>
+      <div id="s02" class="scene clip" data-start="3.35" data-duration="3.8" data-track-index="2"></div>
+      <div id="s03" class="scene clip" data-start="6.75" data-duration="4.4" data-track-index="1"></div>
+      <div id="s04" class="scene clip" data-start="10.75" data-duration="3.8" data-track-index="2"></div>
+      <div id="s05" class="scene clip" data-start="14.15" data-duration="4.2" data-track-index="1"></div>
+      <div id="s06" class="scene clip" data-start="17.95" data-duration="4.1" data-track-index="2"></div>
+      <div id="s07" class="scene clip" data-start="21.65" data-duration="3.1" data-track-index="1"></div>
+      <div id="s08" class="scene clip" data-start="24.35" data-duration="3.6" data-track-index="2"></div>
+      <div id="s09" class="scene clip" data-start="27.55" data-duration="3.95" data-track-index="1"></div>
     </div>
     <script>
       (function () {
         const tl = gsap.timeline({ paused: true });
-        // transition centres (= next sentence onset) and types between consecutive scenes
-        const TC = [2.1, 4.8, 7.3, 10.1, 12.7, 15.2, 17.9, 21.0, 23.3, 25.2, 27.1, 29.0];
-        const THEME = ["dark", "curtain", "light", "dark", "space", "navy", "light", "maroon", "green", "emerald", "orange", "teal", "lavender"];
-        const L = THEME.map((theme, i) => RSA.layer(document.getElementById("s" + String(i + 1).padStart(2, "0")), { theme, drift: 3 }, tl, i ? TC[i - 1] - 0.25 : 0));
-        const S = (i) => (i ? TC[i - 1] : 0); // scene i start (its transition centre)
+        const IMG = (n) => "img/" + n + ".png";
+        // transition centres (= next sentence onset)
+        const TC = [3.6, 7.0, 11.0, 14.4, 18.2, 21.9, 24.6, 27.8];
+        const THEME = ["curtain", "light", "dark", "light", "space", "light", "navy", "light", "dark"];
+        const L = THEME.map((theme, i) => RSA.layer(document.getElementById("s" + String(i + 1).padStart(2, "0")), { theme, drift: 4 }, tl, i ? TC[i - 1] - 0.25 : 0));
+        const S = (i) => (i ? TC[i - 1] : 0);
         const C = (i) => L[i].inner;
 
-        // 1 · hook display (Der0): mid-reveal on frame 0, hard cut out
-        RSA.hookDisplay(C(0), { label: "прогноз Маска", word: "ИИ", sub: "УМНЕЕ", accent: "всего человечества" }, tl, 0);
+        // 1 · hook — hero: money with wings pops on «съедают»
+        RSA.layout.hero(C(0), {
+          text: "подписки / съедают бюджет", stagger: 0.16, textAt: 0.1,
+          visual: { type: "hero", props: { src: IMG("money_with_wings"), entry: "pop" }, t: 0.55 },
+          caption: "а ты этого даже не замечаешь", captionAt: 1.45,
+        }, tl, S(0));
 
-        // 2 · red curtain + icon row popping on brand names (Dej hook)
-        RSA.headline(C(1), { text: "нужны / плагины?", words: [{ w: "нужны", t: S(1) + 0.1 }, { w: "плагины?", t: S(1) + 0.43 }] }, tl, S(1));
-        RSA.iconRow(C(1), { y: 994, size: 223, gap: 400, between: "или", betweenAt: S(1) + 0.6,
-          items: [{ emoji: "🧩", label: "Claude", t: S(1) + 0.13 }, { emoji: "🤖", label: "Codex", t: S(1) + 0.23 }] }, tl, S(1));
-        tl.fromTo(L[1].inner, { y: 0 }, { y: -40, duration: 0.9, ease: "sine.inOut" }, S(1) + 1.0); // hook drift-up
+        // 2 · number — slot-machine roll + keyword pill
+        RSA.layout.number(C(1), {
+          label: "в среднем уходит", value: "4 700", pill: "₽ каждый месяц",
+          caption: "на сервисы, о которых ты забыл",
+          labelAt: S(1) + 0.05, rollAt: S(1) + 0.45, pillAt: S(1) + 1.0, captionAt: S(1) + 1.6,
+        }, tl, S(1));
 
-        // 3 · light + hero rise (GitHub badge stand-in)
-        RSA.hero(C(2), { blob: "disc", size: 270, y: 1010, entry: "rise" }, tl, S(2) + 0.15);
-        RSA.headline(C(2), { text: "подборки / на гитхабе" }, tl, S(2) + 0.2);
-        RSA.caption(C(2), { text: "начни с этой подборки" }, tl, S(2) + 0.9);
-
-        // 4 · dark + code window
-        RSA.headline(C(3), { text: "проверки / кода" }, tl, S(3) + 0.12);
-        RSA.codeWindow(C(3), { y: 960, width: 800, lines: ["const plugins = catalogue", "  .filter(supportsClient)", "  .map(readInstallGuide);"] }, tl, S(3) + 0.3);
-        RSA.caption(C(3), { text: "проверять изменения" }, tl, S(3) + 2.1);
-
-        // 5 · deep space + screenshot frame, red highlight jumps, magnifier lens
-        RSA.headline(C(4), { text: "работаешь / с дизайном?" }, tl, S(4) + 0.1);
-        RSA.screenshot(C(4), { y: 1060, width: 600, height: 760, theme: "dark", title: "Контент",
-          rows: [{ icon: "⚙️", text: "Основные" }, { icon: "🎨", text: "Дизайн", value: "Вкл." }, { icon: "🖼", text: "Референсы" },
-                 { icon: "🔍", text: "Проверка UI" }, { icon: "📐", text: "Сетка" }, { icon: "🔔", text: "Уведомления" }],
-          highlights: [{ x: 22, y: 222, w: 556, h: 96, t: S(4) + 0.8 }, { x: 22, y: 398, w: 556, h: 96, t: S(4) + 1.5 }],
-          lens: { x: 150, y: 446, t: S(4) + 1.8, zoom: 1.7 } }, tl, S(4) + 0.2);
-        RSA.caption(C(4), { text: "референсы и проверка интерфейсов", y: 1540, color: "#E2E0E8" }, tl, S(4) + 1.1);
-
-        // 6 · navy light ray + frosted glass cards, dashed connector, blue chip (shared into scene 7)
-        RSA.headline(C(5), { text: "с каким помощником / работает" }, tl, S(5) - 0.05); // rides the whip in
-        RSA.card(C(5), { variant: "frost", y: 880, width: 680, height: 200, radius: 40, padding: "0 44px", icon: RSA.icons.github(88), title: "помощник", sub: "Claude Code · Codex" }, tl, S(5) + 0.3);
-        RSA.connector(C(5), { from: [540, 994], to: [540, 1176] }, tl, S(5) + 0.75);
-        RSA.card(C(5), { variant: "frost", y: 1290, width: 680, height: 200, radius: 40, padding: "0 44px", icon: "📦", title: "install", sub: "mblode/agent-skills" }, tl, S(5) + 1.0);
-        const twin = RSA.chip(C(5), { text: "возможно", x: 800, y: 1086 }, tl, S(5) + 1.5);
-
-        // 7 · light: inline pill wipe, slot-machine number, pill, gradient progress bar (lum crossfade carries the chip)
-        RSA.headline(C(6), { text: "второй прогноз / касается роботов", pills: ["роботов"] }, tl, S(6) + 0.15);
-        const chip = RSA.chip(L[6].over, { text: "возможно", x: 540, y: 760 }, tl, 0);
-        RSA.numberRoll(C(6), { value: "100", unit: "млн", y: 930 }, tl, S(6) + 0.55);
-        RSA.pill(C(6), { text: "минимум", y: 1080 }, tl, S(6) + 0.95);
-        RSA.progressBar(C(6), { y: 1240, dur: 1.5 }, tl, S(6) + 0.7);
-        RSA.caption(C(6), { text: "по оценке Маска" }, tl, S(6) + 1.4);
-
-        // 8 · maroon ray + flow tree with camera pan
-        RSA.flow(C(7), {
-          height: 2700, grid: L[7].bg.grid, gridOffset: -9,
-          nodes: [
-            { id: "h", type: "headline", t: S(7) - 0.05, props: { text: "два маршрута / оплаты", y: 520 } },
-            { id: "pay", type: "glassPill", t: S(7) + 0.4, props: { text: "оплата", icon: "💳", x: 540, y: 860 } },
-            { id: "apple", type: "glassPill", t: S(7) + 1.05, props: { text: "Apple", icon: "🍏", x: 330, y: 1190 } },
-            { id: "fly", type: "glassPill", t: S(7) + 1.25, props: { text: "карта FLY", icon: "🟣", x: 760, y: 1190 } },
-            { id: "lime", type: "label", t: S(7) + 1.45, props: { text: "через баланс", x: 330, y: 1300, color: "#C0EA4E", weight: 500 } },
-            { id: "acc", type: "card", t: S(7) + 2.1, h: 172, props: { variant: "glass", x: 640, y: 1740, width: 600, height: 172, radius: 24, padding: "0 36px", icon: "🌍", iconSize: 96, title: "аккаунт", sub: "регион аккаунта" } },
+        // 3 · list — rows build downward
+        RSA.layout.list(C(2), {
+          text: "где утекают / деньги", interval: 0.5,
+          items: [
+            { icon: IMG("clapper_board"), title: "кино", sub: "3 сервиса", value: "1 290 ₽" },
+            { icon: IMG("musical_note"), title: "музыка", sub: "2 семейных тарифа", value: "598 ₽" },
+            { icon: IMG("cloud"), title: "облако", sub: "забытые 200 ГБ", value: "299 ₽" },
+            { icon: IMG("mobile_phone"), title: "приложения", sub: "пробные периоды", value: "2 513 ₽" },
           ],
-          edges: [{ from: "pay", to: "apple", t: S(7) + 0.75 }, { from: "pay", to: "fly", t: S(7) + 0.75 }, { from: "fly", to: "acc", t: S(7) + 1.7 }],
-          pans: [{ t: S(7) + 1.5, y: 820, dur: 1.1 }],
+        }, tl, S(2));
+
+        // 4 · stack — kicker chip + headline + magnifier rising from below
+        RSA.layout.stack(C(3), {
+          kicker: "шаг 1", text: "найди все / списания",
+          visual: { type: "hero", props: { src: IMG("magnifying_glass_tilted_left"), entry: "rise" }, t: S(3) + 0.55 },
+          caption: "выписка за последние 3 месяца", captionAt: S(3) + 1.3,
+        }, tl, S(3));
+
+        // 5 · media — bank screen slides in, red box jumps, lens magnifies the forgotten one
+        RSA.layout.media(C(4), {
+          text: "смотри / автоплатежи", visualH: 800, visualW: 640,
+          visual: { type: "screenshot", t: S(4) + 0.3, props: {
+            theme: "dark", title: "Подписки", entry: "slide", from: "right",
+            rows: [
+              { src: IMG("clapper_board"), text: "Онлайн-кино", value: "499 ₽" },
+              { src: IMG("clapper_board"), text: "Сериалы", value: "399 ₽" },
+              { src: IMG("musical_note"), text: "Музыка", value: "299 ₽" },
+              { src: IMG("cloud"), text: "Облако", value: "299 ₽" },
+              { src: IMG("mobile_phone"), text: "Фоторедактор", value: "990 ₽" },
+              { src: IMG("credit_card"), text: "Доставка+", value: "349 ₽" },
+              { src: IMG("mobile_phone"), text: "Трекер сна", value: "1 524 ₽" },
+            ],
+            highlights: [{ x: 22, y: 487, w: 596, h: 96, t: S(4) + 1.2 }, { x: 22, y: 663, w: 596, h: 96, t: S(4) + 1.95 }],
+            lens: { x: 190, y: 711, t: S(4) + 2.3, zoom: 1.8, size: 124 },
+          } },
+          caption: "банк уже собрал их за тебя", captionAt: S(4) + 1.0, captionColor: "#E2E0E8",
+        }, tl, S(4));
+
+        // 6 · compare — before / after cards slide from opposite sides, scissors cut along the dashed line
+        RSA.layout.compare(C(5), {
+          text: "оставь / только нужное",
+          before: { icon: IMG("money_with_wings"), title: "было", sub: "7 подписок", value: "4 700 ₽" },
+          after: { icon: IMG("money_bag"), title: "стало", sub: "3 подписки", value: "1 490 ₽", valueColor: "#257CFA" },
+          divider: { type: "hero", props: { src: IMG("scissors"), entry: "slide", from: "left", shadow: false } },
+          beforeAt: S(5) + 0.4, afterAt: S(5) + 1.5,
+          caption: "минус 3 210 ₽ в месяц", captionAt: S(5) + 2.1,
+        }, tl, S(5));
+
+        // 7 · statement — breath scene, second line selected like text in iOS
+        RSA.layout.statement(C(6), { text: "отменяй / без жалости", select: true, selectAt: S(6) + 0.85 }, tl, S(6) + 0.05);
+
+        // 8 · visual-top — the bell drops in, headline lands under it
+        RSA.layout["visual-top"](C(7), {
+          text: "поставь / напоминание",
+          visual: { type: "hero", props: { src: IMG("bell"), entry: "drop" }, t: S(7) + 0.1 },
+          caption: "за 2 дня до списания", captionAt: S(7) + 1.2,
         }, tl, S(7));
 
-        // 9 · green ray: hero number + text-selection highlight
-        RSA.headline(C(8), { text: "Маск допускает / погрешность" }, tl, S(8) + 0.05);
-        RSA.numberRoll(C(8), { value: "2031", y: 900 }, tl, S(8) + 0.55);
-        RSA.selection(C(8), { text: "в несколько лет", y: 1190 }, tl, S(8) + 0.85);
-        RSA.caption(C(8), { text: "по его оценке" }, tl, S(8) + 1.4);
+        // 9 · CTA — bookmark rises, held to the end
+        RSA.bookmarkCTA(C(8), { headline: "сохрани", title: "чек-лист подписок", caption: "пригодится в конце месяца" }, tl, S(8) + 0.05);
 
-        // 10 · emerald glow: drop-and-stack coins + side labels (Dej scene 4)
-        RSA.stack(C(9), { count: 5, x: 420, y: 1150, size: 230, step: 44, interval: 0.15 }, tl, S(9) + 0.1);
-        RSA.label(C(9), { text: "экономии", x: 790, y: 1010, color: "#FBFDFD" }, tl, S(9) + 0.85);
-        RSA.label(C(9), { text: "токенов", x: 790, y: 1066, color: "#FBFDFD" }, tl, S(9) + 1.2);
-
-        // 11 · orange top-right glow: side-slide hero with motion blur + blue marker chip, halo headline
-        RSA.headline(C(10), { text: "одна карта / несколько сервисов", halo: true }, tl, S(10) - 0.05);
-        RSA.hero(C(10), { emoji: "💳", size: 380, y: 1000, entry: "slide", from: "right" }, tl, S(10) + 0.3);
-        RSA.chip(C(10), { text: "через Apple", variant: "marker", y: 1300 }, tl, S(10) + 0.85);
-
-        // 12 · teal bottom glow: particle globe
-        RSA.headline(C(11), { text: "какие задачи / мы сможем выполнять" }, tl, S(11) + 0.1);
-        RSA.globe(C(11), { y: 1010, size: 620, dur: 2.4 }, tl, S(11) + 0.2);
-        RSA.caption(C(11), { text: "в большем объёме?", color: "#D1E2F3" }, tl, S(11) + 1.0);
-
-        // 13 · lavender + bookmark CTA, held to the end
-        RSA.bookmarkCTA(C(12), { headline: "сохрани", title: "Awesome AI Plugins", caption: "будет с чего начать поиск" }, tl, S(12) + 0.05);
-
-        // transitions (all centred on the next sentence onset)
+        // transitions — all centred on the next sentence onset
         const T = [
-          { type: "cut" }, { type: "zoom" }, { type: "blur-drift", dir: "left" }, { type: "blur-drift", dir: "down" },
-          { type: "whip", dir: "up" }, { type: "lum", shared: { el: chip, twin, from: { x: 260, y: 326 } } },
-          { type: "whip", dir: "down" }, { type: "whip", dir: "left" }, { type: "lum" }, { type: "blur-drift", dir: "down" },
-          { type: "whip", dir: "right" }, { type: "lum" },
+          { type: "zoom" }, { type: "blur-drift", dir: "down" }, { type: "lum" }, { type: "whip", dir: "up" },
+          { type: "blur-drift", dir: "left" }, { type: "lum" }, { type: "whip", dir: "down" }, { type: "lum" },
         ];
         T.forEach((o, i) => RSA.transition(tl, L[i], L[i + 1], TC[i], o));
 

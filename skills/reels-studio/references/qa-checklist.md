@@ -6,8 +6,12 @@
 - No unintended black/frozen segments.
 - Headline/caption reveal times within ±0.12 s of planned word times.
 
+- Plan variety (`qa.py --plan-only` too): every scene has a layout, no layout twice in a row, one layout ≤ 30 %, component not reused within 3 scenes.
+
 ## Visual (QA agent eyeballs `qa/sheet.jpg` + per-scene snapshots)
 Shared
+- [ ] Content block centred in the live area; lower 40 % of the frame never empty while the top is crowded; no empty containers; nothing overlaps text.
+- [ ] No drawn people/faces; no emoji/CSS blobs as hero visuals; scenes don't all share one structure.
 - [ ] No pure #000/#FFF backgrounds; grid/dots barely visible, not dominant.
 - [ ] Words never re-centre/bounce while revealing; nothing clipped at frame edges; safe zone: keep text out of top 8% and bottom 15% (Reels UI).
 - [ ] Text has no exit animation except with its scene.

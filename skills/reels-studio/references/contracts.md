@@ -36,7 +36,9 @@ work/<slug>/
   "topic": "…", "script": "…|null",   // script required for faceless+TTS
   "footage": ["input/take1.mov"],     // required for hook_cta / head_overlay, optional for faceless (user VO)
   "voice": {"source": "footage|tts_clone|tts_stock", "voice_id": null},   // ASK THE CLIENT clone vs stock
-  "cta": {"type": "bookmark|follow|save|none", "text": "…", "handle": "@…", "name": "…", "avatar": "input/avatar.jpg"},
+  "cta": {"type": "bookmark|follow|profile|save|none",       // ASK THE CLIENT name + handle — never copy from references
+          "name": "Link HR", "handle": "@linkhr", "subtitle": "Учёт рабочего времени|null",
+          "avatar": "input/avatar.jpg|null", "followers": 12400, "posts": 86, "button": "Подписаться"},
   "brand": {"name": "…", "accent": "#…|null", "logo": "input/logo.png|null"},
   "chrome": {"series": "…", "topic": "…"}   // style B breadcrumb text
 }
@@ -60,6 +62,7 @@ work/<slug>/
     {
       "id": "s03", "start": 7.84, "end": 11.92,
       "kind": "motion",                                     // "motion" | "head" | "head_overlay"
+      "layout": "hero",                                     // layouts.md catalogue — no repeats back-to-back
       "theme": "light",                                     // A: dark|light|accent:<name>   B: light|dark|blue
       "transition_in": {"type": "dissolve", "dur": 0.5},    // per-style list, see style refs
       "kicker": {"text": "…", "at": 7.9},
