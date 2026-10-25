@@ -29,7 +29,7 @@ Input: `audio/transcript.json` (final timeline), `brief.json`, the style referen
 ## 4. Asset prompts (`assets[]`)
 - A: "glossy inflated 3D <object>, soft studio lighting, subtle rim light, centered, isolated on plain background, high detail, no text" · transparent true · 1024x1024.
 - B: "Apple 3D emoji style <object>, centered, isolated, no text" · transparent true · 1024x1024.
-- Screenshots / real proof: request from the user (put in `input/`), never fabricate real metrics or real brands' UI as genuine.
+- Screenshots / screen recordings / logos / photos / real proof: add them to `plan/materials.json` and request them from the client (`materials.md`); scenes reference `input/<id>_*.png|mp4`. Never fabricate real metrics or real brands' UI as genuine.
 
 ## 5. Sound cues
 Per `audio-policy.md`. A: none. B: `click`/`tap` on every interactive component, `tick` on counters, `boom_sub` on portal, `notification` on banners; music starts after the hook.

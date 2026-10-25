@@ -12,7 +12,7 @@ Everything is a file in `work/<slug>/` (see `references/contracts.md`). Every st
 ## 0 · Brief (talk to the user — never skip)
 1. Run `$SKILL/scripts/run doctor.py --work work/<slug>` and read `env.json`. Tell the user in one line which providers are active and which fallbacks will be used (e.g. "Uzbek TTS via edge-tts — add ELEVENLABS_API_KEY for studio quality"). Missing ElevenLabs is fine — continue with fallbacks.
 2. Collect and write `brief.json`. Ask only what is missing:
-   - **style** A, B or C (show one line each: A = dark/light 3D objects, keywords, voice only · B = Apple-like UI cards, literal words, soft bed + UI clicks · C = "Keynote 3D" fusion — B chrome/UI scenes alternating with A-style 3D keyword scenes, whip between chapters, soft bed + sparse SFX, see `references/style-c.md`);
+   - **style — ask FIRST, with pictures.** Before anything else show the client the preview strips `$SKILL/assets/previews/style-{a,b,c,d}.jpg` (4 real frames from our rendered demos each): attach/open the images if the host can (Claude Code desktop: send the files; Codex: open or print the paths), then list one line each and ask which one — A "3D Keyword" (dark/light, big 3D objects, keyword headlines, voice only) · B "iOS Keynote" (Apple-like UI cards, literal words, soft bed + UI clicks) · C "Keynote 3D" (B chrome/UI scenes alternating with A-style 3D scenes) · D "Talking Head Editorial" (you on camera, karaoke captions, widgets in the chest band, paper/dark editorial inserts — needs footage). Full descriptions: `assets/previews/README.md`, specs `references/style-{a,b,c,d}.md`. If the client already named a style, still show its preview once to confirm;
    - **mode**: `faceless` · `hook_cta` (talking head opens/closes) · `head_overlay` (talking head throughout + graphics);
    - **lang** ru / uz / kk; target length; topic/script; footage paths; CTA; brand.
    - **CTA identity: always ask the client** for the name shown at the end and the Instagram handle (e.g. "Link HR" / "@linkhr"), an optional subtitle line ("Маркетинг | Продажи"), an avatar photo (`input/avatar.jpg`; if none, use the brand logo, never a drawn face), the real follower count if the CTA shows a profile card (never invent numbers), and the button text in the reel language ("Подписаться" / "Obuna bo'ling" / "Жазылу"). Never reuse names or handles from the reference videos.
@@ -32,6 +32,9 @@ Read `references/director.md` and the style reference (`references/style-a.md` o
 - Modes: `head` scenes reuse `edit/head.mp4`; `head_overlay` puts components over the speaker in the chest band.
 - Pick SFX per style policy (`references/audio-policy.md`).
 Show the user a compact scene table (time · text · visual) and continue unless they object.
+
+## 2b · Materials (ask the client — read `references/materials.md`)
+From the plan, list every real asset the reel needs — screenshots, screen recordings, logos, photos/B-roll, stats screenshots, footage, avatar, voice sample — with exact specs and the scene it serves, write `plan/materials.json`, and ask the client in ONE short numbered message (≤ 6 items, required/optional). Also ask up front at the brief stage if the topic obviously needs them (an app demo → screenshots/recording). Wait for the answer; save files to `input/`; missing items fall back to graphics and are listed in the final report. Never invent real metrics or a real company's UI.
 
 ## 3 · Fan out (parallel workers)
 Write one `scenes/<id>/brief.json` per scene (format in contracts.md), then spawn in parallel:
@@ -62,4 +65,4 @@ Send `renders/final.mp4` to the user with: length, style/mode/lang, providers us
 - Respect style audio policy: A = voice only (no music, no SFX); B = quiet bed under graphics only (not under the hook) + soft UI clicks + sub-boom on portals.
 - Ask before any paid generation larger than the plan (e.g. re-generating all images) and before deleting user files.
 
-References: `contracts.md` · `providers.md` · `director.md` · `style-a.md` · `style-b.md` · `components.md` · `audio-policy.md` · `qa-checklist.md` · `modes.md` · `style-guide.md` · `teardowns/` (per-video forensic specs).
+References: `contracts.md` · `providers.md` · `director.md` · `materials.md` · `layouts.md` · `style-a.md` · `style-b.md` · `components.md` · `audio-policy.md` · `qa-checklist.md` · `modes.md` · `style-guide.md` · `teardowns/` (per-video forensic specs).

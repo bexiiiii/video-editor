@@ -14,6 +14,7 @@ work/<slug>/
   edit/cuts.json             # step 1a footage only: kept source ranges
   edit/head.mp4              # step 1a footage only: cut talking head, 1080×1920 30fps, audio = voice.wav
   plan/scenes.json           # step 2  director
+  plan/materials.json        # step 2b assets requested from the client (materials.md)
   scenes/<id>/brief.json     # step 3  slice of scenes.json for one worker
   scenes/<id>/index.html     # step 3b sub-composition (scene-builder)
   scenes/<id>/result.json    # step 3b {ok, duration, notes, warnings[]}
@@ -29,7 +30,7 @@ work/<slug>/
 ```json
 {
   "slug": "linkhr-ru-01",
-  "style": "A",                       // "A" = 3D Keyword (Zaytsev) | "B" = iOS Keynote (Umar)
+  "style": "A",                       // "A" 3D Keyword | "B" iOS Keynote | "C" Keynote 3D | "D" Talking Head Editorial (needs footage) — chosen from assets/previews
   "mode": "faceless",                 // "faceless" | "hook_cta" | "head_overlay"
   "lang": "ru",                       // "ru" | "uz" | "kk"
   "target_sec": 45,
