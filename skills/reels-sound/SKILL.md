@@ -7,6 +7,7 @@ description: Worker for reels-studio. Produces the voice (TTS, optional client v
 
 `$STUDIO` = sibling `reels-studio` skill dir. Read `$STUDIO/references/audio-policy.md` and `providers.md`.
 
+- If `brief.providers.elevenlabs_connector.allowed` and `audio/voice.wav` already exists (the orchestrator generated it through the connector), skip TTS and only build timings/mix.
 - **TTS job** (faceless): `$STUDIO/scripts/run providers/tts.py --text input/script.txt --lang <lang> --voice <brief.voice> [--clone-from input/voice_sample.wav] --out audio/voice.wav --transcript audio/transcript.json`. Clone only if `brief.voice.source == "tts_clone"` and the client agreed.
 - **Mix job** (after the plan exists): music per policy → `$STUDIO/scripts/run providers/music.py --dur <plan.duration - music.start> --mood <mood> --bpm <bpm> --out audio/music.wav` (skip for style A); then `$STUDIO/scripts/run mix.py --work work/<slug>` → `audio/mix.wav`.
 - Verify: integrated loudness −14 ±1 LUFS, TP ≤ −1 dBTP, voice intelligible over music (music ≥ 10 dB below voice in speech).

@@ -7,6 +7,8 @@ description: Worker for reels-studio. Generates the images (glossy 3D hero objec
 
 `$STUDIO` = sibling `reels-studio` skill dir. Provider chain: `$STUDIO/references/providers.md`.
 
+If the orchestrator already delivered `assets/img/<id>.png` via the ElevenLabs connector, only verify/cut out (`image.py --cutout`) — do not generate again.
+
 For each `assets[]` item in your brief:
 1. Build the prompt: item prompt + style preset (A: glossy inflated 3D, soft studio light, centered, plain background, no text · B: Apple 3D emoji style, centered, no text). Never put real people, trademarks presented as genuine UI, or text in images.
 2. Generate:

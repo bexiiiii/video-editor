@@ -3,6 +3,8 @@
 `scripts/doctor.py` detects keys/tools and writes `work/<slug>/env.json`; scripts pick the first available provider.
 **Nothing is mandatory except ffmpeg, python3 ≥3.10, node ≥20.** ElevenLabs is optional everywhere.
 
+**ElevenLabs connector (MCP).** If the connector is attached to the host and the client approved it (`connector-elevenlabs.md`), it goes first for TTS, ASR, voice design and images. The orchestrator calls it; scripts only post-process (`connector_words.py`, `image.py --cutout`). Otherwise use the chains below.
+
 | Capability | Chain (first available wins) | Env / dependency |
 |---|---|---|
 | ASR + word timings | ElevenLabs Scribe v2 → OpenAI `whisper-1` (verbose_json, word granularity) → local faster-whisper `large-v3` (mlx-whisper on Apple Silicon) | `ELEVENLABS_API_KEY` · `OPENAI_API_KEY` · pip `faster-whisper` |
