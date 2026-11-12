@@ -233,6 +233,60 @@ Load order: CSS `tokens-a.css` → `tokens-d.css`; JS GSAP → `runtime.js` → 
 Demo = 9 scenes / 30 s: head → insert-hero → head-side → insert-number → head (upper zone) → insert-media (curtain) → head-side → statement → cta (7 distinct layouts, head-type 4/9 split over two ids, no repeats back-to-back; themes footage/dark/footage/light/footage/curtain/footage/dark/lavender; transitions blur-drift/whip/lum alternating). `lint` 0 errors (2 track-density warnings, same as the A demo). Snapshots of every scene's final state compared side by side with the A demo (6.5 s, 14 s) and A refs (Dej 3.0 s, Der0 20.5 s, DeV 11 s): headline tier y ≈ 545 and size/weight identical (same RSA code), caption tier 1460, insert hero 500 px ≈ Dej's 520 px (was 320 — too small, fixed); head headlines sit in y 1262–1418 (lower) / 312–468 (upper), clear of the face box.
 Known gaps: footage is the labelled slot until a real head.mp4 is passed; placeholder 3D objects are emoji (real runs use generated PNGs); demo silent (A policy = voice only).
 
+## Style E — "Data News" (editorial news page) · `assets/style-e/`
+
+Files: `tokens.css` (fonts Inter + Inter Tight, colours, type scale, all component CSS, scoped to `.rse`) · `lib.js` (global `RSE`, self-contained: GSAP + RS only) · `demo/` (30.5 s Kazakh "Link HR" reel, 8 beats / 8 layouts; run `demo/prepare.sh` first — copies runtime + E into `demo/lib/` with the assembler's names). Spec: `style-e.md`; teardown `teardowns/style-e/DfmpUlfuHod.md`.
+Load order: CSS `tokens-e.css`; JS GSAP → `runtime.js` → `e.js` (assembler: style `e` → pack `e`, root bg `#FCFCFC`). Build inside `await RSE.ready()` (fonts incl. Kazakh glyphs; captions, titles and layouts are measured), register the timeline last.
+Every builder: `RSE.x(host, props, tl, at) → HTMLElement`, appended **in flow** to `host` (layouts own the geometry); absolute local seconds; entrances `fromTo`, later states `RSE.ft`. Constants `RSE.M` (enter 0.32 s blur 14, exit 0.21 s blur 20 + 0.17 s gap, tab 0.6 s power3.out, count 0.9 s power3.out, pct 3.6 s power2.out). Helpers: `RSE.enter`, `RSE.count` (seek-safe count-up, kk/ru format "8 061", "93,2"), `RSE.fmt`, `RSE.icons`, `RSE.monogram`, `RSE.audit(page)`.
+
+### Page, chrome, captions
+| Builder | Props (main) | Behaviour | Reproduces |
+|---|---|---|---|
+| `page` | `refMargin` | `.rse` root (`#FCFCFC`), layers `page.beats` + `page.capl` | DfmpUlfuHod §2 |
+| `header` | `name` (required, from the brief), `handle`, `logo` \| `logoNode` (else monogram), `rubric`, `enterAt` | logo 88 r22, name 37/700, handle 24, rubric pill 56 px with yellow dot; static | §1 |
+| `tabs` | `items[]`, `steps[{at,index}]` | 6 px gold segments, gap 8; step fills scaleX 0.6 s power3.out, label → ink | §5B |
+| `caption` | `phrases[{words[{w,t,e}]} \| {text,at,stagger}]`, `end`, `y` | uppercase Inter Tight 800 48/58 `#5E5E5E`, ≤ 2 balanced centred lines pre-laid-out (`/` forces break, NBSP joins), letters wipe L→R over the word, phrase hard-cuts at the next | §7 |
+| `beat` | — | hidden until `at`; layouts create it | — |
+| `tx.blur(tl, out, in, at)` | `dur, gap` | out blur 0→20 + fade 0.21 s, 0.17 s empty; returns next start (at+0.38) | §6 |
+| `tx.swap(tl, outEl, inEl, at)` | — | in-beat component swap (blur crossfade) | §6 |
+
+### Components
+| Builder | Props (main) | Timing / behaviour | Reproduces |
+|---|---|---|---|
+| `title` | `kicker, lines[≤2], accent[], size` | kicker 30/600 `#A26A2A` → headline 80/700 −0.035em (+0.08 s), blocks blur in; accent = gold gradient; shrink-to-fit 900 px | §3/§4 |
+| `cover` | `src \| node \| label,sub`, `kicker, lines, accent, subline, height=1012, textAt, subAt` | news cover: photo + dark gradient, spaced kicker, 84/700 white title with gold accent, gold dash + sub; photo 1.06→1 | §5C |
+| `photo` | `src \| node \| label,sub`, `width, height, radius` | proof / B-roll card; labelled neutral slot without material | §5D/J |
+| `stats` | `items[{icon heart\|comment\|repost\|share\|views, value, dec, suffix, label, at}], rowH=172` | chips blur in on their word, values count up 0.9 s; first icon on gold disc | §5D |
+| `chips` | `items[{text, at}]`, `height=170` | numbered gold discs ①②, row of equal chips | §5E |
+| `dataCard` | `label, value, from, max \| maxText, dec, suffix, note, countAt, dur, bar` | gold 240 px count-up + "/ max" (width reserved, auto-fit) + gold bar filling with the count | §5F |
+| `percentRows` | `rows[{title, value, dec, note, at, dur}]` | title left, gold % right (132 px), bar + note; slow power2.out count | §5L |
+| `questionCard` | `value, max, kicker, text, accent, swapAt, height` | gold "?" → number blur-swap, "/max", question with gold accent | §5K |
+| `dotRow` | `m, n, fillAt, stagger, fillStagger, legend[2], size` | m grey discs pop (0.08 s), first n turn gold with ✓ (0.09 s); plain discs, no figures | §5K |
+| `question` | `text, accent, qAt, textAt` | big gold "?" (400/800, back.out) + 72/700 line | §5O |
+| `post` | `avatar \| monoName, name, meta, text, accent, likes, comments` | official post / quote card, counts in footer | §5H (as card) |
+| `compare` | `left{k,v,suffix}, right{k,v,suffix,at}` | left counts 1.2 s → gold arrow + right counts 1.0 s ("1 800+ → 2 500+") | §5J |
+| `chart` | `title, series[{points 0..1, label, dashed, at, dur}], chartH` | guides, gold curve (Catmull-Rom) draws L→R, dotted grey series via growing clip, legend | §5I |
+| `toggles` | `rows[{kicker, title, on, flips[{at,on}]}]` | gold iOS switches, knob 0.3 s power2.inOut, title greys when off | §5N |
+| `poll` | `options[], pick, pickAt, placeholder, avatar \| name` | white option rows + radio, comment input with avatar (no empty card) | §5P |
+| `tiles` | `items[{icon, title, sub, at}], height=300` | 2×2 cards, line icon, gold ↑ badge, title + gold sub | §5G |
+
+### Layouts — `RSE.layout.<id>(page, spec, tl, at) → beat` (`beat.block`, `beat.parts`, `beat.metrics`)
+Block (kicker → last card) anchored at the reference top **y 338** (`spec.anchor`), or centred on `spec.cy`; clamped 300…1380 so the caption tier (1430–1542) stays clear → block ∪ caption centre ≈ 936–940. Rhythm `RSE.layout.RHYTHM`: headline → visual 84, gap 22. Visuals = `{type:'<builder>', at, …}` or `(host, tl, at) => el`.
+| id | spec | composition |
+|---|---|---|
+| `hero` | `cover{…}` (+ optional `lines`) | news cover card |
+| `media` | `kicker, lines, accent, photo{}, stats{items}, photoW=0.6, below` | photo 60 % + stats column (or full-width photo) |
+| `number` | `kicker, lines, accent, chips{items}, data{…dataCard}` | chips row + data card |
+| `list` | `kicker, lines, accent, rows[] \| visual(s)` | percent rows (or tiles / toggles) |
+| `compare` | `kicker, lines, accent, top(visual), compare{left,right}` | chart/photo + compare card |
+| `stack` | `kicker, lines, accent, visual \| visuals[]` | title + 1–3 components |
+| `statement` | `text, accent` (cy 820) | question beat (exempt from the 600 px rule) |
+| `visual-top` (`visualTop`) | `visuals[], kicker, lines, accent, titleAt` | components first, title under them |
+
+### Verification (demo)
+Demo = 8 beats / 30.5 s, Kazakh, brand "Link HR" / "@linkhr" with monogram: hero → media → number → list → statement → compare → stack → visual-top (8 distinct layouts, 17 component types; 5 tabs). `lint` 0 errors / 0 warnings. Snapshots of every beat's final state measured and compared side by side with reference stills (`research/an/DfmpUlfuHod/cmp_ref_vs_demo.jpg`): name cap 107–134 (ref 109–135), handle 151–172 (153–173), pill text 131–151 (131–152), tab bar 212–217 (=), tab label cap 231 (=), headline cap 59 px (=), big number digits 178 px (176), caption caps 1440–1476 / 1498 (=), kicker glyph top 345 (347); x positions +26 px (90 vs 64 margin, layouts.md). Motion checked on 30 fps strips of the render: swap 7 frames blur-out + 5 empty, count 0→1 240 in 0.9 s power3.out. Rendered `demo/style-e-demo.mp4` (1080×1920, 30 fps, 30.5 s, 3.1 MB).
+Known deviations: photos are labelled neutral slots (no material); Inter/Inter Tight vs the original SF-like face; dot row uses check discs instead of person glyphs; demo is silent (E bed is mixed by `mix.py`); real comment screenshots (ref 22–26 s) are shown via `photo src`, not rebuilt as fake UI.
+
 ## Technique pack "head-umar" (optional, any style) · `assets/techniques/head-umar.{css,js}` → global `RSX`
 
 The talking-head editorial techniques from the creator's earlier reels (teardowns `style-b/Dd1b9kEA-KL.md`, `Dd3Uz4Mgbn-.md`), kept as opt-in tools — **not** part of Style D. Depends on RS + RSB (if RSB is missing, `RSX.available === false` and nothing is defined beyond that flag). Assembler always copies `assets/techniques/*` to `composition/lib/techniques/` and loads `head-umar.css/js` after the style packs; if a scene calls `RSX.` and the style lacks pack b, b is added. All CSS is scoped to `.rsx-*`, so loading it is inert. Build after `await RSX.ready()` (glyph metrics). Lint-checked with a 3-technique test scene (lens + jump zoom, chest-band stat morph, karaoke caption) over a footage slot: 0 errors.

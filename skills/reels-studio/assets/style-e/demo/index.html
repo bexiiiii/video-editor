@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="kk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>Style E demo — Data News</title>
+    <!-- Run ./prepare.sh first: copies runtime + Style E pack into ./lib (HyperFrames forbids "../" paths).
+         Identity is the demo brand "Link HR" / "@linkhr" with a monogram — never the reference channel.
+         Photos are labelled neutral slots (no material supplied) — no drawn people. Silent (Style E bed is mixed by mix.py). -->
+    <link rel="stylesheet" href="lib/tokens-e.css" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script src="lib/runtime.js"></script>
+    <script src="lib/e.js"></script>
+    <style>
+      body { margin: 0; background: #FCFCFC; }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: #FCFCFC; }
+      #pg { position: absolute; inset: 0; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-width="1080" data-height="1920" data-duration="30.5">
+      <div id="pg" class="clip" data-start="0" data-duration="30.5" data-track-index="1"></div>
+    </div>
+    <script>
+      (async function () {
+        await RSE.ready();
+        const tl = gsap.timeline({ paused: true });
+        const BRAND = { name: "Link HR", handle: "@linkhr", rubric: "HR жаңалығы" }; // brief.cta / brief.brand — ask the client
+        const page = RSE.page(document.getElementById("pg"));
+        RSE.header(page, BRAND, tl, 0);
+
+        /* beat starts (tx.blur returns the next start: out + 0.21 s blur + 0.17 s empty page) */
+        const T = [0.05];
+        const OUT = [4.0, 8.2, 12.45, 16.7, 18.75, 22.75, 26.6]; // exit times = breath pauses before the next sentence
+        OUT.forEach((o) => T.push(+(o + 0.38).toFixed(2)));
+
+        RSE.tabs(page, { items: ["Жаңалық", "Сандар", "Себебі", "Пікір", "Болжам"],
+          steps: [{ at: 0.3, index: 0 }, { at: T[2] - 0.05, index: 1 }, { at: T[4] - 0.05, index: 2 }, { at: T[6] - 0.05, index: 3 }, { at: T[7] - 0.05, index: 4 }] }, tl);
+
+        const B = [];
+        /* 1 · hero — news cover card */
+        B.push(RSE.layout.hero(page, { cover: { label: "фото · жаңалық", sub: "материал: компания суреті",
+          kicker: "HR-2026 · Жаңалық", lines: ["Link HR жалдауды", "3 есе жеделдетті"], accent: ["3 есе"],
+          subline: "Бұл қалай мүмкін болды?", textAt: 0.45, subAt: 2.55 } }, tl, T[0]));
+
+        /* 2 · media — official post: photo + social stats */
+        B.push(RSE.layout.media(page, { kicker: "@linkhr • Ресми пост", lines: ["Компаниялар", "жаңа жүйеге көшті"], accent: ["жаңа жүйеге"],
+          photo: { label: "фото · ресми пост", sub: "материал: пост суреті" },
+          stats: { items: [
+            { icon: "heart", value: 12480, label: "лайк", at: T[1] + 0.55 },
+            { icon: "comment", value: 936, label: "пікір", at: T[1] + 0.95 },
+            { icon: "repost", value: 214, label: "репост", at: T[1] + 1.35 },
+            { icon: "share", value: 31.2, dec: 1, suffix: " мың", label: "бөлісу", at: T[1] + 2.6 } ] } }, tl, T[1]));
+
+        /* 3 · number — chips + data card count-up */
+        B.push(RSE.layout.number(page, { kicker: "2026 · Link HR деректері", lines: ["Жабылған вакансия –", "1 240"], accent: ["1 240"],
+          chips: { items: [{ text: "Алматы", at: T[2] + 0.2 }, { text: "Астана", at: T[2] + 0.5 }] },
+          data: { label: "Жабылған вакансиялар", value: 1240, max: 1500, note: "Жылдық жоспардың 83 пайызы", at: T[2] + 0.75, countAt: T[2] + 0.95, dur: 1.1 } }, tl, T[2]));
+
+        /* 4 · list — percent rows */
+        B.push(RSE.layout.list(page, { kicker: "Сауалнама · 320 компания", lines: ["Кандидаттарға жауап", "жылдамдады"], accent: ["жылдамдады"],
+          rows: [
+            { title: "Алғашқы жауап\n24 сағат ішінде", value: 78, note: "компаниялар үлесі", at: T[3] + 0.3, dur: 2.6 },
+            { title: "Сұхбатқа\nкелу деңгейі", value: 64.5, dec: 1, note: "кандидаттар үлесі", at: T[3] + 1.7, dur: 1.8 } ] }, tl, T[3]));
+
+        /* 5 · statement — question beat */
+        B.push(RSE.layout.statement(page, { text: "Бұл нені білдіреді?" }, tl, T[4]));
+
+        /* 6 · compare — growth chart + 1 800+ → 2 500+ */
+        B.push(RSE.layout.compare(page, { kicker: "Link HR · өтінімдер", lines: ["Өтінім саны", "артып келеді"], accent: ["артып келеді"],
+          top: { type: "chart", title: "Айлық өтінімдер", chartH: 250,
+            series: [{ points: [0.04, 0.1, 0.18, 0.3, 0.46, 0.66, 0.9], label: "Link HR", at: T[5] + 0.45, dur: 1.3 },
+                     { points: [0.04, 0.07, 0.1, 0.13, 0.16, 0.19, 0.22], label: "Нарық орташасы", dashed: true, at: T[5] + 1.3, dur: 1.2 }] },
+          compare: { left: { k: "2025 жылы", v: 1800, suffix: "+" }, right: { k: "2026 жылы", v: 2500, suffix: "+", at: T[5] + 2.35 }, at: T[5] + 0.9 } }, tl, T[5]));
+
+        /* 7 · stack — "?/12" → 8/12 + dot row */
+        B.push(RSE.layout.stack(page, { kicker: "HR-мамандар · сауалнама", lines: ["12 маманның", "таңдауы – Link HR"], accent: ["Link HR"],
+          visuals: [
+            { type: "questionCard", value: 8, max: 12, kicker: "12 HR-маманнан сұрадық", text: "Олардың нешеуі Link HR-ды таңдады?", accent: ["Link HR-ды"], swapAt: T[6] + 2.0, height: 380, at: T[6] + 0.2 },
+            { type: "dotRow", m: 12, n: 8, fillAt: T[6] + 2.0, legend: ["Link HR · 8", "Басқа жүйелер · 4"], at: T[6] + 0.45 } ] }, tl, T[6]));
+
+        /* 8 · visual-top — official quote + poll, question headline under them */
+        B.push(RSE.layout.visualTop(page, { kicker: "Сіздің пікіріңіз", lines: ["Мақсатқа жете ме?"], accent: ["жете ме?"],
+          visuals: [
+            { type: "post", name: "@linkhr", monoName: "Link HR", meta: "Ресми пост · 2 сағ", text: "«Келесі мақсат — жалдауды 7 күнге дейін қысқарту»", accent: ["7 күнге"], likes: 4210, comments: 318, at: T[7] },
+            { type: "poll", options: ["Иә, үлгереді", "Жоқ, ұзағырақ"], placeholder: "Пікіріңізді жазыңыз", name: "Link HR", pick: 0, pickAt: T[7] + 2.4, at: T[7] + 0.35 } ],
+          titleAt: T[7] + 0.9 }, tl, T[7]));
+
+        OUT.forEach((o, i) => RSE.tx.blur(tl, B[i], B[i + 1], o));
+
+        /* literal caption track (word times = VO; here a scripted ~130 wpm read) */
+        const P = (text, at, stagger) => ({ text, at, stagger: stagger || 0.4 });
+        RSE.caption(page, { phrases: [
+          P("Link HR жалдауды / 3 есе жеделдетті", 0.15, 0.32), P("Бұл қалай / мүмкін болды?", 2.3, 0.32),
+          P("Ресми парақшада / жаңа жүйе жарияланды", T[1] + 0.05, 0.32), P("Пост бір тәулікте / 31 мың рет бөлісілді", T[1] + 1.47, 0.3),
+          P("Жыл басынан бері / 1\u00A0240 вакансия жабылды", T[2] + 0.05, 0.32), P("Бұл жылдық жоспардың / 83 пайызы", T[2] + 1.92, 0.32),
+          P("Компаниялардың 78 пайызы / бір тәулікте жауап береді", T[3] + 0.05, 0.32), P("Сұхбатқа келу / 64,5 пайызға жетті", T[3] + 2.12, 0.3),
+          P("Бұл нені білдіреді?", T[4] + 0.07, 0.32),
+          P("Өтінім саны / артып келеді", T[5] + 0.05, 0.32), P("Былтыр 1\u00A0800-ден асса / биыл 2\u00A0500-ден асты", T[5] + 1.17, 0.32),
+          P("Сұралған 12 / HR-маманның", T[6] + 0.05, 0.4), P("сегізі Link HR-ды / таңдады", T[6] + 1.77, 0.32),
+          P("Келесі мақсат – / жалдауды 7 күнге қысқарту", T[7] + 0.05, 0.3), P("Сіз қалай / ойлайсыз?", T[7] + 1.97, 0.32),
+        ] }, tl);
+
+        window.__RSE = { page, beats: B, T, OUT };
+        window.__timelines = window.__timelines || {};
+        window.__timelines["main"] = tl;
+      })();
+    </script>
+  </body>
+</html>

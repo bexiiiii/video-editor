@@ -139,7 +139,7 @@ def main() -> None:
     ap.add_argument("--work", required=True, help="work/<slug> directory")
     ap.add_argument("--no-lint", action="store_true", help="skip `npx hyperframes lint`")
     ap.add_argument("--gsap", choices=["local", "cdn"], default="local", help="vendor GSAP locally (default) or CDN")
-    ap.add_argument("--bg", default=None, help="root background colour (default by style: A/C #0B0D0D, B/D #1A1A1C)")
+    ap.add_argument("--bg", default=None, help="root background colour (default by style: A/C #0B0D0D, B/D #1A1A1C, E #FCFCFC)")
     a = ap.parse_args()
 
     work = Path(a.work).resolve()
@@ -180,6 +180,7 @@ def main() -> None:
         warnings.append("assets/shared/runtime.js missing")
     # style "c" (Keynote 3D) is built on the A and B packs: copy + load a → b → c
     # style "d" (Talking Head × 3D Keyword = Style A over the head) is built on the A pack: copy + load a → d
+    # style "e" (Data News) is self-contained: pack e only (default branch below)
     packs = {"c": ["a", "b", "c"], "d": ["a", "d"]}.get(style, [style])
     # technique pack assets/techniques/head-umar.{css,js} (global RSX) is always copied + loaded after the style
     # packs; it is inert unless a scene calls RSX. RSX depends on RSB, so when a scene uses it and the style does
@@ -306,7 +307,7 @@ def main() -> None:
         body.append(f'    <audio id="mix" src="media/mix.wav" data-start="0" data-duration="{f3(duration)}" '
                     f'data-track-index="9" data-volume="1"></audio>')
 
-    bg = a.bg or ("#0B0D0D" if style in ("a", "c") else "#1A1A1C")
+    bg = a.bg or ("#0B0D0D" if style in ("a", "c") else "#FCFCFC" if style == "e" else "#1A1A1C")
     script_tags = "\n".join(f'    <script src="{s}"></script>' for s in scripts)
     doc = f"""<!doctype html>
 <html lang="{html.escape(brief.get('lang', 'ru'))}">

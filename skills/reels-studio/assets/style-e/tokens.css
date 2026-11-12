@@ -1,0 +1,223 @@
+/* reels-studio · Style E "Data News" — design tokens (all scoped to .rse)
+ * Frame 1080×1920. Every number is measured on the reference reel (teardowns/style-e/DfmpUlfuHod.md).
+ *
+ * FONT: the reference uses an SF-Pro-like grotesk. Substitute = Inter 4 (opsz → Inter Display at large sizes) for UI
+ * text and Inter Tight 800 for the uppercase caption track. Both ship the Kazakh Cyrillic letters
+ * ә ғ қ ң ө ұ ү һ і (Google Fonts "cyrillic-ext" subset, served automatically by unicode-range), plus Russian and
+ * Uzbek Latin (oʻ gʻ). The HyperFrames compiler fetches and embeds them.
+ *
+ * MARGIN: the reference column is x 64–1016 (952 px). layouts.md requires ≥ 90 px side margins (Reels UI safe area),
+ * so the default column is x 90–990 (900 px). `.rse.rse-refmargin` restores the reference 64 px for A/B checks.
+ */
+@import url("https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..800&family=Inter+Tight:wght@700;800;900&display=block");
+
+.rse {
+  /* ---------- type ---------- */
+  --rse-font: "Inter", "SF Pro Display", system-ui, sans-serif;
+  --rse-font-cap: "Inter Tight", "Inter", system-ui, sans-serif;
+
+  /* ---------- colours (sampled) ---------- */
+  --rse-bg: #FCFCFC;          /* page, flat (sampled #FCFCFC–#FDFDFD everywhere, no grid, no grain) */
+  --rse-card: #F4F4F6;        /* every card / chip / pill (sampled #F4F4F6), no border, no shadow */
+  --rse-card-in: #FFFFFF;     /* inner rows (poll options, input) */
+  --rse-ink: #101011;         /* headline (sampled #101011) */
+  --rse-ink-2: #1C1C1E;       /* card titles, numbers */
+  --rse-grey: #8A8A8E;        /* handles, labels, notes */
+  --rse-grey-2: #B4B4B9;      /* "/ 140" denominators, inactive tab labels */
+  --rse-track: #E7E7E9;       /* inactive tab segment, empty bar track (sampled #E7E7E9) */
+  --rse-caption: #5E5E5E;     /* bottom caption track (darkest sampled #676767 incl. AA) */
+  --rse-kicker: #A26A2A;      /* source kicker "@source • Ресми пост" (darkest sampled #83592E) */
+  --rse-dot: #FDC604;         /* rubric pill dot (sampled #FDC604) */
+  --rse-gold-1: #E89E0C;      /* gold gradient start (sampled #E59904 / #E49B05) */
+  --rse-gold-2: #C9822E;      /* mid (sampled #CF8328) */
+  --rse-gold-3: #A8672C;      /* end  (sampled #AD692E / #A86827) */
+  --rse-gold: linear-gradient(90deg, var(--rse-gold-1) 0%, var(--rse-gold-2) 55%, var(--rse-gold-3) 100%);
+  --rse-gold-v: linear-gradient(180deg, #EBA51A 0%, #C9822E 60%, #A8672C 100%); /* big numbers, "?" */
+
+  /* ---------- geometry (px @1080) ---------- */
+  --rse-mx: 90px;             /* ref 64 */
+  --rse-col: 900px;           /* ref 952 */
+  --rse-radius: 32px;         /* cards (ref ≈32) */
+  --rse-radius-cover: 36px;   /* news cover card */
+  --rse-gap: 22px;            /* gap between cards / grid cells (ref 22–24) */
+  --rse-pad: 40px;            /* card padding (ref text inset 36–44) */
+
+  /* ---------- type scale ---------- */
+  --rse-fs-name: 37px;        /* channel name 700, cap 27 px */
+  --rse-fs-handle: 24px;
+  --rse-fs-pill: 23px;
+  --rse-fs-tab: 20px;
+  --rse-fs-kicker: 30px;      /* 600, cap 22 px */
+  --rse-fs-headline: 80px;    /* 700, cap 59 px, ≤ 2 lines, lh 1.12 */
+  --rse-fs-cover: 84px;       /* cover title (white) */
+  --rse-fs-caption: 48px;     /* Inter Tight 800 uppercase, cap 35 px, line pitch 58 */
+  --rse-fs-big: 240px;        /* data card number, digits 176 px tall */
+  --rse-fs-pct: 132px;        /* percent rows, digits ≈97 px */
+  --rse-fs-q: 400px;          /* question mark: glyph 206 px tall */
+  --rse-track-headline: -0.035em;
+  --rse-track-caption: -0.045em;
+
+  position: absolute; inset: 0; overflow: hidden;
+  background: var(--rse-bg); color: var(--rse-ink);
+  font-family: var(--rse-font); font-feature-settings: "ss01" 0, "cv11" 1;
+  -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision;
+}
+.rse.rse-refmargin { --rse-mx: 64px; --rse-col: 952px; }
+.rse *, .rse *::before, .rse *::after { box-sizing: border-box; }
+.rse .rse-gold-text { background: var(--rse-gold); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.rse .rse-goldv-text { background: var(--rse-gold-v); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* ---------- layers ---------- */
+.rse .rse-beats, .rse .rse-capl { position: absolute; inset: 0; }
+.rse .rse-beat { position: absolute; left: var(--rse-mx); width: var(--rse-col); top: 0; height: 1920px; }
+.rse .rse-m { position: absolute; left: 0; width: 100%; }           /* measured block (audit) */
+
+/* ---------- header (persistent channel chrome) ---------- */
+.rse .rse-head { position: absolute; left: var(--rse-mx); width: var(--rse-col); top: 96px; height: 88px; }
+.rse .rse-logo { position: absolute; left: 0; top: 0; width: 88px; height: 88px; border-radius: 22px; overflow: hidden;
+  background: linear-gradient(145deg, #2A2A2E, #4A4A50); display: grid; place-items: center; }
+.rse .rse-logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.rse .rse-logo .rse-mono { font: 700 34px/1 var(--rse-font); color: #fff; letter-spacing: -0.02em; }
+.rse .rse-name { position: absolute; left: 110px; top: 4px; font: 700 var(--rse-fs-name)/44px var(--rse-font); letter-spacing: -0.02em; color: var(--rse-ink); white-space: nowrap; }
+.rse .rse-handle { position: absolute; left: 110px; top: 50px; font: 400 var(--rse-fs-handle)/30px var(--rse-font); color: var(--rse-grey); white-space: nowrap; }
+.rse .rse-pill { position: absolute; right: 0; top: 16px; height: 56px; padding: 0 26px 0 22px; border-radius: 28px; background: var(--rse-card);
+  display: flex; align-items: center; gap: 12px; font: 600 var(--rse-fs-pill)/1 var(--rse-font); color: #1B1B1E; white-space: nowrap; }
+.rse .rse-pill i { width: 14px; height: 14px; border-radius: 50%; background: var(--rse-dot); display: block; }
+
+/* ---------- chapter tabs ---------- */
+.rse .rse-tabs { position: absolute; left: var(--rse-mx); width: var(--rse-col); top: 212px; display: flex; gap: 8px; }
+.rse .rse-tab { flex: 1 1 0; min-width: 0; }
+.rse .rse-tab .bar { height: 6px; border-radius: 3px; background: var(--rse-track); overflow: hidden; }
+.rse .rse-tab .fill { height: 100%; width: 100%; border-radius: 3px; background: var(--rse-gold); transform-origin: 0 50%; transform: scaleX(0); }
+.rse .rse-tab .lbl { margin-top: 9px; font: 500 var(--rse-fs-tab)/24px var(--rse-font); color: var(--rse-grey-2); white-space: nowrap; overflow: hidden; text-overflow: clip; }
+.rse .rse-tab .lbl b { position: absolute; font-weight: 600; color: var(--rse-ink-2); opacity: 0; }
+.rse .rse-tab .lbl { position: relative; }
+
+/* ---------- kicker + headline ---------- */
+.rse .rse-kicker { font: 600 var(--rse-fs-kicker)/38px var(--rse-font); color: var(--rse-kicker); letter-spacing: -0.01em; white-space: nowrap; }
+.rse .rse-headline { margin-top: 18px; font: 700 var(--rse-fs-headline)/1.12 var(--rse-font); letter-spacing: var(--rse-track-headline); color: var(--rse-ink); }
+.rse .rse-headline .ln { display: block; white-space: nowrap; }
+.rse .ac { white-space: nowrap; }
+.rse .rse-headline .ac { background: var(--rse-gold); -webkit-background-clip: text; background-clip: text; color: transparent; padding-right: 0.04em; }
+
+/* ---------- cards ---------- */
+.rse .rse-card { position: relative; background: var(--rse-card); border-radius: var(--rse-radius); padding: var(--rse-pad); overflow: hidden; }
+.rse .rse-label { font: 500 26px/32px var(--rse-font); color: var(--rse-grey); }
+.rse .rse-note { font: 600 26px/32px var(--rse-font); color: var(--rse-ink-2); }
+.rse .rse-bar { position: relative; height: 24px; border-radius: 12px; background: var(--rse-track); overflow: hidden; }
+.rse .rse-bar .fill { position: absolute; inset: 0; border-radius: 12px; background: var(--rse-gold); transform-origin: 0 50%; }
+
+/* news cover card */
+.rse .rse-cover { position: relative; border-radius: var(--rse-radius-cover); overflow: hidden; background: #3A342C; }
+.rse .rse-cover .ph { position: absolute; inset: 0; }
+.rse .rse-cover .ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.rse .rse-cover .shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(17,15,13,0) 38%, rgba(17,15,13,.55) 62%, rgba(17,15,13,.92) 100%); }
+.rse .rse-cover .tx { position: absolute; left: 52px; right: 52px; bottom: 58px; color: #fff; }
+.rse .rse-cover .ck { font: 700 30px/36px var(--rse-font); letter-spacing: 0.16em; color: rgba(255,255,255,.72); text-transform: uppercase; white-space: nowrap; }
+.rse .rse-cover .tt { margin-top: 18px; font: 700 var(--rse-fs-cover)/1.06 var(--rse-font); letter-spacing: -0.04em; }
+.rse .rse-cover .tt .ln { display: block; white-space: nowrap; }
+.rse .rse-cover .tt .ac { background: var(--rse-gold-v); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.rse .rse-cover .sb { margin-top: 30px; display: flex; align-items: center; gap: 24px; font: 500 40px/48px var(--rse-font); color: #fff; white-space: nowrap; }
+.rse .rse-cover .sb i { width: 62px; height: 3px; background: var(--rse-gold-1); display: block; flex: none; }
+
+/* neutral labelled photo slot (no material supplied) — never a drawn person */
+.rse .rse-slot { position: absolute; inset: 0; display: grid; place-items: center; align-content: center; gap: 14px;
+  background: repeating-linear-gradient(135deg, #CFC7BC 0 22px, #C8BFB3 22px 44px); color: #6B6157; text-align: center; }
+.rse .rse-slot svg { width: 72px; height: 72px; }
+.rse .rse-slot .l1 { font: 700 28px/34px var(--rse-font); letter-spacing: 0.12em; text-transform: uppercase; }
+.rse .rse-slot .l2 { font: 500 22px/28px var(--rse-font); opacity: .8; }
+
+/* social stats chips */
+.rse .rse-stat { display: flex; align-items: center; gap: 22px; height: 100%; padding: 0 30px; }
+.rse .rse-stat .ic { flex: none; width: 66px; height: 66px; border-radius: 50%; display: grid; place-items: center; background: #FFFFFF; color: #2A2A2E; }
+.rse .rse-stat .ic.gold { background: var(--rse-gold-v); color: #fff; }
+.rse .rse-stat .ic svg { width: 32px; height: 32px; }
+.rse .rse-stat .v { font: 700 46px/50px var(--rse-font); letter-spacing: -0.03em; color: var(--rse-ink-2); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.rse .rse-stat .k { font: 600 24px/28px var(--rse-font); color: var(--rse-grey); }
+
+/* numbered chips */
+.rse .rse-chip { display: flex; align-items: center; gap: 22px; padding: 0 32px; height: 100%; font: 600 34px/40px var(--rse-font); color: var(--rse-ink-2); letter-spacing: -0.01em; }
+.rse .rse-num { flex: none; width: 50px; height: 50px; border-radius: 50%; background: var(--rse-gold-v); color: #fff; display: grid; place-items: center; font: 700 25px/1 var(--rse-font); }
+
+/* data card */
+.rse .rse-big { font: 700 var(--rse-fs-big)/0.9 var(--rse-font); letter-spacing: -0.055em; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.rse .rse-big .n { background: var(--rse-gold); -webkit-background-clip: text; background-clip: text; color: transparent; display: inline-block; padding-right: 0.03em; }
+.rse .rse-big .of { font-size: 0.31em; color: var(--rse-grey-2); letter-spacing: -0.02em; margin-left: 0.12em; }
+
+/* percent rows */
+.rse .rse-pct { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
+.rse .rse-pct .t { font: 600 38px/44px var(--rse-font); color: var(--rse-ink-2); letter-spacing: -0.015em; }
+.rse .rse-pct .v { font: 700 var(--rse-fs-pct)/0.95 var(--rse-font); letter-spacing: -0.05em; white-space: nowrap; font-variant-numeric: tabular-nums;
+  background: var(--rse-gold); -webkit-background-clip: text; background-clip: text; color: transparent; padding-right: 0.03em; }
+
+/* avatar dot row (n of m) — plain discs + check, no figures */
+.rse .rse-dots { display: flex; justify-content: space-between; }
+.rse .rse-dot { width: 60px; height: 60px; border-radius: 50%; background: #E4E4E8; display: grid; place-items: center; }
+.rse .rse-dot svg { width: 28px; height: 28px; opacity: 0; }
+.rse .rse-legend { margin-top: 26px; display: flex; gap: 40px; font: 500 28px/34px var(--rse-font); color: var(--rse-ink-2); }
+.rse .rse-legend span { display: flex; align-items: center; gap: 12px; }
+.rse .rse-legend i { width: 16px; height: 16px; border-radius: 50%; display: block; }
+.rse .rse-legend .o { color: var(--rse-grey); }
+
+/* question beat */
+.rse .rse-q { font: 800 var(--rse-fs-q)/0.86 var(--rse-font); text-align: center; }
+.rse .rse-q .m { background: var(--rse-gold-v); -webkit-background-clip: text; background-clip: text; color: transparent; display: inline-block; }
+.rse .rse-qt { margin-top: 10px; text-align: center; font: 700 72px/1.15 var(--rse-font); letter-spacing: -0.035em; color: var(--rse-ink); }
+
+/* post / quote card */
+.rse .rse-post .hd { display: flex; align-items: center; gap: 20px; }
+.rse .rse-post .av { width: 72px; height: 72px; border-radius: 50%; overflow: hidden; background: linear-gradient(145deg, #2A2A2E, #4A4A50); display: grid; place-items: center; flex: none; }
+.rse .rse-post .av img { width: 100%; height: 100%; object-fit: cover; }
+.rse .rse-post .av .rse-mono { font: 700 28px/1 var(--rse-font); color: #fff; }
+.rse .rse-post .who { font: 700 30px/36px var(--rse-font); color: var(--rse-ink-2); }
+.rse .rse-post .when { font: 500 24px/30px var(--rse-font); color: var(--rse-grey); }
+.rse .rse-post .body { margin-top: 30px; font: 600 44px/58px var(--rse-font); letter-spacing: -0.02em; color: var(--rse-ink-2); }
+.rse .rse-post .body .ac { background: var(--rse-gold); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.rse .rse-post .ft { margin-top: 30px; display: flex; gap: 34px; font: 600 26px/32px var(--rse-font); color: var(--rse-grey); }
+.rse .rse-post .ft span { display: flex; align-items: center; gap: 10px; }
+.rse .rse-post .ft svg { width: 28px; height: 28px; }
+
+/* compare row (1 800+ → 2 500+) */
+.rse .rse-cmp { display: flex; align-items: center; gap: 30px; }
+.rse .rse-cmp .side { flex: 1 1 0; }
+.rse .rse-cmp .k { font: 500 24px/30px var(--rse-font); color: var(--rse-grey); }
+.rse .rse-cmp .v { margin-top: 6px; font: 700 72px/1 var(--rse-font); letter-spacing: -0.04em; color: var(--rse-ink-2); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.rse .rse-cmp .v.g { background: var(--rse-gold); -webkit-background-clip: text; background-clip: text; color: transparent; padding-right: .04em; }
+.rse .rse-cmp .arr { flex: none; color: var(--rse-gold-2); width: 56px; height: 32px; }
+
+/* line chart */
+.rse .rse-chart svg { display: block; overflow: visible; }
+.rse .rse-chart .lg { display: flex; gap: 34px; font: 600 24px/30px var(--rse-font); color: var(--rse-ink-2); }
+.rse .rse-chart .lg span { display: flex; align-items: center; gap: 12px; }
+.rse .rse-chart .lg i { width: 30px; height: 5px; border-radius: 3px; display: block; }
+
+/* toggles */
+.rse .rse-tg { display: flex; align-items: center; justify-content: space-between; }
+.rse .rse-tg .k { font: 500 22px/28px var(--rse-font); color: var(--rse-grey); }
+.rse .rse-tg .t { font: 600 38px/46px var(--rse-font); color: var(--rse-ink-2); letter-spacing: -0.015em; }
+.rse .rse-sw { position: relative; flex: none; width: 92px; height: 54px; border-radius: 27px; background: #E4E4E8; }
+.rse .rse-sw .on { position: absolute; inset: 0; border-radius: 27px; background: var(--rse-gold); opacity: 0; }
+.rse .rse-sw .kn { position: absolute; left: 4px; top: 4px; width: 46px; height: 46px; border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.18); }
+
+/* poll */
+.rse .rse-opt { display: flex; align-items: center; gap: 20px; height: 84px; padding: 0 28px; border-radius: 22px; background: var(--rse-card-in); font: 600 34px/1 var(--rse-font); color: var(--rse-ink-2); }
+.rse .rse-opt i { width: 30px; height: 30px; border-radius: 50%; border: 3px solid #C9C9CE; display: block; flex: none; position: relative; }
+.rse .rse-opt i b { position: absolute; inset: 4px; border-radius: 50%; background: var(--rse-gold-v); opacity: 0; }
+.rse .rse-input { display: flex; align-items: center; gap: 20px; }
+.rse .rse-input .f { flex: 1; height: 72px; border-radius: 36px; background: var(--rse-card-in); display: flex; align-items: center; padding: 0 28px; font: 500 26px/1 var(--rse-font); color: #A6A6AB; white-space: nowrap; overflow: hidden; }
+
+/* tiles 2×2 */
+.rse .rse-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: var(--rse-gap); }
+.rse .rse-tile { height: 300px; padding: 34px; }
+.rse .rse-tile .ic { width: 52px; height: 52px; color: #3A3A3E; }
+.rse .rse-tile .up { position: absolute; right: 30px; top: 30px; width: 46px; height: 46px; border-radius: 50%; background: var(--rse-gold-v); display: grid; place-items: center; color: #fff; }
+.rse .rse-tile .up svg { width: 24px; height: 24px; }
+.rse .rse-tile .tt { position: absolute; left: 34px; bottom: 74px; font: 700 40px/46px var(--rse-font); letter-spacing: -0.02em; color: var(--rse-ink-2); }
+.rse .rse-tile .sb { position: absolute; left: 34px; bottom: 36px; font: 600 22px/28px var(--rse-font); color: var(--rse-kicker); }
+
+/* ---------- bottom caption track ---------- */
+.rse .rse-cap { position: absolute; left: var(--rse-mx); width: var(--rse-col); top: 1430px; text-align: center;
+  font: 800 var(--rse-fs-caption)/58px var(--rse-font-cap); letter-spacing: var(--rse-track-caption); color: var(--rse-caption); text-transform: uppercase; }
+.rse .rse-cap .ph { position: absolute; left: 0; right: 0; top: 0; }
+.rse .rse-cap .row { display: block; white-space: nowrap; }
+.rse .rse-cap .c { display: inline-block; white-space: pre; }
