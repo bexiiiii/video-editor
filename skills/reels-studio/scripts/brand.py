@@ -458,6 +458,31 @@ def norm_hex(v):
     return to_hex(parse_hex(v))
 
 
+LOGO_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp", ".svg"}
+
+
+def safe_logo(base: Path, logo: str | None, R: "Report") -> Path | None:
+    """Resolve brief.brand.logo inside the work dir only (no traversal, no symlinks, images only).
+
+    The brief comes from the client, so a value like "../../.ssh/id_rsa" must never be copied into
+    the composition (which gets rendered and may be shared)."""
+    if not logo:
+        return None
+    raw = base / logo
+    try:
+        resolved = raw.resolve(strict=True)
+    except (FileNotFoundError, RuntimeError):
+        R.warnings.append(f"logo not found: {logo} — skipped")
+        return None
+    if not resolved.is_relative_to(base.resolve()):
+        R.warnings.append(f"logo path leaves the work dir: {logo} — skipped")
+        return None
+    if raw.is_symlink() or resolved.suffix.lower() not in LOGO_SUFFIXES or not resolved.is_file():
+        R.warnings.append(f"logo must be a regular {'/'.join(sorted(LOGO_SUFFIXES))} file inside the work dir: {logo} — skipped")
+        return None
+    return resolved
+
+
 def build(brand: dict, style: str, lang: str, out: Path | None, logo_src: Path | None, R: Report) -> dict | None:
     style = style.lower()
     packs = STYLE_PACKS.get(style)
@@ -549,9 +574,8 @@ def main() -> None:
     if not style:
         sys.exit("no style (pass --style or set brief.style)")
     lang = a.lang or brief.get("lang") or "ru"
-    logo = brand.get("logo")
-    logo_src = (base / logo) if logo else None
     R = Report()
+    logo_src = safe_logo(base, brand.get("logo"), R)
     data = build(brand, str(style), lang, None if a.check else out, logo_src, R)
     if data is None:
         if out and not a.check:
