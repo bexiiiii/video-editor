@@ -30,6 +30,7 @@ Input: `audio/transcript.json` (final timeline), `brief.json`, the style referen
 - Talking head (`head` / `head_overlay`): punch-in 1.0 ↔ 1.12 on cuts every 3–5 s; overlays only in the chest band (y 880–1460); B portal or glitch transition between head and motion.
 
 ## 4. Asset prompts (`assets[]`)
+- Append the niche preset's `art_direction` words (`assets/niches.json`) to every prompt, plus the brand colours as the dominant accent of the object; same words for every image of the reel.
 - A: "glossy inflated 3D <object>, soft studio lighting, subtle rim light, centered, isolated on plain background, high detail, no text" · transparent true · 1024x1024.
 - B: "Apple 3D emoji style <object>, centered, isolated, no text" · transparent true · 1024x1024.
 - Screenshots / screen recordings / logos / photos / real proof: add them to `plan/materials.json` and request them from the client (`materials.md`); scenes reference `input/<id>_*.png|mp4`. Never fabricate real metrics or real brands' UI as genuine.

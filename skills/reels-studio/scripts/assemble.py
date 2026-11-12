@@ -10,6 +10,8 @@ Layout produced (mirrors the work dir, so the same relative paths work in both p
   composition/lib/<s>.js            $SKILL/assets/style-<s>/lib.js       (+ lib/lib.js alias)
   composition/lib/style-<s>/…       the whole style pack (fonts, textures …)
   composition/lib/techniques/…      $SKILL/assets/techniques/* (head-umar.css/js = RSX, loaded after the packs)
+  composition/lib/brand.{css,js,json}  scripts/brand.py output when brief.brand has colours/font (references/branding.md):
+                                    brand.css linked right AFTER the style tokens, brand.js loaded BEFORE runtime/libs
   composition/lib/gsap.min.js       pinned GSAP (cached in ~/.cache/reels-studio; CDN tag if offline)
   composition/scenes/<id>/…         scenes/<id>/index.html (+ any local files), mounted as sub-compositions
   composition/assets/img/…          assets/img/*
@@ -203,7 +205,24 @@ def main() -> None:
                 warnings.append(f"style pack file missing: assets/style-{pk}/{src}")
     gsap_src = gsap_local(lib, a.gsap)
     head_links += [f'<link rel="stylesheet" href="lib/tokens-{pk}.css" />' for pk in packs if (lib / f"tokens-{pk}.css").is_file()]
-    scripts = [gsap_src] + [p for p in ["lib/runtime.js"] + [f"lib/{pk}.js" for pk in packs] if (comp / p).is_file()]
+    # ---- brand layer (brief.brand → lib/brand.css + lib/brand.js); no colours/font → nothing written, style pristine
+    brand_res = None
+    if (brief.get("brand") or {}):
+        p = subprocess.run([sys.executable, str(SKILL / "scripts" / "brand.py"), "--work", str(work), "--style", style,
+                            "--out", str(lib)], capture_output=True, text=True)
+        if p.stderr.strip():
+            print(p.stderr.strip(), file=sys.stderr)
+        try:
+            brand_res = json.loads(p.stdout.strip().splitlines()[-1])
+        except Exception:
+            brand_res = {"ok": False, "error": (p.stdout + p.stderr)[-800:]}
+        if p.returncode != 0 or not brand_res.get("ok", False):
+            warnings.append(f"brand.py: {brand_res}")
+        warnings += [f"brand: {w}" for w in brand_res.get("warnings", [])]
+    if (lib / "brand.css").is_file():
+        head_links.append('<link rel="stylesheet" href="lib/brand.css" />')
+    scripts = [gsap_src] + [p for p in (["lib/brand.js"] if (lib / "brand.css").is_file() else []) + ["lib/runtime.js"]
+                            + [f"lib/{pk}.js" for pk in packs] if (comp / p).is_file()]
     tech = SKILL / "assets" / "techniques"
     if tech.is_dir():
         copy_tree(tech, lib / "techniques", skip=("README.md",))
@@ -340,7 +359,7 @@ def main() -> None:
     (comp / "index.html").write_text(doc)
     report = {"ok": True, "composition": str(comp), "duration": duration, "style": style,
               "scenes": len(scene_hosts), "head_clips": len(head_clips), "punch_sets": len(tl_lines),
-              "warnings": warnings}
+              "brand": brand_res, "warnings": warnings}
 
     if not a.no_lint:
         npx = find_npx()

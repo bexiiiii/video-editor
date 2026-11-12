@@ -21,6 +21,11 @@
     return e;
   };
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  /** Brand palette (scripts/brand.py → lib/brand.js, window.RS_BRAND); stock gold when absent. See references/branding.md. */
+  const brand = (k, d) => {
+    const p = window.RS_BRAND && window.RS_BRAND.palette && window.RS_BRAND.palette.e;
+    return p && p[k] != null ? p[k] : d;
+  };
   RSE.el = el;
 
   /** State-change tween: explicit from/to, never renders before its start (seek-safe). */
@@ -415,7 +420,7 @@
     }
     dots.slice(0, props.n).forEach((d, i) => {
       const t = props.fillAt + i * (props.fillStagger ?? 0.09);
-      ft(tl, d, { backgroundColor: "#E4E4E8" }, { backgroundColor: "#D4902A", duration: 0.18, ease: "power1.out" }, t);
+      ft(tl, d, { backgroundColor: "#E4E4E8" }, { backgroundColor: brand("cell", "#D4902A"), duration: 0.18, ease: "power1.out" }, t);
       ft(tl, d.firstChild, { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.2, ease: "back.out(2)" }, t + 0.04);
     });
     if (props.legend) {
@@ -493,8 +498,9 @@
     const ns = "http://www.w3.org/2000/svg";
     const svg = document.createElementNS(ns, "svg"); svg.setAttribute("width", W); svg.setAttribute("height", H); svg.style.marginTop = "26px";
     c.appendChild(svg);
+    const gs = brand("chart", ["#E89E0C", "#C9822E", "#A8672C"]);
     const gid = "rseg" + Math.round(at * 1000) + "_" + (props.series.length);
-    svg.innerHTML = `<defs><linearGradient id="${gid}" x1="0" x2="1"><stop offset="0" stop-color="#E89E0C"/><stop offset=".55" stop-color="#C9822E"/><stop offset="1" stop-color="#A8672C"/></linearGradient></defs>` +
+    svg.innerHTML = `<defs><linearGradient id="${gid}" x1="0" x2="1"><stop offset="0" stop-color="${gs[0]}"/><stop offset=".55" stop-color="${gs[1]}"/><stop offset="1" stop-color="${gs[2]}"/></linearGradient></defs>` +
       [0.2, 0.45, 0.7, 0.95].map((g) => `<line x1="0" x2="${W}" y1="${H * g}" y2="${H * g}" stroke="#E7E7E9" stroke-width="2"/>`).join("");
     const lg = el("div", "lg", c); lg.style.marginTop = "22px";
     props.series.forEach((s, si) => {

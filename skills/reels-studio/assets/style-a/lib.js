@@ -25,6 +25,14 @@
   const nextId = (p) => `rsa-${p}-${++uid}`;
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const num = (v, d) => (typeof v === "number" && isFinite(v) ? v : d);
+  /**
+   * Brand palette (scripts/brand.py → lib/brand.js sets window.RS_BRAND before the libs load). Every lookup falls
+   * back to the stock value, so without a brand the output is identical. See references/branding.md.
+   */
+  const brand = (k, d) => {
+    const p = window.RS_BRAND && window.RS_BRAND.palette && window.RS_BRAND.palette.a;
+    return p && p[k] != null ? p[k] : d;
+  };
   /** Resolve "76%" (of 1920 / 1080) or a number to px. */
   const pos = (v, axisLen, d) => (typeof v === "string" && v.endsWith("%") ? (parseFloat(v) / 100) * axisLen : num(v, d));
 
@@ -118,9 +126,10 @@
         box-shadow:inset 0 -14px 26px rgba(0,0,0,.6),inset 0 10px 18px rgba(255,255,255,.18),0 26px 40px rgba(0,0,0,.28)">
         ${RSA.icons.github(Math.round(size * 0.6))}</div>`;
     } else if (p.blob === "coin") {
-      o.innerHTML = coinSVG(size, p.color || "#1E8BFF");
+      // explicit colour → stock shading stops (back-compat); no colour → brand ramp (if any) or stock blue
+      o.innerHTML = coinSVG(size, p.color || brand("coin", {}).base || "#1E8BFF", p.color ? {} : brand("coin", {}));
     } else if (p.blob === "bookmark") {
-      o.innerHTML = bookmarkSVG(size, p.color);
+      o.innerHTML = bookmarkSVG(size, p.color, p.color ? {} : brand("bookmark", {}));
     } else if (p.blob === "orb") {
       const c = p.color || "#1EB4F6";
       o.innerHTML = `<div style="width:100%;height:100%;border-radius:50%;background:radial-gradient(60% 55% at 35% 28%,#fff 0%,${c} 28%,${c} 55%,rgba(0,0,0,.55) 120%);box-shadow:0 20px 40px rgba(0,0,0,.25)"></div>`;
@@ -131,11 +140,11 @@
     return o;
   }
 
-  function coinSVG(size, c) {
+  function coinSVG(size, c, r = {}) {
     const id = nextId("coin");
     return `<svg width="${size}" height="${size * 0.42}" viewBox="0 0 200 84" style="overflow:visible">
-      <defs><linearGradient id="${id}s" x1="0" x2="1"><stop offset="0" stop-color="#0B4FC4"/><stop offset=".35" stop-color="${c}"/><stop offset=".55" stop-color="#7CC4FF"/><stop offset="1" stop-color="#0A44B0"/></linearGradient>
-      <radialGradient id="${id}t" cx=".38" cy=".3" r=".8"><stop offset="0" stop-color="#E8F5FF"/><stop offset=".25" stop-color="#6DB8FF"/><stop offset=".7" stop-color="${c}"/><stop offset="1" stop-color="#0D5AD8"/></radialGradient></defs>
+      <defs><linearGradient id="${id}s" x1="0" x2="1"><stop offset="0" stop-color="${r.s0 || "#0B4FC4"}"/><stop offset=".35" stop-color="${c}"/><stop offset=".55" stop-color="${r.s55 || "#7CC4FF"}"/><stop offset="1" stop-color="${r.s1 || "#0A44B0"}"/></linearGradient>
+      <radialGradient id="${id}t" cx=".38" cy=".3" r=".8"><stop offset="0" stop-color="${r.t0 || "#E8F5FF"}"/><stop offset=".25" stop-color="${r.t25 || "#6DB8FF"}"/><stop offset=".7" stop-color="${c}"/><stop offset="1" stop-color="${r.t1 || "#0D5AD8"}"/></radialGradient></defs>
       <path d="M4 30 v22 a96 30 0 0 0 192 0 v-22z" fill="url(#${id}s)"/>
       <ellipse cx="100" cy="30" rx="96" ry="28" fill="url(#${id}t)"/>
       <ellipse cx="100" cy="30" rx="70" ry="18" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="5"/>
@@ -143,24 +152,24 @@
   }
 
   /** Glossy inflated 3D blue bookmark (CSS/SVG, no image). Aspect 0.82. */
-  function bookmarkSVG(size, color) {
+  function bookmarkSVG(size, color, r = {}) {
     const id = nextId("bm");
-    const c = color || "#1E8BFF";
+    const c = color || r.base || "#1E8BFF";
     const w = size * 0.82, h = size;
     return `<svg width="${w}" height="${h}" viewBox="0 0 164 200" style="overflow:visible">
       <defs>
-        <linearGradient id="${id}b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7CCBFF"/><stop offset=".35" stop-color="${c}"/><stop offset="1" stop-color="#0A4FD0"/></linearGradient>
-        <linearGradient id="${id}d" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0B57D8"/><stop offset="1" stop-color="#06328F"/></linearGradient>
+        <linearGradient id="${id}b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${r.hi || "#7CCBFF"}"/><stop offset=".35" stop-color="${c}"/><stop offset="1" stop-color="${r.lo || "#0A4FD0"}"/></linearGradient>
+        <linearGradient id="${id}d" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${r.d0 || "#0B57D8"}"/><stop offset="1" stop-color="${r.d1 || "#06328F"}"/></linearGradient>
         <radialGradient id="${id}g" cx=".3" cy=".18" r=".7"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset=".35" stop-color="#fff" stop-opacity=".25"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
         <filter id="${id}f" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="4"/></filter>
         <filter id="${id}s" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="9"/></filter>
       </defs>
-      <ellipse cx="86" cy="196" rx="62" ry="10" fill="rgba(0,30,90,.30)" filter="url(#${id}s)"/>
+      <ellipse cx="86" cy="196" rx="62" ry="10" fill="${r.shadow || "rgba(0,30,90,.30)"}" filter="url(#${id}s)"/>
       <path d="M30 14 h104 a26 26 0 0 1 26 26 v146 a10 10 0 0 1-16 8 l-58-40 l-58 40 a10 10 0 0 1-16-8 v-146 a26 26 0 0 1 26-26z" fill="url(#${id}d)" stroke="url(#${id}d)" stroke-width="22" stroke-linejoin="round" transform="translate(4 7)"/>
       <path d="M30 10 h104 a26 26 0 0 1 26 26 v146 a10 10 0 0 1-16 8 l-58-40 l-58 40 a10 10 0 0 1-16-8 v-146 a26 26 0 0 1 26-26z" fill="url(#${id}b)" stroke="url(#${id}b)" stroke-width="22" stroke-linejoin="round"/>
       <path d="M30 10 h104 a26 26 0 0 1 26 26 v146 a10 10 0 0 1-16 8 l-58-40 l-58 40 a10 10 0 0 1-16-8 v-146 a26 26 0 0 1 26-26z" fill="url(#${id}g)"/>
       <path d="M26 30 q4-14 22-15 h64" stroke="#fff" stroke-opacity=".9" stroke-width="9" stroke-linecap="round" fill="none" filter="url(#${id}f)"/>
-      <path d="M150 50 v120" stroke="#04318A" stroke-opacity=".35" stroke-width="10" stroke-linecap="round" fill="none" filter="url(#${id}f)"/>
+      <path d="M150 50 v120" stroke="${r.line || "#04318A"}" stroke-opacity=".35" stroke-width="10" stroke-linecap="round" fill="none" filter="url(#${id}f)"/>
       <ellipse cx="54" cy="150" rx="8" ry="22" fill="#fff" fill-opacity=".28" filter="url(#${id}f)"/></svg>`;
   }
 

@@ -22,6 +22,8 @@ work/<slug>/
   audio/music.wav audio/sfx.wav   # step 3c sound
   audio/mix.wav              # step 4  voice+music+sfx, −14 LUFS / −1 dBTP
   composition/               # step 4  assembled HyperFrames project (index.html + lib/ + scenes/ + media)
+  composition/lib/brand.{css,js,json}  # step 4  scripts/brand.py (run by assemble.py) when brief.brand has colours/font
+  previews/style-<x>.jpg     # optional  scripts/make_brand_previews.sh — stock demos in the client's brand
   renders/final.mp4          # step 5
   qa/report.json             # step 5
 ```
@@ -40,10 +42,25 @@ work/<slug>/
   "cta": {"type": "bookmark|follow|profile|save|none",       // ASK THE CLIENT name + handle — never copy from references
           "name": "Link HR", "handle": "@linkhr", "subtitle": "Учёт рабочего времени|null",
           "avatar": "input/avatar.jpg|null", "followers": 12400, "posts": 86, "button": "Подписаться"},
-  "brand": {"name": "…", "accent": "#…|null", "logo": "input/logo.png|null"},
+  "brand": {"name": "…", "logo": "input/logo.png|null",          // see references/branding.md
+            "accent": "#…|null",      // main brand colour → the style's accent role (A/D blue UI + lime hook, B/C system blue, E gold)
+            "accent2": "#…|null",     // optional 2nd colour: A/D hook accent (lime role), E rubric dot; null → derived from accent
+            "ink": "#…|null",         // optional dark brand colour: A/D light-theme keyword pill, E headline ink
+            "font": "Family|null",    // Google Fonts family with the script coverage of `lang` (ru Cyrillic · kk + ә ғ қ ң ө ұ ү һ і · uz Latin + oʻ gʻ); else style font kept
+            "keep_style_palette": false},   // true → colours stay stock (font/logo still apply)
   "chrome": {"series": "…", "topic": "…"}   // style B breadcrumb text
 }
 ```
+
+## Brand layer (step 4, `scripts/brand.py --work work/<slug>`, called by assemble.py)
+`brief.brand` with no `accent`/`accent2`/`ink` and no `font` (or `keep_style_palette: true` and no font) → nothing is
+written and the style renders exactly as stock. Otherwise brand.py derives the style's overridable tokens from the
+brand colours (OKLCH ramps), enforces contrast per theme (text ≥ 4.5, display text ≥ 72 px bold and UI ≥ 3.0 — it moves
+lightness only and reports every adjustment), and writes into `composition/lib/`:
+- `brand.css` — overrides of the style's CSS variables/selectors (+ Google-Fonts `@import`); linked **after** `tokens-<pack>.css`;
+- `brand.js` — `window.RS_BRAND = {version, name, style, accent, accent2, ink, font, logo, palette:{a|b|c|e:{…}}}`; loaded **before** `lib/runtime.js` and the packs (the libs read `RS_BRAND.palette.<pack>` with the stock value as fallback);
+- `brand.json` — same data + `report{adjusted[], checks[], warnings[]}`; `lib/brand-logo.<ext>` when `brand.logo` exists (`RS_BRAND.logo`, root-relative — pass it as `logo`/`avatar` props).
+Which tokens each style overrides and which stay fixed: `references/branding.md`. Branded client previews: `scripts/make_brand_previews.sh work/<slug>`.
 
 ## audio/transcript.json
 ```json
@@ -91,7 +108,7 @@ Rules: scenes tile the timeline with no gaps; `start`/`end` snap to `transcript.
 - `scenes/<id>/index.html` is a HyperFrames sub-composition: root element `data-composition-id="<id>"`, `data-width=1080 data-height=1920`, `data-duration = end-start + transition overlap`.
 - Local time 0 = scene start. Register one paused timeline `window.__timelines["<id>"]`.
 - Wrap the root in `<template>` with `<style>`/`<script>` inside it (template: `assets/shared/scene-template.html`).
-- The assembled root already loads GSAP (local copy), `lib/runtime.js`, `lib/<style>.js`, `lib/tokens-<style>.css` — scenes must not load them.
+- The assembled root already loads GSAP (local copy), `lib/runtime.js`, `lib/<style>.js`, `lib/tokens-<style>.css` (+ `lib/brand.js`/`lib/brand.css` when branded) — scenes must not load them. Scenes never hard-code accent hex: use the style's CSS variables / lib defaults so the brand layer reaches them.
 - Asset URLs are root-relative (`assets/img/x.png`); HyperFrames lint rejects other `../` paths.
 - Deterministic only (no Date/Math.random); text never exits by itself; words placed at final positions before reveal.
 

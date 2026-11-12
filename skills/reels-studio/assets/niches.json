@@ -1,0 +1,751 @@
+{
+  "version": 1,
+  "doc": "references/niches.md",
+  "conventions": {
+    "palette": "Used ONLY when brief.brand has no colours (brand colours always win). accent = text, strokes, active dots, number highlights: >= 3:1 against both #FBFDFD (light) and #0B0D0D (dark). accent2 = fills/highlights/pills with ink #101011 on top: >= 4.5:1 against the ink. Never put body text in accent2 on a light page.",
+    "art_direction": "art_direction.append is appended to EVERY generated image prompt of the video after the style's base prompt (director.md §4). props = hero-object candidates; avoid = never in the prompt.",
+    "music": "Applies only to styles with music (B, C, E). Styles A and D are voice-only regardless of niche. audio-policy.md always wins (B/C: bed only under graphics, never under the hook; 99–117 BPM; E: sub-bass pad under everything).",
+    "hooks": "Examples of the pattern, not copy to paste: replace every number/name with the client's real ones, or drop the number."
+  },
+  "niches": {
+    "education": {
+      "label": {"ru": "Образование и подготовка к экзаменам", "uz": "Taʼlim va imtihonga tayyorlov", "kk": "Білім беру және емтиханға дайындық"},
+      "match": {
+        "ru": ["учебный центр", "репетитор", "подготовка к экзамену", "егэ", "огэ", "ент", "dtm", "ielts", "sat", "курсы английского", "абитуриент", "поступление", "олимпиада"],
+        "uz": ["oʻquv markazi", "o'quv markazi", "repetitor", "imtihonga tayyorlov", "abituriyent", "dtm", "ielts", "ingliz tili kursi", "oliygoh", "test"],
+        "kk": ["оқу орталығы", "репетитор", "ұбт", "ент", "емтиханға дайындық", "талапкер", "ielts", "ағылшын тілі курсы", "олимпиада"],
+        "en": ["tutoring", "exam prep", "test prep", "learning center", "ielts", "sat", "admissions", "tutor"]
+      },
+      "styles": {
+        "recommended": [
+          {"id": "E", "why": "Scores, deadlines and rule changes are news + numbers — E's cover/data cards and literal captions are made for it."},
+          {"id": "B", "why": "Step-by-step study tips and lists read clearly as iOS cards with literal words."},
+          {"id": "D", "why": "A teacher on camera builds trust; keyword headlines keep the key rule on screen."}
+        ],
+        "avoid": [
+          {"id": "C", "why": "Whips and 3D spectacle compete with dense study content; spend the budget on real score screenshots instead."}
+        ]
+      },
+      "palette": {"accent": "#1D5FD1", "accent2": "#F2B705", "mood": "notebook ink blue + school-pencil yellow", "contrast": "blue reads on light and dark; yellow only as highlighter fill under ink text"},
+      "art_direction": {
+        "append": "matte paper and soft-touch plastic materials, clean desk-scale objects, soft daylight from upper left, gentle shadow, palette of ink blue, warm white and pencil yellow, calm and orderly, no text on objects",
+        "props": ["stack of notebooks with a bookmark", "sharpened pencil", "answer sheet with bubbles (blank)", "hourglass", "graduation cap", "desk lamp", "open book", "stopwatch"],
+        "avoid": ["people", "hands", "faces", "real university logos", "readable text", "trophies with fake numbers"]
+      },
+      "music": {"mood": "focused, light pulse, warm sub-bass", "bpm": [100, 110], "voice_only_when": "style A/D; announcing results or admission rules (exact words matter); sensitive topics like failed exams"},
+      "techniques": {"favor": ["number_roll", "paper_section", "section_number", "strike_fix", "selection_highlight", "dark_checks", "save_pill"], "avoid": ["glitch_cta", "curtain_reveal", "mute_gag"]},
+      "layouts": {"favor": ["list", "number", "compare", "media", "stack"]},
+      "materials": {
+        "ask": ["real student score screenshots or certificates (with the student's written consent; names/IDs blurred)", "class or centre photos/B-roll (no children's faces without parental consent)", "schedule and price list", "official source link/screenshot for any exam-rule news", "licence for educational activity if the country requires it", "logo"],
+        "notes": "Pass rates and 'average +N points' only from real records the client can show. Never promise admission."
+      },
+      "copy": {
+        "tone": "calm teacher: precise, encouraging, concrete; one rule per scene",
+        "hooks": {
+          "ru": ["3 ошибки, из-за которых теряют баллы на тесте", "До экзамена 2 месяца: с чего начать", "Почему зубрёжка не работает — 1 пример"],
+          "uz": ["Testda ball yoʻqotadigan 3 ta xato", "Imtihonga 2 oy qoldi: nimadan boshlash kerak", "Yodlash nega ishlamaydi — 1 ta misol"],
+          "kk": ["ҰБТ-да балл жоғалтатын 3 қате", "Емтиханға 2 ай қалды: неден бастау керек", "Жаттау неге көмектеспейді — 1 мысал"]
+        },
+        "cta_verbs": {"ru": ["Запишитесь на пробный урок", "Сохраните", "Напишите в директ"], "uz": ["Sinov darsiga yoziling", "Saqlab qoʻying", "Direktga yozing"], "kk": ["Сынақ сабаққа жазылыңыз", "Сақтап қойыңыз", "Директке жазыңыз"]},
+        "avoid_words": {"ru": ["гарантируем поступление", "100% сдача", "лучший центр", "без усилий"], "uz": ["kafolatli qabul", "100% topshirasiz", "eng zoʻr markaz", "qiynalmasdan"], "kk": ["түсуге кепілдік", "100% тапсырасыз", "ең үздік орталық", "еш күшсіз"]}
+      },
+      "compliance": ["No guarantees of admission, scores or grants.", "Results/testimonials must be real; student data shown only with consent (minors: parent consent).", "RU/KZ/UZ: comparative claims ('лучший', '№1') need proof; RU online ads need 'Реклама' marking + erid when paid.", "Exam-rule news must cite the official source on screen."]
+    },
+
+    "online_school": {
+      "label": {"ru": "Онлайн-школы и курсы", "uz": "Onlayn maktablar va kurslar", "kk": "Онлайн мектептер мен курстар"},
+      "match": {
+        "ru": ["онлайн-школа", "онлайн школа", "онлайн-курс", "курс", "вебинар", "марафон", "наставник", "обучение онлайн", "платформа обучения", "инфопродукт"],
+        "uz": ["onlayn maktab", "onlayn kurs", "kurs", "vebinar", "marafon", "masofaviy taʼlim", "darslik platformasi"],
+        "kk": ["онлайн мектеп", "онлайн курс", "курс", "вебинар", "марафон", "қашықтан оқыту", "оқу платформасы"],
+        "en": ["online school", "online course", "edtech", "cohort", "webinar", "bootcamp", "lms"]
+      },
+      "styles": {
+        "recommended": [
+          {"id": "B", "why": "Lesson UI, modules and progress are literally app screens — B's iOS cards and iPhone proof show the product honestly."},
+          {"id": "C", "why": "For course launches: 3D hero moments for the promise, UI scenes for the real platform."},
+          {"id": "D", "why": "The author's face sells the course; 3D keywords keep the structure visible."}
+        ],
+        "avoid": [
+          {"id": "E", "why": "News framing reads as reporting, not an offer — use it only for a real cohort-results report."}
+        ]
+      },
+      "palette": {"accent": "#0F7B83", "accent2": "#FFC857", "mood": "deep teal + warm marigold, studious but friendly", "contrast": "teal reads on light and dark; marigold is a fill/pill colour under ink"},
+      "art_direction": {
+        "append": "soft-touch matte plastic and frosted glass, laptop-and-desk scale objects, soft studio light with a teal rim light, palette of deep teal, warm white and marigold, tidy and modern, no text on objects",
+        "props": ["laptop with a blank glowing screen", "play button tile", "progress ring", "certificate scroll (blank)", "headphones", "calendar tile", "checklist board"],
+        "avoid": ["people", "faces", "fake platform logos", "readable text", "money piles", "rocket-to-the-moon clichés"]
+      },
+      "music": {"mood": "modern, motivated, clean sub-bass groove", "bpm": [104, 114], "voice_only_when": "style A/D; refund/terms explanations; student stories"},
+      "techniques": {"favor": ["iphone_proof", "pull_out_phone", "glove_tap", "open_loop_ring", "typing_dots", "chest_widget", "avatar_pill_cta"], "avoid": ["curtain_reveal", "mute_gag"]},
+      "layouts": {"favor": ["media", "list", "stack", "head-side", "compare"]},
+      "materials": {
+        "ask": ["screen recording of a real lesson/platform flow (5–15 s, no personal data)", "screenshots of modules/program", "real student reviews as screenshots (with permission, names blurred if asked)", "author talking-head footage (for D / head modes)", "price & start date", "logo"],
+        "notes": "No invented student counts, incomes or 'graduates earn X'. Income promises are the #1 ad-law risk for info products."
+      },
+      "copy": {
+        "tone": "practical mentor: show the product, the path and the result type — not lifestyle",
+        "hooks": {
+          "ru": ["Как выглядит урок у нас — покажу за 30 секунд", "Почему бросают онлайн-курсы: 3 причины", "Домашку проверяем за 24 часа — вот как"],
+          "uz": ["Bizda dars qanday oʻtadi — 30 soniyada koʻrsataman", "Onlayn kursni nega tashlab ketishadi: 3 sabab", "Uy vazifasini 24 soatda tekshiramiz — mana qanday"],
+          "kk": ["Біздегі сабақ қалай өтеді — 30 секундта көрсетемін", "Онлайн курсты неге тастап кетеді: 3 себеп", "Үй тапсырмасын 24 сағатта тексереміз — міне, қалай"]
+        },
+        "cta_verbs": {"ru": ["Запишитесь", "Заберите пробный урок", "Напишите «курс» в директ"], "uz": ["Yoziling", "Sinov darsini oling", "Direktga «kurs» deb yozing"], "kk": ["Жазылыңыз", "Сынақ сабақты алыңыз", "Директке «курс» деп жазыңыз"]},
+        "avoid_words": {"ru": ["заработаете", "гарантированный доход", "пассивный доход", "успей", "последний шанс"], "uz": ["pul topasiz", "kafolatlangan daromad", "passiv daromad", "ulgurib qoling", "oxirgi imkoniyat"], "kk": ["табыс табасыз", "кепілді табыс", "пассивті табыс", "үлгеріп қалыңыз", "соңғы мүмкіндік"]}
+      },
+      "compliance": ["No income or employment guarantees.", "Reviews must be real and attributable; no staged 'student' testimonials.", "Fake urgency (false countdowns, 'last seats' when untrue) is misleading advertising.", "RU: paid placements need 'Реклама' marking + erid; licence mention if the client issues state-standard certificates."]
+    },
+
+    "food_cafe": {
+      "label": {"ru": "Кафе, рестораны и доставка еды", "uz": "Kafe, restoran va taom yetkazib berish", "kk": "Кафе, мейрамхана және тамақ жеткізу"},
+      "match": {
+        "ru": ["кафе", "ресторан", "кофейня", "доставка еды", "меню", "бизнес-ланч", "фастфуд", "плов", "шашлык", "чайхана", "кейтеринг", "бургер", "пицца"],
+        "uz": ["kafe", "restoran", "kofeyna", "taom yetkazib berish", "menyu", "biznes-lanch", "osh", "palov", "choyxona", "fastfud", "kabob", "somsa"],
+        "kk": ["кафе", "мейрамхана", "кофехана", "тамақ жеткізу", "мәзір", "бизнес-ланч", "палау", "бешбармақ", "шайхана", "фастфуд", "кейтеринг"],
+        "en": ["cafe", "restaurant", "coffee shop", "food delivery", "menu", "catering", "fast food", "bistro"]
+      },
+      "styles": {
+        "recommended": [
+          {"id": "B", "why": "Menu cards, prices and real food photos in media layouts with a warm bed — appetite needs real images."},
+          {"id": "D", "why": "The chef or owner on camera adds warmth and authenticity; keywords carry the dish name."},
+          {"id": "C", "why": "For openings and new-menu launches: one 3D ingredient moment + UI price/menu cards."}
+        ],
+        "avoid": [
+          {"id": "A", "why": "Voice-only faceless 3D can't make food look edible; generated dishes look fake."},
+          {"id": "E", "why": "A cold white news page kills appetite."}
+        ]
+      },
+      "palette": {"accent": "#C8452A", "accent2": "#F2C14E", "mood": "paprika + saffron, warm and appetising", "contrast": "paprika reads on light and dark; saffron is a fill under ink (price pills, highlights)"},
+      "art_direction": {
+        "append": "matte glazed ceramic, natural linen and warm wood surfaces, soft warm window light from the left, gentle steam, appetising warm palette of paprika, saffron and cream, single ingredient or utensil, no text",
+        "props": ["cast-iron kazan", "ceramic bowl with lid", "single tomato and herbs", "wooden spoon", "teapot and piala", "takeaway paper bag (unbranded)", "spice pinch bowls", "bread tandyr-style loaf"],
+        "avoid": ["people", "hands", "faces", "generated plated dishes as if real menu items", "alcohol", "cigarettes/hookah", "competitor or delivery-app logos"]
+      },
+      "music": {"mood": "warm, cosy lo-fi pulse, round sub-bass", "bpm": [96, 108], "voice_only_when": "style A/D; owner/chef story moments with real kitchen sound you want to keep"},
+      "techniques": {"favor": ["number_roll", "iphone_proof", "pull_out_phone", "sticker_title", "chest_widget", "save_pill", "lens_blur"], "avoid": ["glitch_cta", "curtain_reveal", "dark_checks"]},
+      "layouts": {"favor": ["media", "visual-top", "list", "number", "head-side"]},
+      "materials": {
+        "ask": ["real dish photos or 5–10 s B-roll (vertical, daylight, steam)", "menu / price list (current)", "interior & exterior shots, address/map screenshot", "delivery-app screenshot only if the client wants to show their own listing", "chef/owner talking-head footage (D / head modes)", "logo"],
+        "notes": "Every dish shown must be on the real menu at the stated price. Generated images only for ingredients/props, never as the dish."
+      },
+      "copy": {
+        "tone": "warm host: sensory but concrete (time, ingredient, price), no superlatives",
+        "hooks": {
+          "ru": ["Наш плов готовится 4 часа. Вот почему", "Новое в меню: показываем, из чего это", "Бизнес-ланч до 15:00 — что входит"],
+          "uz": ["Oshimiz 4 soat tayyorlanadi. Mana nega", "Menyuda yangi taom: nimadan tayyorlanishini koʻrsatamiz", "Biznes-lanch 15:00 gacha — ichida nima bor"],
+          "kk": ["Біздің палау 4 сағат дайындалады. Себебі мынада", "Мәзірде жаңа тағам: неден жасалатынын көрсетеміз", "Бизнес-ланч 15:00-ге дейін — ішінде не бар"]
+        },
+        "cta_verbs": {"ru": ["Забронируйте стол", "Закажите доставку", "Приходите"], "uz": ["Stol band qiling", "Yetkazib berishga buyurtma bering", "Keling"], "kk": ["Үстел брондаңыз", "Жеткізуге тапсырыс беріңіз", "Келіңіз"]},
+        "avoid_words": {"ru": ["самый вкусный в городе", "лучший", "натуральный 100%", "остатки"], "uz": ["shahardagi eng mazali", "eng zoʻr", "100% tabiiy", "qoldiq"], "kk": ["қаладағы ең дәмді", "ең үздік", "100% табиғи", "қалдық"]}
+      },
+      "compliance": ["Alcohol, tobacco, hookah and vapes are excluded from reels — don't show or mention them even if served.", "Prices and offers must match the real menu; state conditions of promotions.", "'Halal' only if the client confirms certification.", "Superlatives ('самый вкусный') need proof under ad laws — avoid."]
+    },
+
+    "bakery": {
+      "label": {"ru": "Кондитерские и пекарни", "uz": "Qandolatchilik va novvoyxona", "kk": "Кондитерлік және наубайхана"},
+      "match": {
+        "ru": ["кондитерская", "пекарня", "торты на заказ", "торт", "десерты", "выпечка", "хлеб", "кондитер", "пирожные", "капкейки", "бенто-торт"],
+        "uz": ["qandolatchilik", "novvoyxona", "tort buyurtma", "tort", "shirinlik", "pishiriq", "non", "qandolatchi", "pirojniy", "bento tort"],
+        "kk": ["кондитерлік", "наубайхана", "тапсырыспен торт", "торт", "десерт", "тоқаш", "нан", "кондитер", "пирожный", "бенто торт"],
+        "en": ["bakery", "pastry", "custom cakes", "cake", "desserts", "patisserie", "bread"]
+      },
+      "styles": {
+        "recommended": [
+          {"id": "B", "why": "Process steps, flavour lists and order cards with real cake photos; soft bed fits the cosy mood."},
+          {"id": "D", "why": "The baker on camera with flour-on-the-table authenticity; keywords name the flavour or step."},
+          {"id": "C", "why": "Seasonal launches: one 3D ingredient hero + UI order/price cards."}
+        ],
+        "avoid": [
+          {"id": "A", "why": "Faceless 3D can't sell taste; generated cakes look plastic."},
+          {"id": "E", "why": "Editorial news page is too dry for a treat."}
+        ]
+      },
+      "palette": {"accent": "#A0522D", "accent2": "#F3D9B1", "mood": "cinnamon crust + cream", "contrast": "cinnamon reads on light and dark; cream is a fill under ink"},
+      "art_direction": {
+        "append": "soft matte ceramic and powdered-sugar textures, light wood and parchment surfaces, soft diffused morning light, warm palette of cinnamon, cream and blush, airy and delicate, no text",
+        "props": ["whisk", "rolling pin", "flour sack (unbranded)", "cake stand with dome (empty)", "single strawberry", "piping bag", "croissant", "cake box with ribbon (unbranded)"],
+        "avoid": ["people", "hands", "faces", "generated finished cakes as if real portfolio", "alcohol-soaked desserts named as such", "competitor brands"]
+      },
+      "music": {"mood": "soft, sweet, cosy pad with gentle pulse", "bpm": [96, 106], "voice_only_when": "style A/D; ASMR-like process shots where real sound (crust crackle) is the point"},
+      "techniques": {"favor": ["paper_section", "section_number", "number_roll", "save_pill", "selection_highlight", "lens_blur", "typing_dots"], "avoid": ["glitch_cta", "curtain_reveal", "jump_zoom"]},
+      "layouts": {"favor": ["media", "visual-top", "list", "compare", "stack"]},
+      "materials": {
+        "ask": ["real product photos / process B-roll (vertical, daylight)", "price list and ordering terms (lead time, deposit)", "real order chat screenshots (with permission, names hidden)", "baker talking-head footage (D / head modes)", "logo"],
+        "notes": "Portfolio = only the client's real cakes. Allergens (nuts, gluten, lactose) mentioned if a product is featured."
+      },
+      "copy": {
+        "tone": "warm craft: process, ingredients, lead time; sensory but honest",
+        "hooks": {
+          "ru": ["Торт на заказ: от эскиза до коробки", "Почему наш хлеб бродит 18 часов", "3 вкуса, которые чаще берут на день рождения"],
+          "uz": ["Buyurtma tort: eskizdan qutigacha", "Nonimiz nega 18 soat achitiladi", "Tugʻilgan kunga eng koʻp tanlanadigan 3 taʼm"],
+          "kk": ["Тапсырыспен торт: эскизден қорапқа дейін", "Нанымыз неге 18 сағат ашытылады", "Туған күнге ең жиі таңдалатын 3 дәм"]
+        },
+        "cta_verbs": {"ru": ["Закажите торт", "Напишите дату праздника", "Сохраните"], "uz": ["Tort buyurtma qiling", "Bayram sanasini yozing", "Saqlab qoʻying"], "kk": ["Торт тапсырыс беріңіз", "Мереке күнін жазыңыз", "Сақтап қойыңыз"]},
+        "avoid_words": {"ru": ["без сахара" , "полезный торт", "самый вкусный", "100% натуральный"], "uz": ["shakarsiz", "foydali tort", "eng mazali", "100% tabiiy"], "kk": ["қантсыз", "пайдалы торт", "ең дәмді", "100% табиғи"]}
+      },
+      "compliance": ["'Без сахара / полезный / ПП' only if literally true and the client confirms; health claims for food are regulated.", "Alcohol-containing desserts: don't advertise the alcohol.", "Show allergens when relevant.", "Prices and lead times must be current."]
+    },
+
+    "beauty": {
+      "label": {"ru": "Салоны красоты и косметология", "uz": "Goʻzallik salonlari va kosmetologiya", "kk": "Сұлулық салондары және косметология"},
+      "match": {
+        "ru": ["салон красоты", "косметолог", "косметология", "маникюр", "педикюр", "барбершоп", "парикмахер", "окрашивание", "брови", "ресницы", "уход за кожей", "spa", "массаж лица", "визажист"],
+        "uz": ["goʻzallik saloni", "go'zallik saloni", "kosmetolog", "manikyur", "pedikyur", "barbershop", "sartarosh", "soch boʻyash", "qosh", "kiprik", "teri parvarishi", "vizajist"],
+        "kk": ["сұлулық салоны", "косметолог", "маникюр", "педикюр", "барбершоп", "шаштараз", "шаш бояу", "қас", "кірпік", "тері күтімі", "визажист"],
+        "en": ["beauty salon", "cosmetology", "nails", "manicure", "barbershop", "hair salon", "lashes", "brows", "skincare", "spa"]
+      },
+      "styles": {
+        "recommended": [
+          {"id": "D", "why": "The master on camera = trust; keyword headlines name the procedure while the face stays the brand."},
+          {"id": "B", "why": "Price lists, procedure steps and consented before/after in compare layouts read cleanly as iOS cards."},
+          {"id": "C", "why": "New-service launches: elegant 3D product moments + UI booking cards."}
+        ],
+        "avoid": [
+          {"id": "E", "why": "News/data page is cold for a sensory, personal service."},
+          {"id": "A", "why": "No faces may be generated, so faceless 3D can't show results; use it only for skincare explainers."}
+        ]
+      },
+      "palette": {"accent": "#B2456E", "accent2": "#E9C9B8", "mood": "berry + nude, refined rather than candy pink", "contrast": "berry reads on light and dark; nude is a fill under ink"},
+      "art_direction": {
+        "append": "satin and frosted-glass cosmetic materials, soft beauty-dish light with a gentle highlight, clean marble or travertine surface, palette of berry, nude and warm ivory, minimal and premium, no text",
+        "props": ["frosted glass serum bottle (unbranded)", "nail polish bottle", "comb and scissors", "cream jar", "jade roller", "towel roll", "flower petal", "mirror compact"],
+        "avoid": ["people", "faces", "skin close-ups", "body parts", "needles/syringes", "real cosmetic brand logos", "before/after made by AI"]
+      },
+      "music": {"mood": "smooth, airy, soft sub-bass with light shimmer", "bpm": [98, 108], "voice_only_when": "style A/D; injection/medical-cosmetology topics; client consent/result stories"},
+      "techniques": {"favor": ["lens_blur", "sticker_title", "chest_widget", "dark_checks", "selection_highlight", "avatar_pill_cta", "strike_fix"], "avoid": ["glitch_cta", "curtain_reveal", "mute_gag"]},
+      "layouts": {"favor": ["head-side", "compare", "media", "list", "head"]},
+      "materials": {
+        "ask": ["real before/after photos ONLY with the client's written consent (same light/angle, no retouching)", "salon interior B-roll", "price list", "certificates/diplomas of masters; medical licence for cosmetology procedures", "real reviews as screenshots (with permission)", "master talking-head footage", "logo"],
+        "notes": "Before/after without consent is not usable. Do not retouch results. Injections, peels, laser = medical services in RU/KZ/UZ."
+      },
+      "copy": {
+        "tone": "caring expert: honest about duration, sensation and aftercare; no miracle language",
+        "hooks": {
+          "ru": ["Окрашивание за 1 визит: что реально, а что нет", "3 вещи, которые портят маникюр уже на 3-й день", "Сколько длится процедура и что вы почувствуете"],
+          "uz": ["Bir tashrifda soch boʻyash: nima real, nima yoʻq", "Manikyurni 3-kundayoq buzadigan 3 narsa", "Muolaja qancha davom etadi va nimani his qilasiz"],
+          "kk": ["Бір келгенде шаш бояу: не шын, не жоқ", "Маникюрді 3-күні-ақ бұзатын 3 нәрсе", "Процедура қанша уақыт алады және не сезесіз"]
+        },
+        "cta_verbs": {"ru": ["Запишитесь", "Выберите время", "Напишите в директ"], "uz": ["Yoziling", "Vaqt tanlang", "Direktga yozing"], "kk": ["Жазылыңыз", "Уақыт таңдаңыз", "Директке жазыңыз"]},
+        "avoid_words": {"ru": ["омоложение на 10 лет", "навсегда", "без боли гарантированно", "идеальная кожа"], "uz": ["10 yilga yoshartirish", "umrbod", "kafolatli ogʻriqsiz", "mukammal teri"], "kk": ["10 жасқа жасарту", "мәңгілік", "ауыртпайтынына кепілдік", "мінсіз тері"]}
+      },
+      "compliance": ["Cosmetology with injections/hardware = medical service: licence + RU warning 'Имеются противопоказания. Необходима консультация специалиста' (see medicine).", "Before/after only with written consent; no AI-made or retouched results.", "No permanent-result or age-reversal promises."]
+    },
+
+    "medicine_dental": {
+      "label": {"ru": "Медицина и стоматология", "uz": "Tibbiyot va stomatologiya", "kk": "Медицина және стоматология"},
+      "match": {
+        "ru": ["клиника", "стоматология", "стоматолог", "врач", "медцентр", "имплант", "брекеты", "отбеливание зубов", "лор", "гинеколог", "педиатр", "диагностика", "анализы", "узи"],
+        "uz": ["klinika", "stomatologiya", "stomatolog", "shifokor", "vrach", "tibbiyot markazi", "implant", "breket", "tish oqartirish", "tahlil", "uzi", "diagnostika"],
+        "kk": ["клиника", "стоматология", "стоматолог", "дәрігер", "медорталық", "имплант", "брекет", "тіс ағарту", "талдау", "узи", "диагностика"],
+        "en": ["clinic", "dentist", "dental", "doctor", "medical center", "implant", "braces", "diagnostics", "healthcare"]
+      },
+      "styles": {
+        "recommended": [
+          {"id": "D", "why": "A real doctor on camera is the strongest trust signal; keyword headlines anchor the medical term."},
+          {"id": "B", "why": "Calm iOS cards for steps, myths vs facts and price-list transparency."},
+          {"id": "E", "why": "Health statistics and 'what changed' explainers with sources on screen."}
+        ],
+        "avoid": [
+          {"id": "C", "why": "Whips, glitches and glossy spectacle read as hype for health — trust drops."}
+        ]
+      },
+      "palette": {"accent": "#0B7A75", "accent2": "#9ED8DB", "mood": "clinical teal + soft aqua; calm, not hospital-cold", "contrast": "teal reads on light and dark; aqua is a fill under ink. No red-cross red (protected emblem)."},
+      "art_direction": {
+        "append": "clean ceramic-white and soft frosted-glass materials, stylised non-anatomical forms, soft even clinical daylight, palette of teal, aqua and warm white, calm and hygienic, no text",
+        "props": ["stylised ceramic tooth model", "toothbrush", "dental mirror", "clipboard (blank)", "stethoscope", "calendar tile", "shield icon", "water glass"],
+        "avoid": ["people", "faces", "blood", "open wounds", "realistic organs", "needles in skin", "red cross emblem", "drug brand names", "before/after made by AI"]
+      },
+      "music": {"mood": "calm, steady, very soft pad", "bpm": [95, 104], "voice_only_when": "style A/D; diagnoses, pain, children's treatment, any patient story — default to voice-only when in doubt"},
+      "techniques": {"favor": ["strike_fix", "selection_highlight", "paper_section", "section_number", "chest_widget", "number_roll", "dark_checks"], "avoid": ["glitch_cta", "curtain_reveal", "jump_zoom", "mute_gag", "hero_word"]},
+      "layouts": {"favor": ["head-side", "list", "compare", "stack", "media"]},
+      "materials": {
+        "ask": ["doctor talking-head footage", "clinic licence (number) and doctor's credentials", "price list", "clinic interior/equipment B-roll (no patients identifiable)", "before/after or X-ray images ONLY with the patient's written consent and anonymised", "logo"],
+        "notes": "No patient faces/data without written consent. Equipment claims ('новейший') only if documented."
+      },
+      "copy": {
+        "tone": "doctor explaining to a friend: calm, precise, no fear-mongering, no promises",
+        "hooks": {
+          "ru": ["Больно ли ставить имплант? Отвечает врач", "3 признака, что пора к стоматологу, даже если не болит", "Чем отличается чистка от отбеливания"],
+          "uz": ["Implant qoʻydirish ogʻriqlimi? Shifokor javob beradi", "Ogʻrimasa ham stomatologga borish kerakligining 3 belgisi", "Tish tozalash oqartirishdan nimasi bilan farq qiladi"],
+          "kk": ["Имплант қойғызу ауырта ма? Дәрігер жауап береді", "Ауырмаса да стоматологқа бару керек 3 белгі", "Тіс тазалау мен ағартудың айырмашылығы неде"]
+        },
+        "cta_verbs": {"ru": ["Запишитесь на консультацию", "Позвоните", "Сохраните"], "uz": ["Konsultatsiyaga yoziling", "Qoʻngʻiroq qiling", "Saqlab qoʻying"], "kk": ["Кеңеске жазылыңыз", "Қоңырау шалыңыз", "Сақтап қойыңыз"]},
+        "avoid_words": {"ru": ["вылечим", "гарантия результата", "без боли 100%", "навсегда", "чудо"], "uz": ["davolaymiz kafolat", "natija kafolati", "100% ogʻriqsiz", "umrbod", "moʻjiza"], "kk": ["емдеуге кепілдік", "нәтиже кепілдігі", "100% ауыртпайды", "мәңгілік", "ғажайып"]}
+      },
+      "compliance": ["No guarantees of cure/result; no fear appeals.", "RU (38-ФЗ ст.24): medical services ads carry 'ИМЕЮТСЯ ПРОТИВОПОКАЗАНИЯ. НЕОБХОДИМО ПРОКОНСУЛЬТИРОВАТЬСЯ СО СПЕЦИАЛИСТОМ' — in video ≥ 5 s and ≥ 7 % of frame area; KZ/UZ have similar medical-ad rules — confirm with the client.", "Show licence number/legal name where required.", "Patient testimonials and before/after only with written consent; never AI-generated.", "No red-cross emblem."]
+    },
+
+    "pharmacy": {
+      "label": {"ru": "Аптеки", "uz": "Dorixonalar", "kk": "Дәріханалар"},
+      "match": {
+        "ru": ["аптека", "аптечная сеть", "лекарства", "фармацевт", "провизор", "бады", "витамины", "медтехника", "доставка лекарств"],
+        "uz": ["dorixona", "apteka", "dori", "dori-darmon", "farmatsevt", "vitamin", "dori yetkazib berish"],
+        "kk": ["дәріхана", "аптека", "дәрі", "фармацевт", "провизор", "дәрумен", "дәрі жеткізу"],
+        "en": ["pharmacy", "drugstore", "medicines", "pharmacist", "vitamins", "medicine delivery"]
+      },
+      "styles": {
+        "recommended": [
+          {"id": "B", "why": "Service info (hours, delivery, app ordering) as clean iOS cards and real app screens."},
+          {"id": "E", "why": "Seasonal health info and storage rules as sourced, sober data cards."},
+          {"id": "A", "why": "Faceless, calm voice-only explainers (how to store medicines, first-aid kit) without showing products."}
+        ],
+        "avoid": [
+          {"id": "C", "why": "Hype energy around medicines is inappropriate and risky."}
+        ]
+      },
+      "palette": {"accent": "#138A52", "accent2": "#CDEFD9", "mood": "pharmacy green + mint; familiar in the region without copying a chain", "contrast": "green reads on light and dark; mint is a fill under ink"},
+      "art_direction": {
+        "append": "clean matte white plastic and frosted glass, generic unbranded packaging, soft even daylight, palette of pharmacy green, mint and warm white, orderly and reassuring, no text",
+        "props": ["first-aid kit box (unbranded)", "generic blister pack (no labels)", "thermometer", "measuring spoon", "pill organiser", "delivery bag (unbranded)", "thermometer for fridge", "water glass"],
+        "avoid": ["people", "faces", "real drug brand names or packaging", "injections", "red cross emblem", "piles of pills"]
+      },
+      "music": {"mood": "calm, light pad", "bpm": [95, 104], "voice_only_when": "style A/D; any mention of a specific medicine or symptoms"},
+      "techniques": {"favor": ["paper_section", "section_number", "dark_checks", "iphone_proof", "pull_out_phone", "save_pill", "strike_fix"], "avoid": ["glitch_cta", "curtain_reveal", "jump_zoom", "hero_word", "mute_gag"]},
+      "layouts": {"favor": ["list", "stack", "media", "number", "compare"]},
+      "materials": {
+        "ask": ["pharmacy licence number / legal name", "store photos (no customers identifiable)", "app/website ordering screen recording", "addresses & hours", "pharmacist talking-head footage (optional, for D)", "logo"],
+        "notes": "Talk about service, not medicines. Never name or picture a prescription drug; OTC/BAД ads have special warnings."
+      },
+      "copy": {
+        "tone": "reliable neighbour: practical rules, service facts, zero medical advice",
+        "hooks": {
+          "ru": ["Как хранить лекарства летом: 3 правила", "Что положить в аптечку в дорогу — список", "Заказ онлайн, забрать через час: как это работает"],
+          "uz": ["Yozda dorilarni qanday saqlash kerak: 3 qoida", "Safarga dori qutisiga nima solish kerak — roʻyxat", "Onlayn buyurtma, bir soatda olib ketish: qanday ishlaydi"],
+          "kk": ["Жазда дәріні қалай сақтау керек: 3 ереже", "Сапарға дәрі қобдишасына не салу керек — тізім", "Онлайн тапсырыс, бір сағатта алып кету: қалай жұмыс істейді"]
+        },
+        "cta_verbs": {"ru": ["Закажите онлайн", "Сохраните список", "Найдите ближайшую аптеку"], "uz": ["Onlayn buyurtma bering", "Roʻyxatni saqlang", "Eng yaqin dorixonani toping"], "kk": ["Онлайн тапсырыс беріңіз", "Тізімді сақтаңыз", "Ең жақын дәріхананы табыңыз"]},
+        "avoid_words": {"ru": ["вылечит", "лучшее средство", "безопасно для всех", "без рецепта любое"], "uz": ["davolaydi", "eng yaxshi vosita", "hammaga xavfsiz", "retseptsiz har qanday"], "kk": ["емдейді", "ең жақсы құрал", "бәріне қауіпсіз", "рецептсіз кез келген"]}
+      },
+      "compliance": ["No prescription-drug advertising; no specific medicines or dosages in reels.", "RU: OTC ads need the contraindications warning (≥ 5 s, ≥ 7 % frame in video); BAД ads need 'НЕ ЯВЛЯЕТСЯ ЛЕКАРСТВЕННЫМ СРЕДСТВОМ'. KZ/UZ: similar restrictions — confirm with the client.", "No treatment claims or medical advice; refer to a doctor/pharmacist.", "No red-cross emblem."]
+    },
+
+    "fitness": {
+      "label": {"ru": "Фитнес и спорт", "uz": "Fitnes va sport", "kk": "Фитнес және спорт"},
+      "match": {
+        "ru": ["фитнес", "спортзал", "тренер", "тренировки", "йога", "пилатес", "кроссфит", "бокс", "единоборства", "бассейн", "похудение", "спортивная секция", "абонемент"],
+        "uz": ["fitnes", "sport zali", "trener", "mashgʻulot", "mashg'ulot", "yoga", "pilates", "boks", "kurash", "basseyn", "ozish", "sport toʻgaragi", "abonement"],
+        "kk": ["фитнес", "спортзал", "жаттықтырушы", "жаттығу", "йога", "пилатес", "бокс", "күрес", "бассейн", "арықтау", "спорт секциясы", "абонемент"],
+        "en": ["fitness", "gym", "personal trainer", "workout", "yoga", "pilates", "crossfit", "boxing", "martial arts", "sports club"]
+      },
+      "styles": {
+        "recommended": [
+          {"id": "D", "why": "The coach on camera brings energy and credibility; keyword headlines name the exercise or rule."},
+          {"id": "C", "why": "Most energetic style: whips, 3D equipment heroes and UI counters for programs."},
+          {"id": "B", "why": "Program lists, schedules and counters as clean UI cards."}
+        ],
+        "avoid": [
+          {"id": "E", "why": "A static white news page lacks the energy the niche expects."}
+        ]
+      },
+      "palette": {"accent": "#E4572E", "accent2": "#C6F432", "mood": "sport orange + volt lime", "contrast": "orange reads on light and dark; lime is a fill under ink only (never lime text on white)"},
+      "art_direction": {
+        "append": "rubberised matte and brushed-steel materials, hard key light with a crisp rim light, dark gym-floor or concrete surface, palette of sport orange, graphite and volt lime, dynamic three-quarter angle, no text",
+        "props": ["kettlebell", "dumbbell pair", "jump rope", "boxing glove", "yoga mat roll", "stopwatch", "water bottle (unbranded)", "resistance band"],
+        "avoid": ["people", "bodies", "muscles", "faces", "supplement tubs", "steroids/syringes", "scales with 'minus N kg'"]
+      },
+      "music": {"mood": "driving, punchy sub-bass groove", "bpm": [108, 117], "voice_only_when": "style A/D; technique breakdowns where the coach's cues must be heard; health/injury topics"},
+      "techniques": {"favor": ["jump_zoom", "section_number", "number_roll", "sticker_title", "hero_word", "dark_checks", "open_loop_ring"], "avoid": ["paper_section", "mute_gag", "curtain_reveal"]},
+      "layouts": {"favor": ["head", "head-side", "number", "list", "visual-top"]},
+      "materials": {
+        "ask": ["coach/gym talking-head and training B-roll (vertical, consent from anyone visible)", "schedule and membership prices", "coach certificates", "real client progress only with written consent (no body shaming)", "gym interior photos", "logo"],
+        "notes": "No transformation promises with timelines. Body before/after only with consent; prefer performance metrics (reps, time) over weight."
+      },
+      "copy": {
+        "tone": "energetic coach: direct, short commands, specific numbers (sets, reps, minutes)",
+        "hooks": {
+          "ru": ["3 упражнения, которые делают неправильно в каждом зале", "Сколько раз в неделю тренироваться новичку", "Первая тренировка у нас: что будет по минутам"],
+          "uz": ["Har bir zalda notoʻgʻri bajariladigan 3 ta mashq", "Yangi boshlovchi haftasiga necha marta shugʻullanishi kerak", "Bizdagi birinchi mashgʻulot: daqiqama-daqiqa"],
+          "kk": ["Әр залда қате жасалатын 3 жаттығу", "Жаңадан бастаған адам аптасына неше рет жаттығуы керек", "Біздегі алғашқы жаттығу: минут сайын не болады"]
+        },
+        "cta_verbs": {"ru": ["Приходите на пробную", "Запишитесь", "Сохраните тренировку"], "uz": ["Sinov mashgʻulotiga keling", "Yoziling", "Mashqni saqlang"], "kk": ["Сынақ жаттығуға келіңіз", "Жазылыңыз", "Жаттығуды сақтаңыз"]},
+        "avoid_words": {"ru": ["минус 10 кг за неделю", "без диет и усилий", "жиросжигатель", "гарантия"], "uz": ["bir haftada minus 10 kg", "parhezsiz va harakatsiz", "yogʻ yoqar", "kafolat"], "kk": ["бір аптада минус 10 кг", "диетасыз әрі күшсіз", "май жаққыш", "кепілдік"]}
+      },
+      "compliance": ["No weight-loss guarantees or timelines.", "Sports nutrition/BAД: not advertised in these reels (RU BAД warning otherwise).", "Consent from every identifiable person in footage.", "No dangerous technique shown as recommended."]
+    },
+
+    "real_estate": {
+      "label": {"ru": "Недвижимость и строительство", "uz": "Koʻchmas mulk va qurilish", "kk": "Жылжымайтын мүлік және құрылыс"},
+      "match": {
+        "ru": ["недвижимость", "застройщик", "новостройка", "жк", "квартира", "ипотека", "риелтор", "агентство недвижимости", "ремонт", "строительство", "коттедж", "аренда"],
+        "uz": ["koʻchmas mulk", "ko'chmas mulk", "quruvchi", "yangi uy", "turar-joy majmuasi", "kvartira", "ipoteka", "rieltor", "taʼmir", "qurilish", "ijara", "hovli"],
+        "kk": ["жылжымайтын мүлік", "құрылыс салушы", "жаңа үй", "тұрғын үй кешені", "пәтер", "ипотека", "риелтор", "жөндеу", "құрылыс", "жалға беру", "коттедж"],
+        "en": ["real estate", "developer", "new build", "apartment", "mortgage", "realtor", "construction", "renovation", "property"]
+      },
+      "styles": {
+        "recommended": [
+          {"id": "C", "why": "3D architectural objects for the vision + UI cards for prices, layouts and mortgage terms."},
+          {"id": "E", "why": "Price per m², market data and 'what changed' explainers with sources."},
+          {"id": "B", "why": "Checklists (what to ask the developer), layouts and payment plans as iOS cards."}
+        ],
+        "avoid": [
+          {"id": "A", "why": "Voice-only 3D can't show the real building or floor plan; fine only for abstract mortgage explainers."}
+        ]
+      },
+      "palette": {"accent": "#2E6F8E", "accent2": "#D9B26F", "mood": "slate blue + brass/sand, solid and premium", "contrast": "slate blue reads on light and dark; brass is a fill under ink"},
+      "art_direction": {
+        "append": "architectural-model materials: matte white plaster, light oak, brushed brass and clear glass, soft late-afternoon sunlight with long shadows, palette of slate blue, sand and warm white, calm premium mood, no text",
+        "props": ["white architectural model of a residential block", "house keys on a ring", "floor-plan blueprint roll", "measuring tape", "door with brass handle", "window frame", "hard hat", "calculator"],
+        "avoid": ["people", "faces", "real competitors' buildings", "money piles", "fake renders presented as the actual project"]
+      },
+      "music": {"mood": "confident, spacious, slow sub-bass", "bpm": [96, 108], "voice_only_when": "style A/D; legal/contract explanations; price and mortgage terms (exact words matter)"},
+      "techniques": {"favor": ["number_roll", "iphone_proof", "pull_out_phone", "dark_checks", "strike_fix", "glove_tap", "open_loop_ring"], "avoid": ["glitch_cta", "mute_gag"]},
+      "layouts": {"favor": ["media", "number", "compare", "list", "visual-top"]},
+      "materials": {
+        "ask": ["official renders / real photos / construction-progress B-roll", "floor plans", "price list and payment/mortgage terms with the bank's name", "permits / project declaration link (RU: наш.дом.рф), developer legal name", "agent/manager talking-head footage", "logo"],
+        "notes": "Renders must be labelled as visualisation. Price 'от' must be real; mortgage rates only with the bank and conditions."
+      },
+      "copy": {
+        "tone": "trustworthy advisor: numbers, terms, dates; no hype about price growth",
+        "hooks": {
+          "ru": ["Сколько стоит м² в нашем районе сейчас — цифры", "3 вопроса застройщику до подписания договора", "Планировка 2+1: где теряются метры"],
+          "uz": ["Hozir tumanimizda 1 m² qancha turadi — raqamlar", "Shartnomani imzolashdan oldin quruvchiga 3 savol", "2+1 planirovka: metrlar qayerda yoʻqoladi"],
+          "kk": ["Қазір ауданымызда 1 м² қанша тұрады — сандар", "Келісімшартқа қол қоймас бұрын құрылыс салушыға 3 сұрақ", "2+1 жоспар: метрлер қайда жоғалады"]
+        },
+        "cta_verbs": {"ru": ["Запишитесь на просмотр", "Получите планировки", "Позвоните"], "uz": ["Koʻrishga yoziling", "Planirovkalarni oling", "Qoʻngʻiroq qiling"], "kk": ["Көруге жазылыңыз", "Жоспарларды алыңыз", "Қоңырау шалыңыз"]},
+        "avoid_words": {"ru": ["цены вырастут на", "выгодная инвестиция гарантирована", "последние квартиры", "элитный"], "uz": ["narx albatta oshadi", "kafolatli investitsiya", "oxirgi kvartiralar", "elita"], "kk": ["баға міндетті түрде өседі", "кепілді инвестиция", "соңғы пәтерлер", "элиталық"]}
+      },
+      "compliance": ["No promises of price growth or investment return.", "Mortgage/installment terms follow finance rules: lender name, rate conditions, all cost-affecting terms.", "RU shared construction: developer name + project declaration site required in ads.", "Renders labelled as visualisation; 'last flats' only if true."]
+    },
+
+    "auto": {
+      "label": {"ru": "Авто: продажа и сервис", "uz": "Avto: savdo va servis", "kk": "Авто: сату және сервис"},
+      "match": {
+        "ru": ["автосалон", "автосервис", "сто", "детейлинг", "шиномонтаж", "автомойка", "тюнинг", "запчасти", "авто с пробегом", "автодилер", "кузовной ремонт", "электромобиль"],
+        "uz": ["avtosalon", "avtoservis", "moyka", "detailing", "shinomontaj", "ehtiyot qismlar", "zapchast", "mashina", "avtomobil", "elektromobil"],
+        "kk": ["автосалон", "автосервис", "жуу", "детейлинг", "шиномонтаж", "қосалқы бөлшектер", "көлік", "автокөлік", "электромобиль"],
+        "en": ["car dealer", "auto service", "car wash", "detailing", "tire shop", "spare parts", "used cars", "ev", "garage"]
+      },
+      "styles": {
+        "recommended": [
+          {"id": "C", "why": "Energetic 3D car-part heroes + UI price/spec cards; whips suit the niche."},
+          {"id": "D", "why": "A mechanic or dealer on camera explains with authority; keywords name the part or price."},
+          {"id": "B", "why": "Checklists (what to inspect), service prices and booking steps."}
+        ],
+        "avoid": [
+          {"id": "E", "why": "Static news page undersells motion; only for market-price news with sources."}
+        ]
+      },
+      "palette": {"accent": "#D62828", "accent2": "#C9CED6", "mood": "racing red + brushed steel", "contrast": "red reads on light and dark; steel is a fill under ink"},
+      "art_direction": {
+        "append": "glossy automotive paint, brushed aluminium and rubber materials, studio car-photography lighting with long softbox reflections, dark graphite floor, palette of racing red, steel and graphite, low three-quarter angle, no text",
+        "props": ["alloy wheel with tyre", "brake disc and caliper", "car key fob (unbranded)", "spark plug", "engine oil can (unbranded)", "wrench", "headlight unit", "turbocharger"],
+        "avoid": ["people", "faces", "real car-brand logos or recognisable models unless the client sells them and supplies photos", "speeding/drifting on public roads", "number plates"]
+      },
+      "music": {"mood": "tight, driving, deep sub-bass", "bpm": [104, 117], "voice_only_when": "style A/D; diagnostic explanations where engine sound is part of the proof"},
+      "techniques": {"favor": ["number_roll", "jump_zoom", "dark_checks", "section_number", "strike_fix", "pull_out_phone", "curtain_reveal"], "avoid": ["paper_section", "mute_gag", "save_pill"]},
+      "layouts": {"favor": ["media", "number", "visual-top", "compare", "list"]},
+      "materials": {
+        "ask": ["real car photos/B-roll (stock on site, service bay process)", "price list / car price with conditions", "credit/lease partner name and terms (if mentioned)", "mechanic/dealer talking-head footage", "real review screenshots (with permission)", "logo"],
+        "notes": "Car brands/models only when the client really sells/services them. Blur number plates and customers."
+      },
+      "copy": {
+        "tone": "straight-talking mechanic: practical, numbers, no macho hype",
+        "hooks": {
+          "ru": ["Что проверить в б/у авто за 10 минут", "Замена масла: когда на самом деле пора", "Почему стучит подвеска — 3 частые причины"],
+          "uz": ["Ishlatilgan mashinada 10 daqiqada nimani tekshirish kerak", "Moy almashtirish: aslida qachon vaqti keladi", "Podveska nega taqillaydi — 3 ta koʻp uchraydigan sabab"],
+          "kk": ["Қолданылған көлікте 10 минутта нені тексеру керек", "Май ауыстыру: шын мәнінде қашан уақыты келеді", "Аспа неге тарсылдайды — 3 жиі себеп"]
+        },
+        "cta_verbs": {"ru": ["Запишитесь на сервис", "Приезжайте на тест-драйв", "Напишите в директ"], "uz": ["Servisga yoziling", "Test-drayvga keling", "Direktga yozing"], "kk": ["Сервиске жазылыңыз", "Тест-драйвқа келіңіз", "Директке жазыңыз"]},
+        "avoid_words": {"ru": ["самые низкие цены", "кредит без отказа", "гонка", "лучший сервис"], "uz": ["eng past narxlar", "rad etilmaydigan kredit", "poyga", "eng zoʻr servis"], "kk": ["ең төмен бағалар", "бас тартусыз несие", "жарыс", "ең үздік сервис"]}
+      },
+      "compliance": ["Never depict or encourage dangerous driving.", "Car-loan/lease offers follow finance rules (lender, all cost conditions); 'кредит без отказа' is misleading.", "Price 'от' with conditions; no 'lowest price' without proof.", "Third-party car brands only when the client is authorised/really sells them."]
+    },
+
+    "it_saas": {
+      "label": {"ru": "IT, SaaS и HR-tech", "uz": "IT, SaaS va HR-tech", "kk": "IT, SaaS және HR-tech"},
+      "match": {
+        "ru": ["приложение", "сервис", "saas", "crm", "программа", "автоматизация", "стартап", "it-компания", "разработка", "hr", "учёт рабочего времени", "табель", "бот", "ии", "нейросеть"],
+        "uz": ["ilova", "dastur", "servis", "crm", "avtomatlashtirish", "startap", "it kompaniya", "dasturlash", "hr", "ish vaqti hisobi", "tabel", "bot", "sunʼiy intellekt"],
+        "kk": ["қосымша", "бағдарлама", "сервис", "crm", "автоматтандыру", "стартап", "it компания", "әзірлеу", "hr", "жұмыс уақытын есепке алу", "табель", "бот", "жасанды интеллект"],
+        "en": ["app", "saas", "software", "crm", "automation", "startup", "hr tech", "time tracking", "ai", "platform", "b2b"]
+      },
+      "styles": {
+        "recommended": [
+          {"id": "C", "why": "Product promos: cinematic 3D for the pain/promise, real UI scenes for the product."},
+          {"id": "B", "why": "Feature tutorials and objection handling: iPhone proof, glove taps, chat bubbles on real screens."},
+          {"id": "A", "why": "Faceless tech/AI explainers are A's home turf; strong keywords + 3D metaphors."}
+        ],
+        "avoid": []
+      },
+      "palette": {"accent": "#2563EB", "accent2": "#7CF0C0", "mood": "product blue + signal mint, no purple AI-gradient", "contrast": "blue reads on light and dark; mint is a fill under ink (status pills, highlights)"},
+      "art_direction": {
+        "append": "glossy soft-touch plastic and frosted glass with subtle inner glow, clean studio light with a cool rim light, palette of product blue, mint and graphite on neutral, precise and minimal, no text",
+        "props": ["glass app tile", "toggle switch", "calendar tile", "clock", "server block", "chat bubble", "gear", "shield with checkmark", "puzzle piece", "notification bell"],
+        "avoid": ["people", "faces", "robots with faces", "brains with circuits", "purple-pink neon gradients", "fake UI of real third-party products", "readable text"]
+      },
+      "music": {"mood": "clean, modern, subtle sub-bass groove", "bpm": [100, 114], "voice_only_when": "style A/D; detailed tutorials where clicks/SFX would distract"},
+      "techniques": {"favor": ["iphone_proof", "pull_out_phone", "glove_tap", "chest_widget", "typing_dots", "number_roll", "strike_fix", "hero_word"], "avoid": ["curtain_reveal", "mute_gag"]},
+      "layouts": {"favor": ["media", "stack", "compare", "number", "list"]},
+      "materials": {
+        "ask": ["product screenshots (light theme, demo data)", "screen recording of the key flow (5–15 s, no notifications)", "real metrics screenshot if a number is spoken (blur private data)", "client logos only with permission", "founder talking-head footage (D / head modes)", "logo"],
+        "notes": "Demo accounts with fake-but-neutral data only; never real employee/customer data on screen."
+      },
+      "copy": {
+        "tone": "product person: pain in numbers → the feature on screen → result; no buzzwords",
+        "hooks": {
+          "ru": ["Табель вручную съедает 6 часов в неделю. Покажем, как иначе", "Как это выглядит в приложении — 3 нажатия", "HR-отчёт за 1 клик: что внутри"],
+          "uz": ["Tabelni qoʻlda yuritish haftasiga 6 soat oladi. Boshqa yoʻlini koʻrsatamiz", "Ilovada qanday koʻrinadi — 3 ta bosish", "1 bosishda HR-hisobot: ichida nima bor"],
+          "kk": ["Табельді қолмен жүргізу аптасына 6 сағат алады. Басқа жолын көрсетеміз", "Қосымшада қалай көрінеді — 3 басу", "1 басуда HR-есеп: ішінде не бар"]
+        },
+        "cta_verbs": {"ru": ["Попробуйте бесплатно", "Запишитесь на демо", "Напишите «демо»"], "uz": ["Bepul sinab koʻring", "Demoga yoziling", "«Demo» deb yozing"], "kk": ["Тегін сынап көріңіз", "Демоға жазылыңыз", "«Демо» деп жазыңыз"]},
+        "avoid_words": {"ru": ["инновационное решение", "революционный", "в современном мире", "№1 на рынке"], "uz": ["innovatsion yechim", "inqilobiy", "zamonaviy dunyoda", "bozorda №1"], "kk": ["инновациялық шешім", "революциялық", "қазіргі әлемде", "нарықта №1"]}
+      },
+      "compliance": ["'№1'/'лучший'/'первый' claims need documented proof.", "Customer logos and case numbers only with permission and real data.", "No personal data in screenshots (labour/HR data is sensitive).", "'Free' must state limits (trial length, plan)."]
+    },
+
+    "finance": {
+      "label": {"ru": "Финансы, банки и финтех", "uz": "Moliya, banklar va fintech", "kk": "Қаржы, банктер және финтех"},
+      "match": {
+        "ru": ["банк", "финтех", "кредит", "депозит", "вклад", "инвестиции", "брокер", "страхование", "микрозайм", "рассрочка", "карта", "платежи", "бухгалтерия", "налоги"],
+        "uz": ["bank", "fintech", "kredit", "depozit", "omonat", "investitsiya", "broker", "sugʻurta", "mikroqarz", "muddatli toʻlov", "karta", "toʻlov", "buxgalteriya", "soliq"],
+        "kk": ["банк", "финтех", "несие", "депозит", "салым", "инвестиция", "брокер", "сақтандыру", "микроқарыз", "бөліп төлеу", "карта", "төлем", "бухгалтерия", "салық"],
+        "en": ["bank", "fintech", "loan", "credit", "deposit", "investing", "broker", "insurance", "payments", "accounting", "tax"]
+      },
+      "styles": {
+        "recommended": [
+          {"id": "E", "why": "Rates, inflation and 'what changed' explainers with sources — sober data cards build trust."},
+          {"id": "B", "why": "Calm iOS cards: calculators, step-by-step app flows, myth vs fact."},
+          {"id": "A", "why": "Voice-only, faceless concept explainers (what is a deposit, how compound interest works)."}
+        ],
+        "avoid": [
+          {"id": "C", "why": "Whips, glitches and 3D spectacle read as hype — dangerous for money topics."}
+        ]
+      },
+      "palette": {"accent": "#0F6E5A", "accent2": "#E6C068", "mood": "deep emerald + muted gold; trustworthy, not flashy", "contrast": "emerald reads on light and on dark at large sizes (headline/number scale); gold is a fill under ink. Don't mimic a specific bank's brand colours."},
+      "art_direction": {
+        "append": "matte ceramic and brushed-metal materials, precise soft studio light, neutral stone surface, palette of deep emerald, muted gold and warm grey, calm and trustworthy, no text",
+        "props": ["bank card (blank, unbranded)", "piggy bank", "stacked coins (neutral, no currency marks)", "calculator", "safe door", "shield", "line-chart tile (no numbers)", "wallet"],
+        "avoid": ["people", "faces", "cash piles", "gold bars", "rockets/'to the moon'", "real currency notes", "crypto coin logos", "bank logos other than the client's"]
+      },
+      "music": {"mood": "calm, steady, minimal pad", "bpm": [95, 106], "voice_only_when": "style A/D; any rate, fee or legal condition is being read out; debt/hardship topics"},
+      "techniques": {"favor": ["number_roll", "strike_fix", "selection_highlight", "paper_section", "dark_checks", "iphone_proof", "save_pill"], "avoid": ["glitch_cta", "curtain_reveal", "jump_zoom", "hero_word", "rgb_ghost", "mute_gag"]},
+      "layouts": {"favor": ["number", "list", "compare", "stack", "media"]},
+      "materials": {
+        "ask": ["licence number and full legal name (mandatory on the end card)", "product terms: rate, fees, term, all conditions affecting cost (RU: ПСК; KZ: ГЭСВ/ЖТСМ)", "app screen recording (demo account)", "official source for any macro number (central bank, statistics agency)", "compliance/legal approval contact", "logo"],
+        "notes": "Every number on screen comes from the client's official terms or a cited source — no examples presented as offers."
+      },
+      "copy": {
+        "tone": "plain-language explainer: neutral, exact, no FOMO",
+        "hooks": {
+          "ru": ["Депозит или облигации: разница простыми словами", "Что такое ПСК и почему смотреть надо на неё", "3 вопроса, которые стоит задать до кредита"],
+          "uz": ["Depozit yoki obligatsiya: oddiy tilda farqi", "Kredit olishdan oldin beriladigan 3 savol", "Yillik foiz va haqiqiy toʻlov: nimaga qarash kerak"],
+          "kk": ["Депозит пе, облигация ма: қарапайым тілмен айырмашылығы", "Несие алмас бұрын қоятын 3 сұрақ", "ЖТСМ деген не және неге соған қарау керек"]
+        },
+        "cta_verbs": {"ru": ["Узнайте условия", "Рассчитайте в приложении", "Сохраните"], "uz": ["Shartlarni bilib oling", "Ilovada hisoblang", "Saqlab qoʻying"], "kk": ["Шарттарды біліңіз", "Қосымшада есептеңіз", "Сақтап қойыңыз"]},
+        "avoid_words": {"ru": ["гарантированный доход", "без рисков", "кредит без отказа", "быстрые деньги", "пассивный доход"], "uz": ["kafolatlangan daromad", "xatarsiz", "rad etilmaydigan kredit", "tez pul", "passiv daromad"], "kk": ["кепілді табыс", "тәуекелсіз", "бас тартусыз несие", "жылдам ақша", "пассивті табыс"]}
+      },
+      "compliance": ["Show licence number + legal name; get the client's legal/compliance approval before publishing.", "No guaranteed returns, 'no risk', or past performance as a promise; investment content needs a risk disclaimer.", "Credit ads: state ALL cost-affecting conditions (RU 38-ФЗ ст.28: if one is named, all must be; ПСК). KZ/UZ have equivalent rules — confirm.", "No crypto/forex/betting promotion; no fabricated rates or screenshots."]
+    },
+
+    "ecommerce": {
+      "label": {"ru": "E-commerce и продавцы маркетплейсов", "uz": "E-commerce va marketpleys sotuvchilari", "kk": "E-commerce және маркетплейс сатушылары"},
+      "match": {
+        "ru": ["интернет-магазин", "маркетплейс", "селлер", "wildberries", "ozon", "uzum", "kaspi магазин", "товарка", "карточка товара", "фулфилмент", "дропшиппинг", "продажи онлайн"],
+        "uz": ["internet doʻkon", "internet do'kon", "marketpleys", "seller", "sotuvchi", "uzum market", "wildberries", "tovar kartochkasi", "onlayn savdo", "fulfilment"],
+        "kk": ["интернет-дүкен", "маркетплейс", "селлер", "сатушы", "kaspi магазин", "wildberries", "ozon", "тауар карточкасы", "онлайн сауда", "фулфилмент"],
+        "en": ["e-commerce", "online store", "marketplace", "seller", "product listing", "fulfillment", "dropshipping", "shopify"]
+      },
+      "styles": {
+        "recommended": [
+          {"id": "C", "why": "The product as a 3D hero + UI cards for price, reviews and listing — strong for product promos."},
+          {"id": "B", "why": "Seller tips, listing checklists and real stats screenshots as iOS cards."},
+          {"id": "A", "why": "Faceless explainers of seller tactics with punchy keywords."}
+        ],
+        "avoid": []
+      },
+      "palette": {"accent": "#E8540F", "accent2": "#FFD43B", "mood": "shop orange + price-tag yellow; avoid marketplace brand purples/blues", "contrast": "orange reads on light and dark at headline sizes; yellow is a fill under ink (price tags, pills)"},
+      "art_direction": {
+        "append": "glossy product-photography materials, cardboard and tissue-paper packaging, bright clean studio light with soft shadow, palette of shop orange, warm white and tag yellow, crisp and commercial, no text",
+        "props": ["shipping box (unbranded)", "price tag", "shopping bag (unbranded)", "star rating tile (no numbers)", "delivery truck toy-like", "barcode tag (blank)", "phone with blank shop screen", "cart"],
+        "avoid": ["people", "faces", "marketplace logos or UI as endorsement", "counterfeit brand items", "fake review counts"]
+      },
+      "music": {"mood": "upbeat, bright, bouncy sub-bass", "bpm": [104, 116], "voice_only_when": "style A/D; detailed analytics walkthroughs"},
+      "techniques": {"favor": ["number_roll", "iphone_proof", "pull_out_phone", "glove_tap", "strike_fix", "dark_checks", "save_pill"], "avoid": ["curtain_reveal", "mute_gag"]},
+      "layouts": {"favor": ["media", "compare", "number", "list", "visual-top"]},
+      "materials": {
+        "ask": ["real product photos / unboxing B-roll", "listing screenshots of the client's own store", "real sales/analytics screenshot if a number is spoken (blur private data)", "real customer reviews as screenshots", "price & promo terms", "logo"],
+        "notes": "Marketplace UI only as the client's own real screenshots; never fake a listing, rating or sales number."
+      },
+      "copy": {
+        "tone": "practical seller: specific mistakes and fixes, real numbers, no 'easy money'",
+        "hooks": {
+          "ru": ["Почему карточка товара не продаёт: 3 причины", "Фото для маркетплейса на телефон — показываем настройки", "Откуда берутся возвраты и как их снизить"],
+          "uz": ["Tovar kartochkasi nega sotmaydi: 3 sabab", "Marketpleys uchun telefonda surat — sozlamalarni koʻrsatamiz", "Qaytarishlar qayerdan chiqadi va ularni qanday kamaytirish mumkin"],
+          "kk": ["Тауар карточкасы неге сатпайды: 3 себеп", "Маркетплейске телефонмен фото — баптауларды көрсетеміз", "Қайтарулар қайдан шығады және оларды қалай азайтуға болады"]
+        },
+        "cta_verbs": {"ru": ["Закажите", "Сохраните чек-лист", "Напишите «аудит»"], "uz": ["Buyurtma bering", "Chek-listni saqlang", "«Audit» deb yozing"], "kk": ["Тапсырыс беріңіз", "Чек-листті сақтаңыз", "«Аудит» деп жазыңыз"]},
+        "avoid_words": {"ru": ["лёгкие деньги", "миллион за месяц", "скидка 90%", "оригинал 100%"], "uz": ["oson pul", "bir oyda million", "90% chegirma", "100% original"], "kk": ["оңай ақша", "бір айда миллион", "90% жеңілдік", "100% түпнұсқа"]}
+      },
+      "compliance": ["Discounts only from a real previous price; state promo conditions and dates.", "No fake reviews, ratings or sales numbers.", "Marketplace names are trademarks: mention factually, no implied partnership.", "Excluded categories: alcohol, tobacco/vapes, weapons, counterfeit goods."]
+    },
+
+    "personal_brand": {
+      "label": {"ru": "Личный бренд, эксперт, коуч", "uz": "Shaxsiy brend, ekspert, kouch", "kk": "Жеке бренд, сарапшы, коуч"},
+      "match": {
+        "ru": ["личный бренд", "эксперт", "коуч", "блогер", "наставник", "консультант", "психолог", "маркетолог", "спикер", "предприниматель", "мой опыт"],
+        "uz": ["shaxsiy brend", "ekspert", "kouch", "bloger", "mentor", "maslahatchi", "psixolog", "marketolog", "spiker", "tadbirkor", "tajribam"],
+        "kk": ["жеке бренд", "сарапшы", "коуч", "блогер", "тәлімгер", "кеңесші", "психолог", "маркетолог", "спикер", "кәсіпкер", "тәжірибем"],
+        "en": ["personal brand", "expert", "coach", "creator", "consultant", "mentor", "speaker", "founder", "psychologist"]
+      },
+      "styles": {
+        "recommended": [
+          {"id": "D", "why": "The face IS the brand; A keywords and 3D beside the speaker make an expert's talk premium."},
+          {"id": "B", "why": "The reference look for experts (iOS keynote): literal words, profile-card CTA, chat objections."},
+          {"id": "C", "why": "Talking head at hook/CTA with cinematic 3D + UI between — for launches and big ideas."}
+        ],
+        "avoid": [
+          {"id": "A", "why": "Faceless hides the person the brand is built on; use only for a side explainer series."}
+        ]
+      },
+      "palette": {"accent": "#0A7CFF", "accent2": "#FFD60A", "mood": "system blue + highlighter yellow — B's native accents, neutral for any expert", "contrast": "blue reads on light and dark; yellow is a selection/highlight fill under ink"},
+      "art_direction": {
+        "append": "glossy soft-touch materials and frosted glass, clean studio light with soft rim, palette of warm neutrals with a single blue accent, minimal and confident, no text",
+        "props": ["microphone", "notebook and pen", "coffee cup", "lightbulb", "chess piece", "compass", "target with arrow", "speech bubble"],
+        "avoid": ["people", "faces", "luxury clichés (sports cars, cash, yachts)", "generic 'success' staircases", "readable text"]
+      },
+      "music": {"mood": "confident, warm, minimal sub-bass groove", "bpm": [99, 112], "voice_only_when": "style A/D; personal/vulnerable stories; psychology topics"},
+      "techniques": {"favor": ["jump_zoom", "sticker_title", "chest_widget", "typing_dots", "selection_highlight", "ig_profile_cta", "avatar_pill_cta", "lens_blur"], "avoid": []},
+      "layouts": {"favor": ["head", "head-side", "statement", "compare", "media"]},
+      "materials": {
+        "ask": ["talking-head footage (several takes, hook first)", "avatar photo / real follower count for profile CTA", "real case screenshots / client results (with permission)", "credentials (diplomas, certificates) if the topic is professional", "B-roll of real work (events, sessions)", "handle & CTA keyword"],
+        "notes": "Only real numbers (followers, clients, income) — never rounded up. Psychologists: no diagnosis or therapy promises in reels."
+      },
+      "copy": {
+        "tone": "first-person, direct, opinionated, one idea per reel; story > advice",
+        "hooks": {
+          "ru": ["Я 5 лет делал это неправильно. Вот что изменил", "3 вопроса, которые мне задают каждую неделю", "Мой рабочий день — без прикрас"],
+          "uz": ["Buni 5 yil notoʻgʻri qildim. Mana nimani oʻzgartirdim", "Har hafta menga beriladigan 3 savol", "Ish kunim — bezaksiz"],
+          "kk": ["Мұны 5 жыл қате істедім. Міне, не өзгерттім", "Маған әр апта қойылатын 3 сұрақ", "Жұмыс күнім — әсірелеусіз"]
+        },
+        "cta_verbs": {"ru": ["Подпишитесь", "Напишите слово в директ", "Сохраните"], "uz": ["Obuna boʻling", "Direktga soʻz yozing", "Saqlab qoʻying"], "kk": ["Жазылыңыз", "Директке сөз жазыңыз", "Сақтап қойыңыз"]},
+        "avoid_words": {"ru": ["успешный успех", "выйди из зоны комфорта", "миллион за месяц", "секрет, который скрывают"], "uz": ["muvaffaqiyatli muvaffaqiyat", "qulaylik zonasidan chiq", "bir oyda million", "yashiriladigan sir"], "kk": ["табысты табыс", "жайлылық аймағынан шық", "бір айда миллион", "жасырылатын құпия"]}
+      },
+      "compliance": ["No income/result guarantees; results must be real and representative.", "Psychology/health experts: no diagnoses or treatment claims.", "Paid collaborations: mark as advertising (RU: 'Реклама' + erid).", "Never reuse names/handles from reference videos."]
+    },
+
+    "travel": {
+      "label": {"ru": "Туризм и путешествия", "uz": "Turizm va sayohat", "kk": "Туризм және саяхат"},
+      "match": {
+        "ru": ["турагентство", "туроператор", "туры", "путешествия", "отдых", "горящие туры", "визы", "умра", "хадж", "экскурсии", "гостиница", "отель", "авиабилеты"],
+        "uz": ["turagentlik", "turoperator", "tur", "sayohat", "dam olish", "viza", "umra", "haj", "ekskursiya", "mehmonxona", "aviachipta"],
+        "kk": ["турагенттік", "туроператор", "тур", "саяхат", "демалыс", "виза", "умра", "қажылық", "экскурсия", "қонақүй", "әуе билеті"],
+        "en": ["travel agency", "tour operator", "tours", "travel", "vacation", "visa", "umrah", "hajj", "excursions", "hotel", "flights"]
+      },
+      "styles": {
+        "recommended": [
+          {"id": "B", "why": "Real destination photos in media layouts + itinerary lists and price cards; soft bed sets the mood."},
+          {"id": "C", "why": "3D travel props for the dream + UI cards for what's included and prices."},
+          {"id": "D", "why": "A guide/agent on camera answers objections and builds trust."}
+        ],
+        "avoid": [
+          {"id": "A", "why": "Voice-only, no music, and no real places — travel needs real imagery and mood."}
+        ]
+      },
+      "palette": {"accent": "#0077B6", "accent2": "#F4A261", "mood": "sea blue + sunset sand", "contrast": "sea blue reads on light and dark; sand is a fill under ink"},
+      "art_direction": {
+        "append": "sun-bleached linen, leather and matte painted metal materials, warm golden-hour light with soft haze, palette of sea blue, sand and terracotta, relaxed and airy, no text",
+        "props": ["vintage suitcase", "passport (blank, no emblem)", "boarding pass (blank)", "camera", "sun hat", "compass", "map roll", "airplane window frame"],
+        "avoid": ["people", "faces", "generated landmarks presented as real", "national emblems on passports", "airline logos", "religious sites rendered by AI"]
+      },
+      "music": {"mood": "warm, breezy, light sub-bass pulse", "bpm": [98, 112], "voice_only_when": "style A/D; Umrah/Hajj and other religious travel (respectful, no beat); visa/legal requirements"},
+      "techniques": {"favor": ["iphone_proof", "number_roll", "dark_checks", "section_number", "pull_out_phone", "typing_dots", "save_pill"], "avoid": ["glitch_cta", "mute_gag"]},
+      "layouts": {"favor": ["media", "visual-top", "list", "number", "head-side"]},
+      "materials": {
+        "ask": ["real photos/B-roll from the client's tours (rights cleared)", "tour program and what's included/excluded", "prices with dates and all fees", "tour-operator registry number / licence", "real reviews (screenshots, with permission)", "logo"],
+        "notes": "Real places only from real photos/footage; generated images only for props. Religious travel content: modest, respectful, no music."
+      },
+      "copy": {
+        "tone": "experienced travel friend: what's included, real price, practical tips",
+        "hooks": {
+          "ru": ["Стамбул на 4 дня: что входит в тур, а что нет", "3 документа, которые забывают перед вылетом", "Сколько реально стоит неделя в Грузии — разбор"],
+          "uz": ["Istanbulga 4 kun: turga nima kiradi, nima kirmaydi", "Uchishdan oldin unutiladigan 3 hujjat", "Gruziyada bir hafta aslida qancha turadi — tahlil"],
+          "kk": ["Стамбұлға 4 күн: турға не кіреді, не кірмейді", "Ұшар алдында ұмытылатын 3 құжат", "Грузияда бір апта шынында қанша тұрады — талдау"]
+        },
+        "cta_verbs": {"ru": ["Забронируйте", "Узнайте даты", "Напишите направление"], "uz": ["Band qiling", "Sanalarni bilib oling", "Yoʻnalishni yozing"], "kk": ["Брондаңыз", "Күндерін біліңіз", "Бағытты жазыңыз"]},
+        "avoid_words": {"ru": ["виза гарантирована", "всё включено" , "рай на земле", "горящий — успей"], "uz": ["viza kafolatlangan", "hammasi kiritilgan", "yerdagi jannat", "shoshiling"], "kk": ["визаға кепілдік", "бәрі қосылған", "жердегі жұмақ", "асығыңыз"]}
+      },
+      "compliance": ["No visa guarantees.", "Prices with dates and all mandatory fees; 'всё включено' only if the hotel package really is all-inclusive.", "RU: tour operator registry number in ads; KZ/UZ: licence where required.", "Religious travel: respectful framing, no music, no AI images of holy sites."]
+    },
+
+    "kids_family": {
+      "label": {"ru": "Дети и семья", "uz": "Bolalar va oila", "kk": "Балалар және отбасы"},
+      "match": {
+        "ru": ["детский сад", "садик", "развивающий центр", "детский центр", "логопед", "детские товары", "игрушки", "кружок", "детский праздник", "аниматоры", "няня", "родители", "семья"],
+        "uz": ["bogʻcha", "bog'cha", "bolalar bogʻchasi", "rivojlantiruvchi markaz", "bolalar markazi", "logoped", "bolalar mahsulotlari", "oʻyinchoq", "toʻgarak", "bolalar bayrami", "ota-ona", "oila"],
+        "kk": ["балабақша", "дамыту орталығы", "балалар орталығы", "логопед", "балалар тауарлары", "ойыншық", "үйірме", "балалар мерекесі", "ата-ана", "отбасы"],
+        "en": ["kindergarten", "preschool", "kids center", "speech therapist", "kids products", "toys", "kids classes", "parenting", "family"]
+      },
+      "styles": {
+        "recommended": [
+          {"id": "B", "why": "Friendly UI cards for schedules, activities and parent FAQs; light themes feel safe."},
+          {"id": "D", "why": "A teacher/specialist on camera answers parents' worries with authority."},
+          {"id": "C", "why": "Playful 3D toy-like heroes + UI cards for events and enrolment."}
+        ],
+        "avoid": [
+          {"id": "E", "why": "Dense news format is too dry for parents' emotional decisions (use only for official enrolment rules)."}
+        ]
+      },
+      "palette": {"accent": "#2A8C82", "accent2": "#FFB703", "mood": "calm sea-green + sunny yellow — friendly without rainbow overload", "contrast": "sea-green reads on light and dark; sunny yellow is a fill under ink"},
+      "art_direction": {
+        "append": "soft rounded matte plastic and felt materials, toy-like proportions, soft bright diffused light, palette of sea-green, sunny yellow and warm cream, gentle and safe, no text",
+        "props": ["wooden building blocks", "crayons", "backpack (unbranded)", "alarm clock", "spinning top", "picture book (blank cover)", "abacus", "balloon"],
+        "avoid": ["people", "children", "faces", "bodies", "small choking-hazard parts shown near mouths", "cartoon characters owned by others"]
+      },
+      "music": {"mood": "light, playful, gentle pulse (no childish jingle)", "bpm": [98, 110], "voice_only_when": "style A/D; developmental/health concerns (speech delay, special needs)"},
+      "techniques": {"favor": ["paper_section", "section_number", "dark_checks", "typing_dots", "sticker_title", "save_pill", "chest_widget"], "avoid": ["glitch_cta", "curtain_reveal", "jump_zoom", "mute_gag"]},
+      "layouts": {"favor": ["list", "media", "stack", "head-side", "visual-top"]},
+      "materials": {
+        "ask": ["photos/B-roll of the space and activities — children only with written parental consent, else backs/hands-free shots", "schedule, age groups, prices", "specialists' credentials; licence for education/medical services if applicable", "real parent reviews (screenshots, with permission)", "teacher talking-head footage", "logo"],
+        "notes": "Children's faces are the strictest privacy item: no consent → no face (blur or shoot from behind)."
+      },
+      "copy": {
+        "tone": "warm specialist talking to parents: reassuring, practical, never shaming",
+        "hooks": {
+          "ru": ["Как проходит первый день в нашем садике", "3 занятия, которые развивают речь дома", "Во сколько лет начинать английский — отвечает педагог"],
+          "uz": ["Bogʻchamizda birinchi kun qanday oʻtadi", "Uyda nutqni rivojlantiradigan 3 ta mashgʻulot", "Ingliz tilini necha yoshdan boshlash kerak — pedagog javob beradi"],
+          "kk": ["Балабақшамызда алғашқы күн қалай өтеді", "Үйде сөйлеуді дамытатын 3 жаттығу", "Ағылшын тілін неше жастан бастау керек — педагог жауап береді"]
+        },
+        "cta_verbs": {"ru": ["Запишитесь на экскурсию", "Сохраните", "Напишите возраст ребёнка"], "uz": ["Ekskursiyaga yoziling", "Saqlab qoʻying", "Bolaning yoshini yozing"], "kk": ["Экскурсияға жазылыңыз", "Сақтап қойыңыз", "Баланың жасын жазыңыз"]},
+        "avoid_words": {"ru": ["ваш ребёнок отстаёт", "гений", "гарантируем результат", "плохие родители"], "uz": ["farzandingiz ortda qolmoqda", "daho", "natija kafolati", "yomon ota-ona"], "kk": ["балаңыз қалып жатыр", "данышпан", "нәтиже кепілдігі", "жаман ата-ана"]}
+      },
+      "compliance": ["Children on screen only with written parental consent.", "Ads must not urge children to persuade parents or exploit trust (RU 38-ФЗ ст.6; similar in KZ/UZ).", "No developmental/medical promises; speech therapy = specialist consultation framing.", "Toy safety: no claims without certification."]
+    },
+
+    "default": {
+      "label": {"ru": "Другое / общий бизнес", "uz": "Boshqa / umumiy biznes", "kk": "Басқа / жалпы бизнес"},
+      "match": {"ru": [], "uz": [], "kk": [], "en": []},
+      "styles": {
+        "recommended": [
+          {"id": "B", "why": "Safest all-rounder: literal words, clear cards, works for any service with or without footage."},
+          {"id": "A", "why": "Faceless explainer when there's no footage and the topic is a concept."},
+          {"id": "D", "why": "If the client has talking-head footage — a face beats any graphic for trust."}
+        ],
+        "avoid": []
+      },
+      "palette": {"accent": "#0A7CFF", "accent2": "#FFD60A", "mood": "neutral system blue + highlighter yellow", "contrast": "blue reads on light and dark; yellow is a fill under ink"},
+      "art_direction": {
+        "append": "clean soft-touch matte materials, soft studio light with gentle rim, neutral warm-grey palette with one accent colour, minimal and consistent, no text",
+        "props": ["lightbulb", "calendar tile", "phone with blank screen", "checklist board", "gift box", "location pin", "chat bubble", "clock"],
+        "avoid": ["people", "faces", "real third-party logos", "readable text", "money piles"]
+      },
+      "music": {"mood": "neutral, soft sub-bass bed", "bpm": [99, 110], "voice_only_when": "style A/D; sensitive topics"},
+      "techniques": {"favor": ["number_roll", "selection_highlight", "strike_fix", "iphone_proof", "section_number", "save_pill"], "avoid": ["mute_gag"]},
+      "layouts": {"favor": ["stack", "media", "list", "number", "compare"]},
+      "materials": {
+        "ask": ["real photos/B-roll of the product, place or team", "price list / offer terms", "screenshots of proof (reviews, stats) — real only", "talking-head footage if available", "logo"],
+        "notes": "Ask the client which licences or legal disclaimers apply to their business."
+      },
+      "copy": {
+        "tone": "clear, concrete, human; one idea per scene",
+        "hooks": {
+          "ru": ["3 вещи, которые стоит знать до покупки", "Как это работает — за 30 секунд", "Частый вопрос клиентов — отвечаем"],
+          "uz": ["Xariddan oldin bilish kerak boʻlgan 3 narsa", "Bu qanday ishlaydi — 30 soniyada", "Mijozlarning koʻp beradigan savoli — javob beramiz"],
+          "kk": ["Сатып алмас бұрын білу керек 3 нәрсе", "Бұл қалай жұмыс істейді — 30 секундта", "Клиенттердің жиі сұрағы — жауап береміз"]
+        },
+        "cta_verbs": {"ru": ["Напишите в директ", "Сохраните", "Подпишитесь"], "uz": ["Direktga yozing", "Saqlab qoʻying", "Obuna boʻling"], "kk": ["Директке жазыңыз", "Сақтап қойыңыз", "Жазылыңыз"]},
+        "avoid_words": {"ru": ["лучший", "уникальный", "инновационный", "в современном мире", "гарантия"], "uz": ["eng zoʻr", "noyob", "innovatsion", "zamonaviy dunyoda", "kafolat"], "kk": ["ең үздік", "бірегей", "инновациялық", "қазіргі әлемде", "кепілдік"]}
+      },
+      "compliance": ["Superlatives and comparatives need proof.", "No fake reviews/metrics.", "Alcohol, tobacco/vapes, gambling/betting, weapons: excluded.", "RU paid ads: 'Реклама' + erid marking."]
+    }
+  }
+}

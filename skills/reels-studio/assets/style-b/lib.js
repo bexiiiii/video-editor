@@ -120,6 +120,18 @@
   };
   RSB.PALETTE = PAL;
 
+  /**
+   * Brand palette (scripts/brand.py → lib/brand.js sets window.RS_BRAND before the libs load). Every lookup falls
+   * back to the stock Apple value, so without a brand the output is identical. Semantic system colours (green =
+   * ok, red = error, orange, yellow, grey) and Instagram's #0095F6 are never branded. See references/branding.md.
+   */
+  const brand = (k, d) => {
+    const p = window.RS_BRAND && window.RS_BRAND.palette && window.RS_BRAND.palette.b;
+    return p && p[k] != null ? p[k] : d;
+  };
+  ["light", "paper"].forEach((k) => { PAL[k].on = brand("dotOn", PAL[k].on); });
+  ["dark", "dark2", "dark3"].forEach((k) => { PAL[k].on = brand("dotOnDark", PAL[k].on); });
+
   /* ================================================================== *
    * PAGE / BACKGROUND
    * ================================================================== */
@@ -442,7 +454,7 @@
    */
   RSB.ring = function (container, props = {}, tl, at) {
     const size = props.size || 560, sw = props.stroke || 12, r = (size - sw) / 2, C = 2 * Math.PI * r;
-    const color = props.color || "#0A7AFF", stop = props.stop ?? 0.8, dur = props.dur ?? 0.9;
+    const color = props.color || brand("ring", "#0A7AFF"), stop = props.stop ?? 0.8, dur = props.dur ?? 0.9;
     const w = place(el("div", "rsb-ring", container), props);
     w.style.width = w.style.height = size + "px";
     const rot = (props.startDeg ?? -60) - 90; // 0deg = 12 o'clock; 10 o'clock = -60deg
@@ -542,7 +554,7 @@
    */
   RSB.colorGrid = function (container, props = {}, tl, at) {
     const cols = props.cols || 6, rows = props.rows || 5;
-    const colors = props.colors || ["#007AFF", "#34C759", "#FF9500", "#FF3B30", "#FFCC00", "#FFFFFF"];
+    const colors = props.colors || [brand("grid0", "#007AFF"), "#34C759", "#FF9500", "#FF3B30", "#FFCC00", "#FFFFFF"];
     const g = place(el("div", "rsb-cgrid", container), props);
     g.style.gridTemplateColumns = `repeat(${cols}, 98px)`;
     const tiles = [];
@@ -623,7 +635,7 @@
     const thumb = el("div", "thumb", seg);
     const spans = props.items.map((t) => { const s = el("span", null, seg); s.textContent = t; return s; });
     const geo = spans.map((s) => ({ x: s.offsetLeft, w: s.offsetWidth }));
-    const ink = getComputedStyle(spans[0]).color, on = "#007AFF";
+    const ink = getComputedStyle(spans[0]).color, on = brand("segOn", "#007AFF");
     let cur = props.active ?? -1;
     thumb.style.width = (cur >= 0 ? geo[cur].w : geo[0].w) + "px";
     if (cur >= 0) { thumb.style.transform = `translateX(${geo[cur].x}px)`; spans[cur].style.color = on; } else thumb.style.opacity = "0";
@@ -739,7 +751,7 @@
    */
   RSB.cursor = function (container, props, tl, at) {
     const kind = props.kind || "glove";
-    const c = el("div", "rsb-cursor", container, kind === "glove" ? GLOVE : ARROW(props.color || "#0A7AFF"));
+    const c = el("div", "rsb-cursor", container, kind === "glove" ? GLOVE : ARROW(props.color || brand("cursor", "#0A7AFF")));
     const hot = kind === "glove" ? { x: 33, y: 7 } : { x: 2, y: 2 }; // fingertip / arrow tip offset
     c.style.transformOrigin = `${hot.x}px ${hot.y}px`;
     const P = props.path;
@@ -773,10 +785,11 @@
    * @param {{x:number, y:number, text:string, color?:string}} props  x/y = arrow tip
    */
   RSB.cursorBubble = function (container, props, tl, at) {
-    const color = props.color || "#0A7AFF";
+    const color = props.color || brand("bubble", "#0A7AFF");
     const g = place(el("div", null, container), { x: props.x, y: props.y });
     const cur = el("div", null, g, ARROW(color)); cur.style.position = "absolute"; cur.style.left = "-4px"; cur.style.top = "-4px";
-    const b = el("div", "rsb-cbubble", g); b.textContent = props.text; b.style.background = color; b.style.left = "26px"; b.style.top = "30px";
+    const b = el("div", "rsb-cbubble", g); b.textContent = props.text; b.style.background = color;
+    if (!props.color && brand("bubbleInk", null)) b.style.color = brand("bubbleInk", null); b.style.left = "26px"; b.style.top = "30px";
     tl.fromTo(cur, { opacity: 0, x: -30, y: -24, filter: "blur(4px)" }, { opacity: 1, x: 0, y: 0, filter: "blur(0px)", duration: 0.3, ease: "power3.out" }, at);
     tl.fromTo(b, { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(1.6)" }, at + 0.18);
     return g;
@@ -849,7 +862,7 @@
     const name = el("div", "name", box);
     const lines = (props.name || []).map((t) => el("div", null, name));
     const btn = el("div", "btn", box); const bt = el("span", null, btn); bt.textContent = props.button || "Obuna bo'ling";
-    const caret = el("span", null, name); Object.assign(caret.style, { position: "absolute", width: "3px", height: "40px", background: "#227DE5", left: "0", top: "2px" });
+    const caret = el("span", null, name); Object.assign(caret.style, { position: "absolute", width: "3px", height: "40px", background: brand("cta", "#227DE5"), left: "0", top: "2px" });
     const ua = props.unrollAt ?? at + 0.65, ta = props.typeAt ?? ua + 0.3, pa = props.pressAt ?? ta + 1.3;
     // 1. avatar tile pop (box clipped to the avatar square)
     tl.fromTo(box, { width: 206, scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.22, ease: "back.out(2.2)" }, at);
@@ -869,7 +882,7 @@
     // caret follows the typed text: place at end of name block
     caret.style.left = "auto"; caret.style.right = "-8px"; caret.style.top = "auto"; caret.style.bottom = "4px";
     // 4. press → dark chip
-    ft(tl, btn, { scale: 1, backgroundColor: "#227DE5" }, { scale: 0.5, backgroundColor: "#2B2B2B", duration: 0.17, ease: "power2.in" }, pa);
+    ft(tl, btn, { scale: 1, backgroundColor: brand("cta", "#227DE5") }, { scale: 0.5, backgroundColor: "#2B2B2B", duration: 0.17, ease: "power2.in" }, pa);
     ft(tl, bt, { opacity: 1 }, { opacity: 0, duration: 0.1 }, pa);
     pill.box = box; pill.button = btn;
     return pill;

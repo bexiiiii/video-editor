@@ -441,7 +441,8 @@
     to.style.opacity = "0";
     const r = RSB.tx.portal(tl, from, to, at, o, layer);
     r.whiteout.style.background = "#FBFDFD";
-    r.orb.style.boxShadow = "0 0 30px 12px rgba(255,255,255,.9), 0 0 140px 70px rgba(10,132,255,.45)";
+        const bp = window.RS_BRAND && window.RS_BRAND.palette && window.RS_BRAND.palette.c; // brand bloom (branding.md)
+    r.orb.style.boxShadow = `0 0 30px 12px rgba(255,255,255,.9), 0 0 140px 70px ${(bp && bp.portalGlow) || "rgba(10,132,255,.45)"}`;
     return r;
   };
 
