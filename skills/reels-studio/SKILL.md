@@ -1,6 +1,6 @@
 ---
 name: reels-studio
-description: Produce professional vertical reels (Instagram/TikTok/Shorts, 1080x1920) end to end with a team of parallel agents — from self-shot talking-head footage or from a script with AI voiceover — in two reference styles (A "3D Keyword" faceless 3D motion, B "iOS Keynote" Apple-UI motion), in Russian, Uzbek or Kazakh, with synced captions, generated images, sound design, music and loudness-mastered audio. Use when the user asks to make, edit or montage a reel/short/TikTok, a talking-head edit, a faceless motion explainer, or says "сделай рилс / монтаж / моушн".
+description: Produce professional vertical reels (Instagram/TikTok/Shorts, 1080x1920) end to end with a team of parallel agents — from self-shot talking-head footage or from a script with AI voiceover — in five styles (A "3D Keyword", B "iOS Keynote", C "Keynote 3D", D "3D Keyword Talking Head", E "Data News") tuned to the client's niche and brand colours, in Russian, Uzbek or Kazakh, with synced captions, generated images, music found online, sound design and loudness-mastered audio. Use when the user asks to make, edit or montage a reel/short/TikTok, a talking-head edit, a faceless motion explainer, or says "сделай рилс / монтаж / моушн".
 ---
 
 # reels-studio — orchestrator

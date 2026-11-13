@@ -36,10 +36,26 @@ if [ "$want_codex" = 1 ]; then
 fi
 
 if [ "$deps" = 1 ]; then
-  echo "Python deps → ~/.reels-studio/venv"
-  python3 -m venv "$HOME/.reels-studio/venv"
-  "$HOME/.reels-studio/venv/bin/pip" install -q --upgrade pip
-  "$HOME/.reels-studio/venv/bin/pip" install -q -r "$repo/skills/reels-studio/scripts/requirements.txt"
+  # The newest Python often has no prebuilt wheels yet for scipy/numpy/onnx (pip then tries to
+  # compile them and fails), so prefer the newest version with wheels. Override with REELS_PYTHON.
+  py="${REELS_PYTHON:-}"
+  if [ -z "$py" ]; then
+    for c in python3.13 python3.12 python3.11 python3.14 python3; do
+      if command -v "$c" >/dev/null; then py="$(command -v "$c")"; break; fi
+    done
+  fi
+  [ -n "$py" ] || { echo "no python3 found" >&2; exit 1; }
+  venv="$HOME/.reels-studio/venv"
+  want="$("$py" -c 'import sys;print("%d.%d"%sys.version_info[:2])')"
+  have="$([ -x "$venv/bin/python" ] && "$venv/bin/python" -c 'import sys;print("%d.%d"%sys.version_info[:2])' || true)"
+  if [ -n "$have" ] && [ "$have" != "$want" ]; then
+    echo "  existing venv uses Python $have — recreating with $want"
+    rm -rf "$venv"
+  fi
+  echo "Python deps → $venv (Python $want)"
+  "$py" -m venv "$venv"
+  "$venv/bin/pip" install -q --upgrade pip
+  "$venv/bin/pip" install -q --prefer-binary -r "$repo/skills/reels-studio/scripts/requirements.txt"
 fi
 
 echo "Checks:"
