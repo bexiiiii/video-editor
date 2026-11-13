@@ -12,7 +12,10 @@ Multi-agent production of vertical reels (Instagram Reels / TikTok / Shorts, 108
   - A and B were reverse-engineered frame by frame from reference reels (`skills/reels-studio/references/teardowns/`). C is built on top of both.
 - **Layouts:** 10 layout types (`references/layouts.md`) with enforced spacing and variety rules: no layout twice in a row, no component reused within 3 scenes, no drawn people, no emoji or placeholder heroes.
 - **Techniques:** 25 signature moves, such as the portal transition, jump zoom, iPhone proof, paper section and karaoke captions (`references/techniques.md`). They are picked per script, and a reel history (`scripts/history.py`) stops a brand's reels from repeating them.
-- **Asks first:** language, then style (with preview images from `assets/previews/`), then the client's footage for talking-head reels, the materials the plan needs, and the CTA name and handle. It also asks before spending credits on an attached ElevenLabs connector.
+- **Asks first:** language, then niche, then brand, then style (with preview images from `assets/previews/`), then the client's footage for talking-head reels, the materials the plan needs, and the CTA name and handle. It also asks before spending credits on an attached ElevenLabs connector.
+- **Niches & brand:** 16 niche presets (`assets/niches.json`) rank the styles and set art direction, music mood, techniques, materials, hooks and compliance notes. Brand colours, logo and font are applied over any style, with contrast checks (`references/branding.md`), and the style previews are re-rendered in the client's colours.
+- **Sound:** cleaned voice always dominant. Music is found online (Openverse/Jamendo, CC0/CC-BY only, attribution written to `CREDITS.txt`), sits 9–12 dB under the voice and rises in pauses. SFX are auto-cued on transitions and entrances. `energetic` is the default audio profile, `reference` is voice only.
+- **Talking head:** smooth head ↔ motion transitions and a full literal caption track synced to each word.
 - **Modes:** faceless · talking-head hook/CTA + motion body · talking head with overlays.
 - **Languages:** Russian, Uzbek, Kazakh. Speech recognition always runs with the language forced.
 - **Output:**
