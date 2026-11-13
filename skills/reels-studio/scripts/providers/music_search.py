@@ -30,11 +30,13 @@ Exit code 3 = nothing suitable found / network down (music.py then tries the nex
 from __future__ import annotations
 
 import argparse
+import ipaddress
 import json
 import math
 import os
 import re
 import shutil
+import socket
 import sys
 import urllib.error
 import urllib.parse
@@ -82,12 +84,46 @@ def get_json(url: str, timeout: float = 25) -> dict:
         raise ProviderError(f"network error for {url.split('?')[0]}: {e}") from None
 
 
+# Downloads follow URLs that come from third-party API responses, so treat them as untrusted:
+# https only, public IPs only (checked on every redirect hop), known audio extensions only.
+AUDIO_EXTS = {"mp3", "ogg", "wav", "flac", "m4a", "opus"}
+
+
+def safe_ext(ft: str | None) -> str:
+    ft = (ft or "mp3").lower().replace("mp32", "mp3")
+    return ft if ft in AUDIO_EXTS else "mp3"
+
+
+def check_public_https(url: str) -> None:
+    u = urllib.parse.urlsplit(url)
+    if u.scheme != "https" or not u.hostname:
+        raise ProviderError(f"refusing non-https download URL: {url[:80]}")
+    try:
+        infos = socket.getaddrinfo(u.hostname, u.port or 443, proto=socket.IPPROTO_TCP)
+    except socket.gaierror as e:
+        raise ProviderError(f"cannot resolve {u.hostname}: {e}") from None
+    for info in infos:
+        ip = ipaddress.ip_address(info[4][0])
+        if not ip.is_global or ip.is_multicast:
+            raise ProviderError(f"refusing download from non-public address {ip} ({u.hostname})")
+
+
+class _SafeRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        check_public_https(newurl)
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
+_SAFE_OPENER = urllib.request.build_opener(_SafeRedirect)
+
+
 def download(url: str, dst: Path, cap_mb: float = 25, timeout: float = 60) -> Path:
+    check_public_https(url)
     req = urllib.request.Request(url, headers=UA)
     dst.parent.mkdir(parents=True, exist_ok=True)
     got = 0
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as r, open(dst, "wb") as f:
+        with _SAFE_OPENER.open(req, timeout=timeout) as r, open(dst, "wb") as f:
             while chunk := r.read(1 << 16):
                 got += len(chunk)
                 if got > cap_mb * 1e6:
@@ -205,7 +241,7 @@ def search_openverse(qs: list[str], allow_sa: bool, pages: int = 2) -> list[dict
                     "id": r["id"], "title": r.get("title") or "Untitled", "artist": r.get("creator") or "Unknown",
                     "licence": licence, "licence_version": r.get("license_version") or "",
                     "licence_url": r.get("license_url") or "", "source_url": r.get("foreign_landing_url") or "",
-                    "file_url": r["url"], "filetype": (r.get("filetype") or "mp3").replace("mp32", "mp3"),
+                    "file_url": r["url"], "filetype": safe_ext(r.get("filetype")),
                     "duration": dur, "genres": [g.lower() for g in (r.get("genres") or [])],
                     "tags": [t["name"].lower() for t in (r.get("tags") or []) if t.get("name")],
                     "attribution": r.get("attribution") or "", "query": q})
@@ -514,7 +550,9 @@ def search(intent: dict, out: Path, work: Path | None, allow_sa: bool = False, m
         for i, c in enumerate(pool[: max_download * 2]):
             if len(ranked) >= max_download or i >= max_download * 2:
                 break
-            f = cand_dir / f"{len(ranked) + 1:02d}_{re.sub(r'[^A-Za-z0-9]+', '_', c['id'])[:24]}.{c['filetype']}"
+            f = cand_dir / f"{len(ranked) + 1:02d}_{re.sub(r'[^A-Za-z0-9]+', '_', str(c['id']))[:24]}.{safe_ext(c.get('filetype'))}"
+            if not f.resolve().is_relative_to(cand_dir.resolve()):
+                continue
             try:
                 download(c["file_url"], f)
                 a = analyse(f)
