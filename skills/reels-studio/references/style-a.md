@@ -45,7 +45,7 @@
 - *Luminance crossfade* 250ms dark↔light, often carrying one shared element across.
 - Continuous camera pan only for flow trees.
 
-**Audio:** **voice only. No music. No SFX.** Mono, −14.1 LUFS, LRA ~1.7.
+**Audio:** the reference reels are voice only (mono, −14.1 LUFS, LRA ~1.7, no music, no SFX). That is the `reference` audio profile, used only when the client asks for the purist look. The default `energetic` profile adds an audible music bed and SFX (`audio-policy.md`).
 
 **Ending:** 3D blue bookmark + "сохрани…", held 2.5–5s, no end card.
 

@@ -13,6 +13,13 @@ Checks (severity "fail" makes the report ok=false and exits 1; "warn" is for the
   tiling        scenes tile the timeline with no gaps/overlaps                                   fail
   reveal_sync   headline.words[].t, kicker.at, caption.at vs transcript word onsets
                 (allowed window: −reveal-early … +reveal-late s around the spoken word)          warn
+  centering     per centred-layout motion scene, final frame: content bbox (pixels != background colour)
+                centre x within +-centre-tol (24) px of 540                                       warn
+  caption_coverage  composition/captions.json: >= 98 % of spoken words in caption ranges captioned fail
+  caption_sync  planned word appear - onset within -cap-early...+cap-late (-0.10...+0.05 s) and the
+                rendered reveal (largest rise of caption-white pixels per word) in the same window fail
+  caption_centering caption line bbox centre within +-centre-tol px                                warn
+  audio_*       scripts/qa_audio.py checks(work, video) merged when importable (warn if missing)
 Also: one snapshot per scene midpoint (qa/frames/<id>.jpg) and a labelled contact sheet (qa/sheet.jpg)
 for the QA agent to eyeball, plus the style's pitfalls checklist from references/style-guide.md.
 A scene is "intentional" for black/freeze when it has `"qa": {"allow_black": true}` /
@@ -231,6 +238,153 @@ def variety_issues(scenes: list[dict]) -> list[str]:
     return issues
 
 
+# ---------------------------------------------------------------- geometry + captions (visual pipeline checks)
+CENTRED_LAYOUTS = {"stack", "number", "statement", "list", "hero", "insert-hero", "insert-number", "cta"}
+
+
+def grab(video: Path, t: float, crop: str | None = None, scale: str = "540:960"):
+    """One frame as an RGB numpy array (optionally cropped first: 'w:h:x:y' in source px)."""
+    import numpy as np
+    vf = (f"crop={crop}," if crop else "") + f"scale={scale}"
+    w, h = (int(x) for x in scale.split(":"))
+    p = subprocess.run(["ffmpeg", "-v", "error", "-ss", f"{max(0.0, t):.3f}", "-i", str(video), "-frames:v", "1",
+                        "-vf", vf, "-f", "rawvideo", "-pix_fmt", "rgb24", "-"], capture_output=True)
+    if p.returncode != 0 or len(p.stdout) < w * h * 3:
+        return None
+    return np.frombuffer(p.stdout[: w * h * 3], dtype=np.uint8).reshape(h, w, 3).astype(int)
+
+
+def _box(a, r, ax):
+    import numpy as np
+    c = np.cumsum(np.pad(a, [(r + 1, r) if i == ax else (0, 0) for i in range(a.ndim)], mode="edge"), axis=ax)
+    n = a.shape[ax]
+    return (np.take(c, range(2 * r + 1, 2 * r + 1 + n), axis=ax) - np.take(c, range(0, n), axis=ax)) / (2 * r + 1)
+
+
+def content_bbox_x(img) -> tuple[int, int] | None:
+    """Horizontal extent (1080-px units) of CONTENT: pixels that differ from the local background (41-px box blur
+    high-pass, so gradients / glows / light rays don't count), eroded 3×2 so dot grids and hairlines drop out."""
+    import numpy as np
+    h, w, _ = img.shape
+    f = img.astype(float)
+    m = np.abs(f - _box(_box(f, 20, 1), 20, 0)).max(2) > 18
+    m = m & np.roll(m, 1, 1) & np.roll(m, -1, 1) & np.roll(m, 1, 0)
+    m[: int(h * 0.12)] = False           # reels top UI / chrome breadcrumbs
+    m[int(h * 0.82):] = False            # reels bottom UI
+    m[:, :3] = False
+    m[:, -3:] = False
+    cols = np.where(m.sum(0) >= 2)[0]
+    if len(cols) < 2:
+        return None
+    k = 1080 / w
+    return int(cols[0] * k), int((cols[-1] + 1) * k)
+
+
+def centering_checks(video: Path, scenes: list[dict], bounds: list[dict], tol: float) -> list[dict]:
+    out = []
+    starts = {b["from"]: b["start"] for b in bounds if b.get("mode") in ("xfade", "continuous")}
+    for sc in scenes:
+        if sc.get("kind", "motion") != "motion" or sc.get("layout") not in CENTRED_LAYOUTS:
+            continue
+        t = min(float(sc["end"]) - 0.12, starts.get(sc["id"], 1e9) - 0.05)
+        img = grab(video, t)
+        if img is None:
+            continue
+        bb = content_bbox_x(img)
+        if not bb:
+            continue
+        cx = (bb[0] + bb[1]) / 2
+        out.append({"scene": sc["id"], "layout": sc.get("layout"), "t": round(t, 3), "bbox_x": bb,
+                    "centre_x": round(cx, 1), "delta": round(cx - 540, 1), "ok": abs(cx - 540) <= tol})
+    return out
+
+
+def caption_band_series(video: Path, cap: dict, fps: float):
+    """Per-frame count of caption-white pixels (pure white/grey text over the scrim) inside the caption band."""
+    import numpy as np
+    y = int(cap["y"])
+    w, h = 480, 70                         # band 960×140 at x 60, half scale
+    p = subprocess.run(["ffmpeg", "-v", "error", "-i", str(video), "-vf",
+                        f"crop=960:140:60:{y - 70},scale={w}:{h},fps={fps}",
+                        "-f", "rawvideo", "-pix_fmt", "rgb24", "-"], capture_output=True)
+    if p.returncode != 0:
+        return None, None
+    a = np.frombuffer(p.stdout, dtype=np.uint8)
+    n = len(a) // (w * h * 3)
+    a = a[: n * w * h * 3].reshape(n, h, w, 3).astype(int)
+    lum = a.mean(3)
+    sat = a.max(3) - a.min(3)
+    thr = 195 if cap.get("style") == "e" else 238
+    mask = (lum > thr) & (sat < 14)
+    return mask.sum((1, 2)), mask
+
+
+def caption_checks(video: Path, cap: dict, fps: float, early: float, late: float, tol: float) -> dict:
+    """Coverage + planned sync (composition/captions.json) + rendered sync (rise of caption-white pixels per word)."""
+    import numpy as np
+    words = [w for p in cap.get("phrases", []) for w in p["words"]]
+    planned = [round(w["appear"] - w["s"], 3) for w in words]
+    res = {"coverage": cap.get("coverage"), "words": len(words),
+           "planned_delta": {"min": min(planned, default=None), "max": max(planned, default=None)},
+           "planned_out_of_tol": len([d for d in planned if not (-early <= d <= late)])}
+    series, mask = caption_band_series(video, cap, fps)
+    if series is None or not len(series):
+        res["rendered"] = None
+        return res
+    # rendered appearance events: runs of frames where the caption-white pixel count rises; an event's time is its
+    # last rising frame (= first frame at the new level; frame f shows timeline time f/fps). Each word is matched to the
+    # nearest unused event within ±0.30 s of its onset.
+    dif = np.diff(series.astype(int), prepend=int(series[0]))
+    events, k = [], 1
+    while k < len(dif):
+        if dif[k] >= 6:
+            j = k
+            while j + 1 < len(dif) and dif[j + 1] >= 3:
+                j += 1
+            events.append(j / fps)
+            k = j + 1
+        else:
+            k += 1
+    used, deltas, misses = set(), [], 0
+    for w in words:
+        cands = [(abs(e - (w["s"] - 0.03)), i, e) for i, e in enumerate(events) if i not in used and abs(e - w["s"]) <= 0.30]
+        if not cands:
+            misses += 1
+            continue
+        _, i, e = min(cands)
+        used.add(i)
+        deltas.append(round(e - w["s"], 3))
+    if deltas:
+        d = np.array(deltas)
+        res["rendered"] = {"measured": len(deltas), "missed": misses, "median": round(float(np.median(d)), 3),
+                           "min": round(float(d.min()), 3), "max": round(float(d.max()), 3),
+                           "late_gt_tol": int((d > late + 1 / fps).sum()), "early_lt_tol": int((d < -early - 1 / fps).sum())}
+    cents = []
+    for p in cap.get("phrases", [])[:80]:
+        f = int(((p["words"][-1]["appear"] + p["hide"]) / 2) * fps)
+        if 0 <= f < len(mask):
+            cols = np.where(mask[f].sum(0) >= 1)[0]
+            if len(cols) > 3:
+                cents.append(round(60 + (cols[0] + cols[-1] + 1) - 540, 1))   # half-scale cols → 1080-px units
+    if cents:
+        res["centre_delta"] = {"max_abs": max(abs(c) for c in cents), "n": len(cents),
+                               "off": sum(1 for c in cents if abs(c) > tol)}
+    return res
+
+
+def audio_checks(work: Path, video: Path):
+    """scripts/qa_audio.py (owned by the audio pipeline) — merged into the report when importable."""
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        import qa_audio  # noqa
+    except Exception as e:
+        return None, f"qa_audio not importable ({e.__class__.__name__}: {e})"
+    try:
+        return list(qa_audio.checks(work, video)), None
+    except Exception as e:
+        return None, f"qa_audio.checks failed: {e}"
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--work", required=True)
@@ -242,6 +396,9 @@ def main() -> None:
     ap.add_argument("--reveal-early", type=float, default=0.10)
     ap.add_argument("--reveal-late", type=float, default=0.30)
     ap.add_argument("--freeze-max", type=float, default=3.0)
+    ap.add_argument("--centre-tol", type=float, default=24.0, help="max |content centre x - 540| px for centred layouts")
+    ap.add_argument("--cap-early", type=float, default=0.10, help="caption word may appear this early (s)")
+    ap.add_argument("--cap-late", type=float, default=0.05, help="caption word may appear this late (s)")
     ap.add_argument("--plan-only", action="store_true", help="only check plan/scenes.json variety rules (before fan-out)")
     a = ap.parse_args()
 
@@ -316,6 +473,49 @@ def main() -> None:
     else:
         add("reveal_sync", False, "warn", None, None, "audio/transcript.json missing — not checked")
 
+    # ---- visual pipeline: centring of centred layouts, caption coverage + sync
+    asm_p = work / "composition" / "assemble.json"
+    bounds = json.loads(asm_p.read_text()).get("transitions", []) if asm_p.is_file() else []
+    try:
+        cen = centering_checks(video, scenes, bounds, a.centre_tol)
+        off = [c for c in cen if not c["ok"]]
+        add("centering", not off, "warn", off or [f"{c['scene']} {c['delta']:+.0f}px" for c in cen],
+            f"|content centre x - 540| <= {a.centre_tol:.0f} px (layouts {', '.join(sorted(CENTRED_LAYOUTS))})")
+    except ImportError:
+        add("centering", False, "warn", None, None, "numpy missing - not checked")
+    cap_p = work / "composition" / "captions.json"
+    if cap_p.is_file():
+        cap = json.loads(cap_p.read_text())
+        cr = caption_checks(video, cap, float(plan.get("fps", 30)), a.cap_early, a.cap_late, a.centre_tol)
+        cov = (cr.get("coverage") or {}).get("pct_in_ranges")
+        add("caption_coverage", cov is not None and cov >= 98, "fail", cov, ">= 98 % of spoken words in caption ranges",
+            cr.get("coverage"))
+        rend = cr.get("rendered") or {}
+        bad = rend.get("late_gt_tol", 0) + rend.get("early_lt_tol", 0)
+        sync_ok = cr["planned_out_of_tol"] == 0 and bad <= max(1, int(0.02 * cr["words"]))
+        add("caption_sync", sync_ok, "fail", {"planned": cr["planned_delta"], "rendered": rend or None},
+            f"word appears {-a.cap_early:+.2f}...{a.cap_late:+.2f} s around its onset")
+        if cr.get("centre_delta"):
+            add("caption_centering", cr["centre_delta"]["off"] == 0, "warn", cr["centre_delta"],
+                f"caption line centre within +-{a.centre_tol:.0f} px")
+    else:
+        brief = json.loads((work / "brief.json").read_text()) if (work / "brief.json").is_file() else {}
+        needs = brief.get("mode") in ("hook_cta", "head_overlay") or style.lower() == "d" or any(
+            s.get("kind") in ("head", "head_overlay") for s in scenes)
+        if needs and str(brief.get("captions", "auto")).lower() != "off":
+            add("caption_coverage", False, "fail", None, "caption track for talking-head modes",
+                "composition/captions.json missing - re-run assemble.py (needs audio/transcript.json)")
+    # ---- audio QA (scripts/qa_audio.py, audio pipeline) merged when available
+    ac, why = audio_checks(work, video)
+    if ac is None:
+        log(f"WARN audio QA skipped: {why}")
+        add("audio_qa_module", False, "warn", None, "scripts/qa_audio.py", why)
+    else:
+        for c in ac:
+            ok = bool(c.get("ok"))
+            checks.append({"name": c.get("name", "audio"), "ok": ok, "severity": "info" if ok else c.get("severity", "warn"),
+                           "value": c.get("value"), "expected": c.get("expected"), "detail": c.get("detail")})
+
     frames = snapshots(video, scenes, qa / "frames")
     sheet = contact_sheet(frames, work, qa / "sheet.jpg", scenes)
     fails = [c for c in checks if not c["ok"] and c["severity"] == "fail"]
@@ -326,7 +526,7 @@ def main() -> None:
               "manual_review": {"style": style.upper(), **pitfalls(style),
                                 "instructions": "Open qa/sheet.jpg and each qa/frames/<id>.jpg; tick every pitfall; "
                                                 "see references/qa-checklist.md."}}
-    (qa / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=1))
+    (qa / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=1, default=lambda o: o.item() if hasattr(o, "item") else str(o)))
     for c in checks:
         mark = "OK  " if c["ok"] else ("FAIL" if c["severity"] == "fail" else "WARN")
         log(f"{mark} {c['name']}: {c['value'] if not isinstance(c['value'], list) else str(c['value'])[:120]}"

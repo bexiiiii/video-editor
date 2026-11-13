@@ -292,7 +292,7 @@
   RSX.stat = function (container, props, tl, at) {
     const s = el("div", "rsx rsx-stat", container), w = props.width || 760;
     s.style.width = w + "px";
-    if (!props.flow) abs(s, props.x ?? 160, props.y ?? 960);
+    if (!props.flow) abs(s, props.x ?? Math.round((1080 - w) / 2), props.y ?? 960); // centred for any width
     const top = el("div", "top", s);
     if (props.emoji) el("span", "emo", top).textContent = props.emoji;
     el("span", null, top).textContent = props.title || "";
@@ -423,7 +423,7 @@
   RSX.checks = function (container, props, tl, at) {
     const list = el("div", "rsx rsx-checks" + (props.dark ? " dark" : ""), container);
     if (props.width) list.style.width = props.width + "px";
-    if (!props.flow) abs(list, props.x ?? 145, props.y ?? 700);
+    if (!props.flow) abs(list, props.x ?? Math.round((1080 - (props.width || 790)) / 2), props.y ?? 700); // centred for any width
     list.rows = (props.rows || []).map((r) => {
       const row = el("div", "row", list), c = el("div", "c", row), fb = el("b", null, c);
       c.insertAdjacentHTML("beforeend", CHECK("#fff", 3.6));
@@ -440,10 +440,14 @@
 
   /** White label pill typed on a phone ("Text" → " hook", Dd3Uz4Mgbn- 12.9 s): 122 px r30 #F3F3F3, 90 px medium. @param {{parts:Array<{text,at}>, y?, cx?, cps?}} props */
   RSX.label = function (container, props, tl, at) {
-    const p = el("div", "rsx rsx-label", container), spans = [];
-    (props.parts || []).forEach((part) => [...part.text].forEach((ch, i) => { const s = el("span", "c", p); s.textContent = ch === " " ? " " : ch; spans.push({ s, t: part.at + i / (props.cps ?? 22) }); }));
-    abs(p, 0, props.y ?? 934); p.style.left = Math.round((props.cx ?? 540) - p.offsetWidth / 2) + "px";
-    tl.fromTo(p, { opacity: 0, scaleX: 0.6 }, { opacity: 1, scaleX: 1, duration: 0.2, ease: "back.out(1.4)" }, at);
+    // centred with CSS on a full-width row (not from a pre-font offsetWidth measurement, which drifted off-centre)
+    const cx = props.cx ?? 540, half = Math.min(cx, 1080 - cx);
+    const row = abs(el("div", "rsx", container), cx - half, props.y ?? 934);
+    Object.assign(row.style, { width: 2 * half + "px", display: "flex", justifyContent: "center" });
+    const p = el("div", "rsx rsx-label", row), spans = [];
+    p.style.position = "relative";
+    (props.parts || []).forEach((part) => [...part.text].forEach((ch, i) => { const s = el("span", "c", p); s.textContent = ch === " " ? " " : ch; spans.push({ s, t: part.at + i / (props.cps ?? 22) }); }));
+    tl.fromTo(p, { opacity: 0, scaleX: 0.6 }, { opacity: 1, scaleX: 1, duration: 0.25, ease: "back.out(1.4)" }, at);
     spans.forEach(({ s, t }) => tl.fromTo(s, { opacity: 0 }, { opacity: 1, duration: 0.03, ease: "none" }, t));
     return p;
   };

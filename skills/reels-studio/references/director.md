@@ -1,11 +1,14 @@
 # Director guide — turning a transcript into `plan/scenes.json`
 
 Input: `audio/transcript.json` (final timeline), `brief.json`, the style reference. Output: `plan/scenes.json` (contracts.md).
+The transcript must come from forced-language ASR with word timestamps — ElevenLabs Scribe v2 or whisper `large-v3`
+(`asr.py`, default model). `small`/`base` whisper models are for pipeline tests only: their word times drift and the
+caption track and every reveal inherit the error.
 
 ## 1. Beat the speech
 1. Split into sentences (already in transcript). Merge sentences shorter than 2.5 s with a neighbour; split sentences longer than 5 s at the largest internal pause.
 2. Target scene length **3.4–4.2 s** (A) / **3.5–5 s** (B, components build up inside a scene). Never < 1.8 s except the hook flash.
-3. Scene boundary = middle of the pause before the sentence's first word. The transition starts ~half its duration before that word.
+3. Scene boundary = middle of the pause before the sentence's first word. Every boundary gets a transition drawn by the assembler (contracts.md → "Transitions"): set `transition_in` {type, dur 0.35–0.6} on the incoming scene or leave the style default (A/D blur-drift, B/C dissolve, E blur-swap); `cut` only at the hook. The outgoing layer stays visible up to ~0.5 s past the boundary — keep boundaries in breath pauses.
 4. The **hook** is the first 1–3 s: it must state the tension (question, number, "POV", contrast). If the transcript's first sentence is weak, flag it to the user with 2 alternative hook lines.
 5. The **CTA** scene is the last one; video ends ≤ 0.5 s after the last word (loops on Reels).
 
@@ -27,7 +30,7 @@ Input: `audio/transcript.json` (final timeline), `brief.json`, the style referen
 ## 3b. Visual per scene
 - A: one hero 3D object per scene (generated, transparent) OR a glass/UI card OR a screenshot frame. Alternate dark/light themes; accent backgrounds for hook and payoff scenes only (≤ 3 per video).
 - B: one component per beat from `components.md` (card, capsule, player, ring, counter, calendar, notification, selection highlight, typing dots, profile card…). Theme flips per chapter: light → dark → blue ("masalan / for example" moments) → light. Chapter changes advance the page dots.
-- Talking head (`head` / `head_overlay`): punch-in 1.0 ↔ 1.12 on cuts every 3–5 s; overlays only in the chest band (y 880–1460); B portal or glitch transition between head and motion.
+- Talking head (`head` / `head_overlay`): punch-in 1.0 ↔ 1.12 on cuts every 3–5 s; overlays only in the chest band (y 880–1460); head ↔ motion transitions come from the assembler (A/D blur-drift or whip, B/C dissolve or portal, E blur-swap). The literal caption track (`brief.captions` "auto") is added by the assembler — never plan subtitles inside scenes; keep scene text out of the caption band y 1400–1520 in head scenes.
 
 ## 4. Asset prompts (`assets[]`)
 - Append the niche preset's `art_direction` words (`assets/niches.json`) to every prompt, plus the brand colours as the dominant accent of the object; same words for every image of the reel.
@@ -36,7 +39,7 @@ Input: `audio/transcript.json` (final timeline), `brief.json`, the style referen
 - Screenshots / screen recordings / logos / photos / real proof: add them to `plan/materials.json` and request them from the client (`materials.md`); scenes reference `input/<id>_*.png|mp4`. Never fabricate real metrics or real brands' UI as genuine.
 
 ## 5. Sound cues
-Per `audio-policy.md`. A: none. B: `click`/`tap` on every interactive component, `tick` on counters, `boom_sub` on portal, `notification` on banners; music starts after the hook.
+Per `audio-policy.md`. Default profile `energetic` (all styles): write the cues that carry meaning (a `tap` on the exact cursor tap, `notification` on a banner, `impact_soft` on the punchline word, `riser_1s` ending on the reveal); `sfx_plan.py` then fills the rest — whoosh on every transition, `pop_bright` on hero entrances, `tick` on counters — under a density guard (≥ 0.6 s apart, ≤ 1 per 1.5 s) and never removes your cues. Mark a scene `"statement": true` / `"punchline": true` to get an impact / riser. Music runs under the whole piece (`audio.music.start: 0`). Profile `reference` only: A/D none; B `click`/`tap` on interactive components, `tick` on counters, `boom_sub` on portal, `notification` on banners, music after the hook.
 
 ## 6. Checklist before writing the file
 - Scenes tile [0, duration] with no gaps/overlaps; ids `s01…`.

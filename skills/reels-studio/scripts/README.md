@@ -11,15 +11,21 @@ when present, else `python3`). API keys come from the environment or `./.env` in
 ## Layout
 ```
 doctor.py            environment check -> env.json
-asr.py tts.py cleanup.py music.py music_local.py   thin CLI wrappers for providers/*.py
+asr.py tts.py cleanup.py music.py music_local.py music_search.py   thin CLI wrappers for providers/*.py
 providers/common.py  .env, urllib HTTP + multipart, ffmpeg helpers, transcript building, env.json
 providers/asr.py     ElevenLabs Scribe v2 -> OpenAI whisper-1 -> mlx-whisper -> faster-whisper
 providers/tts.py     ElevenLabs v3 -> Gemini -> Yandex v3 -> Azure -> edge-tts (+ASR timing fallback)
-providers/cleanup.py (ElevenLabs Isolator) -> DeepFilterNet 3 -> ffmpeg chain
-providers/music.py   ElevenLabs Music -> Lyria (opt-in) -> music_local
+providers/cleanup.py (ElevenLabs Isolator) -> DeepFilterNet 3 (atten-lim ladder) -> ffmpeg afftdn ladder; guard + −16 LUFS speech-gated
+providers/music.py   input/music.* -> music_search (Openverse/Jamendo) -> ElevenLabs Music -> Lyria (opt-in) -> music_local
+providers/music_search.py  internet music search, licence filter, librosa ranking, downbeat fit, CREDITS.txt
+providers/audio_meter.py   BS.1770 meter: speech-gated / masked loudness, short-term curve, true peak
 providers/music_local.py  procedural beds: soft-subbass | upbeat | tense
 sfx_kit.py           regenerates assets/sfx/*.wav (CC0)
-mix.py               voice + ducked music + SFX -> audio/mix.wav, -14 LUFS / -1 dBTP
+sfx_plan.py          auto SFX cues (transitions, entrances, UI, counters, riser, impact) -> scenes[].sfx
+mix.py               voice-relative mix (music 9–12 dB under speech, 4–6 dB in pauses) + SFX -> audio/mix.wav, -14 LUFS / -1 dBTP
+qa_audio.py          audio QA checks (gap, music in pauses, voice level, SFX, clipping); used by qa.py
+captions.py          caption track planner (transcript -> 1–4-word phrases, word reveal at onset − 0.03 s); used by assemble.py/qa.py
+lint_scenes.py       static "no sudden appearances" linter for scenes/*/index.html (run by assemble.py, warnings only)
 ```
 
 ## Usage
@@ -56,12 +62,13 @@ scripts/run mix.py --work work/my-reel   # prints measured LUFS / dBTP
   Stock voices: ru-RU-SvetlanaNeural/DmitryNeural, uz-UZ-MadinaNeural/SardorNeural,
   kk-KZ-AigulNeural/DauletNeural (verified with `edge-tts --list-voices`).
 - **faster-whisper** gets an ffmpeg-decoded float32 array (its PyAV decode fails on Python 3.14).
-- **mix.py** gain-stages stems by loudness (voice −16 LUFS, music −24 LUFS + `music.gain_db`),
-  ducks music by exactly `duck_db` under speech (RMS sidechain, 60 ms look-ahead, 40/350 ms
-  attack/release), SFX bus at `audio.sfx_gain_db` (default −6) + per-cue `gain_db`, then limits
-  and runs two-pass `loudnorm` in linear mode. The LRA target is relaxed to the measured LRA
-  so loudnorm never falls back to dynamic mode (short reels with pauses measure LRA 8–13).
-  Style A (music disabled, no SFX) is a voice-only master. Also writes `audio/sfx.wav`.
+- **mix.py** normalises the voice to −16 LUFS speech-gated (as dual-mono in the stereo mix),
+  high-passes the music at 60 Hz with a mild presence lift, and sets its level closed-loop
+  relative to the voice: `gap_speech_db` (10) under speech, `gap_pause_db` (5) in pauses, with a
+  150/400 ms attack/release envelope (200 ms look-ahead). SFX are peak-levelled 6–10 dB below the
+  voice peaks (+ `audio.sfx_gain_db` + per-cue `gain_db`). Then limit + two-pass linear `loudnorm`.
+  Writes `audio/mix_report.json`, `audio/music_bed.wav`, `audio/sfx.wav` (stems at final level);
+  exit 3 when the gap leaves 7–16 dB or the voice in the master is > 2 dB off −14 LUFS.
 - SFX lookup: `work/<slug>/assets/sfx/<name>.wav` (custom one-offs) before the bundled kit;
   a cue may also give `"file": "path.wav"`. Unknown names are skipped with a warning.
 - Env overrides: `ELEVENLABS_TTS_MODEL` (default `eleven_v3`), `ELEVENLABS_MUSIC_MODEL`

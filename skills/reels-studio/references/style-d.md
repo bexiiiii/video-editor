@@ -23,8 +23,12 @@ element every 0.8–1 s. Hook = head with keyword; ending = A bookmark "сохр
   - `zone:"upper"` — only when the face sits low in the take: headline centred at y 390 (block y 230–520), caption ≈ 548.
   Text never covers the face or eyes.
 - **Readability:** a soft dark gradient scrim (A dark `#0B0D0D`, 0.78 → 0 over the lower 52 % or upper 38 %) + A's halo
-  exception for text over photos. **No boxes, no karaoke subtitles** — A uses keywords (headline = summary, caption =
-  second fragment).
+  exception for text over photos. **No boxes.** Keywords stay A (headline = summary).
+- **Literal subtitles (client feedback: "too few, late"):** with `brief.captions` "auto" (default) the assembler adds a
+  continuous caption track over every head segment (contracts.md → "Caption track"): A typography (Google Sans 600,
+  lowercase, white, soft shadow), 1–4 words, centre y 1470, each word visible at its onset − 0.03 s. RSD then lifts the
+  lower-zone keyword headline to y 1255 and drops the grey A caption (no duplicate text); `below` components move up
+  50 px. Scenes never build subtitles themselves.
 - **Components beside / below the face** (`head-side`): one A component per segment — 3D hero object (≈ 35–45 % of
   frame width, default 400 px, at the torso side x 820/260, y ≈ 1000, or below the chin y ≈ 1045), number roll, glass
   pill, chip, keyword pill, selection, glass card. Entries are A's (pop, side-slide with motion blur, rise, drop).
@@ -42,12 +46,14 @@ Google Sans Flex (fallback Google Sans → Cyrillic), headline 74 px / 600 / lh 
 typewriter ~24 cps with per-char blur (over footage a lighter grey `#C9CCCC` for contrast). Hero number 106 px / 500.
 
 ## 5. Transitions
-head ↔ insert and insert ↔ insert = A **blur-drift** (0.28 s) or **whip** (150 ms out + 400 ms expo settle with
-directional motion blur); A `lum` for dark ↔ light; one hard cut allowed at the hook. Transitions sit on the next
-sentence onset; clips overlap per `RSA.transitionWindow` (start tc − 0.25, end tc + 0.15).
+head ↔ insert and insert ↔ insert = A **blur-drift** (default) or **whip** (`transition_in.type`), drawn by the
+assembler on the root timeline (contracts.md → "Transitions"): overlap 0.35–0.6 s, the outgoing layer drifts/whips out
+with blur on top while the insert's own A entrance plays underneath; an incoming head clip starts ov/2 early and
+settles from scale 1.06 + blur — the footage never freezes. One hard cut (`"cut"`) allowed at the hook. Boundaries sit
+in the breath pause before the next sentence. Inside a single composition (demos) use `RSD.tx` / `RSA.transition`.
 
 ## 6. Audio — same as A
-Voice only, dry, −14 LUFS. **No music, no SFX.**
+Default `energetic` profile: cleaned voice dominant, audible music bed and SFX (`audio-policy.md`). The `reference` profile keeps it voice only, dry, −14 LUFS, with no music and no SFX, as in style A's references.
 
 ## 7. Assembled runs
 Assembler loads packs **a → d** (`tokens-a.css`, `a.js`, `tokens-d.css`, `d.js`). Head scenes are `kind:"head_overlay"`:
@@ -55,6 +61,6 @@ head.mp4 plays underneath, the scene uses `footage:{transparent:true}` (scrim + 
 from `edit/cuts.json`. Inserts are `kind:"motion"`.
 
 ## 8. Pitfalls
-Text over the face/eyes · subtitles instead of keywords · boxes behind text · uppercase/bold restyles · music or
+Text over the face/eyes · subtitles built inside scenes (the assembler owns the caption track) · keyword headlines replaced by subtitles · boxes behind text · uppercase/bold restyles · music or
 whooshes · lens blur / glitch / glow-widget gimmicks (that is the RSX pack, not D) · tiny hero objects in inserts
 (< 46 % width) · drawn people · the reference creator's name instead of `brief.cta`.

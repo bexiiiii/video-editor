@@ -231,8 +231,42 @@ def success(rng):
     return norm(echo(out, 0.1, 0.18, 2), 0.32)
 
 
+def whoosh_long(rng):
+    """Airy transition whoosh with body: noise sweeps up 250 -> 5000 Hz over 0.55 s."""
+    n = int(0.55 * SR)
+    shape = np.sin(np.linspace(0, np.pi, n)) ** 1.3
+    body = sweep(n, 250, 5000, 1.2, rng) * shape
+    air = filt(rng.standard_normal(n), "high", 4000) * shape ** 3 * 0.15
+    return norm(body + air, 0.5)
+
+
+def whoosh_air(rng):
+    """Soft falling swish 6 kHz -> 600 Hz (scene-to-scene, gentle)."""
+    n = int(0.45 * SR)
+    shape = np.sin(np.linspace(0, np.pi, n)) ** 1.6
+    return norm(sweep(n, 6000, 600, 0.8, rng) * shape, 0.42)
+
+
+def impact_soft(rng):
+    """Statement hit that still reads on phone speakers: 90 Hz thump + 350 Hz body + transient."""
+    t = T(0.6)
+    sub = fsine(90 * (1 + 0.8 * np.exp(-t * 25))) * env(len(t), 0.002, 0.35, 3)
+    bodyt = np.sin(2 * np.pi * 350 * t) * env(len(t), 0.001, 0.12, 4) * 0.5
+    hit = filt(rng.standard_normal(len(t)), "low", 2500) * env(len(t), 0.0005, 0.03, 5) * 0.6
+    return norm(np.tanh(1.6 * (sub + bodyt + hit)), 0.7)
+
+
+def pop_bright(rng):
+    """Bubbly entrance pop (higher than `pop`, cuts through on phones)."""
+    t = T(0.15)
+    x = fsine(600 + 800 * np.exp(-t * 40)) * env(len(t), 0.001, 0.05, 3)
+    x += filt(rng.standard_normal(len(t)), "high", 4000) * env(len(t), 0.0003, 0.004, 5) * 0.25
+    return norm(x, 0.5)
+
+
 KIT = [click, tick, tap, pop, whoosh_short, whip, swoosh_up, swoosh_down, boom_sub, glitch,
-       shutter, chime, notification, typing_loop, riser_1s, bass_hit, success]
+       shutter, chime, notification, typing_loop, riser_1s, bass_hit, success,
+       whoosh_long, whoosh_air, impact_soft, pop_bright]   # new sounds go at the END (seeds = index)
 
 
 def write(path: Path, x: np.ndarray) -> None:

@@ -6,10 +6,17 @@
   - Same id for: template root data-composition-id, host slot, window.__timelines key.
   - Root-relative asset URLs: assets/img/<asset_id>.png  (no "../").
   - Local time 0 = scene.start → every time below = global time − scene.start.
-  - data-duration = (end − start) + incoming overlap of the NEXT scene's transition (e.g. +0.5 for a B dissolve).
+  - data-duration = end − start. Transitions between scenes (head ↔ motion too) are drawn by the ASSEMBLER on the root
+    timeline (it extends this host to cover the overlap) — do not fake one with an instant full-screen background.
+  - NO SUDDEN APPEARANCES: every element gets an eased entrance ≥ 0.25 s (blur / fade / scale / rise per style),
+    staggered 0.06–0.15 s; nothing visible at local 0 without animation except plates (page/layer/background/chrome);
+    no tl.set(…{opacity:1}) pop-ins; text never visible before its word (t ≥ onset − 0.08, never < 0).
+    Lib builders (RSA/RSB/RSC/RSD/RSE/RSX) already do this; hand-made nodes need their own tl.fromTo.
+    scripts/lint_scenes.py (run by assemble.py) flags violations.
+  - Talking-head scenes: do not build subtitles — the assembler adds the literal caption track (lower third y 1250–1500).
 -->
 <template>
-  <div id="S_ID" data-composition-id="S_ID" data-width="1080" data-height="1920" data-duration="4.58">
+  <div id="S_ID" data-composition-id="S_ID" data-width="1080" data-height="1920" data-duration="4.08">
     <style>
       #S_ID { position: absolute; inset: 0; overflow: hidden; }
     </style>

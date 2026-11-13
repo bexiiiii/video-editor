@@ -32,6 +32,10 @@
     left: { x: 260, y: 1000 },
   };
   RSD.ZONE = ZONE; RSD.SIDE = SIDE;
+  /** Assembler caption track (references/contracts.md "Caption track"): window.RS_CAPTIONS = {on, y, ranges}. */
+  const captionsOn = () => !!(window.RS_CAPTIONS && window.RS_CAPTIONS.on);
+  const CAPTION_HEAD_Y = 1255;     // headline block ≈ 1175–1335, subtitles 1440–1500 below it
+  RSD.captionsOn = captionsOn;
   const HERO_SHARED = 400;          // ≈ 37 % of 1080 (35–45 % when sharing the frame with the head)
   const HERO_INSERT = 500;          // A insert hero: 46–60 % of frame width (layouts.md §1; Dej ≈ 520)
 
@@ -120,12 +124,18 @@
    * @param {{text, words?, zone?:'lower'|'upper', y?:number, pills?:string[], size?:number}} props  (RSA.headline props)
    */
   RSD.headline = function (container, props, tl, at) {
-    const z = ZONE[props.zone || "lower"];
-    return RSA.headline(container, Object.assign({ halo: true }, props, { y: props.y ?? z.head }), tl, at);
+    const zn = props.zone || "lower", z = ZONE[zn];
+    // assembled caption track on (window.RS_CAPTIONS, lower third y ≈ 1470): lift the lower-zone headline above it
+    const y = props.y ?? (zn === "lower" && captionsOn() ? CAPTION_HEAD_Y : z.head);
+    return RSA.headline(container, Object.assign({ halo: true }, props, { y }), tl, at);
   };
-  /** A grey typewriter caption under the zone headline. */
+  /** A grey typewriter caption under the zone headline. With the assembled caption track on, the literal subtitles
+   *  replace it in the lower zone (no duplicate text) — returns an empty, hidden element. */
   RSD.caption = function (container, props, tl, at) {
-    const z = ZONE[props.zone || "lower"];
+    const zn = props.zone || "lower", z = ZONE[zn];
+    if (zn === "lower" && props.y == null && captionsOn()) {
+      const n = el("div", "rsd-caption-off", container); n.style.display = "none"; return n;
+    }
     return RSA.caption(container, Object.assign({}, props, { y: props.y ?? z.caption }), tl, at);
   };
 
@@ -136,8 +146,9 @@
    */
   RSD.component = function (container, spec, tl, at) {
     const pos = SIDE[spec.side || "below"];
-    const p = Object.assign({ x: pos.x, y: pos.y }, spec);
-    if (spec.type === "hero" && p.size == null) p.size = HERO_SHARED;
+    const lift = captionsOn() && (spec.side || "below") === "below" ? 50 : 0;   // keep clear of the lifted headline
+    const p = Object.assign({ x: pos.x, y: pos.y - lift }, spec);
+    if (spec.type === "hero" && p.size == null) p.size = lift ? HERO_SHARED - 40 : HERO_SHARED;
     const fn = RSA[spec.type];
     if (!fn) throw new Error(`RSD.component: unknown RSA builder "${spec.type}"`);
     return fn(container, p, tl, spec.at ?? at);

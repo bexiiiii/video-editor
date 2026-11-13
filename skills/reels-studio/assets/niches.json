@@ -4,7 +4,7 @@
   "conventions": {
     "palette": "Used ONLY when brief.brand has no colours (brand colours always win). accent = text, strokes, active dots, number highlights: >= 3:1 against both #FBFDFD (light) and #0B0D0D (dark). accent2 = fills/highlights/pills with ink #101011 on top: >= 4.5:1 against the ink. Never put body text in accent2 on a light page.",
     "art_direction": "art_direction.append is appended to EVERY generated image prompt of the video after the style's base prompt (director.md §4). props = hero-object candidates; avoid = never in the prompt.",
-    "music": "Applies only to styles with music (B, C, E). Styles A and D are voice-only regardless of niche. audio-policy.md always wins (B/C: bed only under graphics, never under the hook; 99–117 BPM; E: sub-bass pad under everything).",
+    "music": "mood + bpm seed the internet music search (music_search.py) for EVERY style under the default audio_profile \"energetic\"; sub-bass words are ignored in the query and sub-bass-only tracks are rejected (inaudible on phones). voice_only_when applies only to audio_profile \"reference\" (or a sensitive topic the client confirms). audio-policy.md always wins.",
     "hooks": "Examples of the pattern, not copy to paste: replace every number/name with the client's real ones, or drop the number."
   },
   "niches": {

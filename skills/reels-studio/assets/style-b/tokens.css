@@ -171,7 +171,8 @@
 .rsb-second { font-size: var(--rsb-fs-second); font-weight: 700; line-height: 1.15; letter-spacing: -0.025em; color: var(--rsb-ink); }
 .rsb-callout { font-size: 54px; font-weight: 600; line-height: 1.2; letter-spacing: -0.02em; color: var(--rsb-ink); }
 .rsb-line .hl-blue { color: var(--rsb-blue-2); }
-.rsb-line .emo-sup { display: inline-block; font-size: .62em; vertical-align: top; margin-left: 18px; transform-origin: 0 100%; }
+/* the emoji sits OUTSIDE the line box (absolute) so the words stay optically centred on x 540 */
+.rsb-line .emo-sup { position: absolute; left: 100%; top: 0; display: inline-block; font-size: .62em; margin-left: 18px; transform-origin: 0 100%; }
 
 /* =====================================================================
  * Cards

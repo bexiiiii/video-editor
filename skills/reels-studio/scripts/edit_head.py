@@ -435,12 +435,13 @@ def main() -> None:
 
     # audio source: cleaned voice if it matches the source length, else the footage audio
     audio_src = None
-    for cand in (voice_src_p, voice_p):
+    for cand in (voice_src_p, audio_d / "voice_src.wav", voice_p):     # voice_src.wav: legacy name
         if cand.is_file() and abs(media_duration(cand) - src_dur) < 0.5:
             audio_src = cand
             break
     if audio_src is None:
-        log("using footage audio (no audio/voice.wav matching the source timeline)")
+        log("WARNING: using RAW footage audio — the voice is NOT cleaned. Run "
+            "providers/cleanup.py <take> --out audio/voice.source.wav first.")
         audio_src = source
     elif audio_src == voice_p:
         shutil.copy2(voice_p, voice_src_p)
