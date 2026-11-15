@@ -23,6 +23,8 @@ import { spawn } from "node:child_process";
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { lookup } from "node:dns/promises";
+import { isIP } from "node:net";
 
 const A = {};
 for (let i = 2; i < process.argv.length; i++) {
@@ -43,6 +45,44 @@ const DESKTOP_UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/
 const MOBILE_UA = "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Mobile Safari/537.36";
 
 const PRIVATE = /^(localhost|.*\.local|.*\.internal|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|169\.254\.|0\.|\[?::1\]?|\[?f[cd]|\[?fe80)/i;
+
+// Network policy, enforced INSIDE Chrome for every request (document, redirects, subresources):
+// https only, and every address the host resolves to must be public. The page itself is untrusted
+// (it can redirect or embed anything), so checking only the initial URL is not enough.
+function publicIp(ip) {
+  if (isIP(ip) === 4) {
+    const [a, b] = ip.split(".").map(Number);
+    return !(a === 0 || a === 10 || a === 127 || a >= 224 || (a === 100 && b >= 64 && b <= 127) ||
+      (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) ||
+      (a === 192 && b === 0) || (a === 198 && (b === 18 || b === 19)));
+  }
+  const v = ip.toLowerCase();
+  const mapped = /^::ffff:(\d+\.\d+\.\d+\.\d+)$/.exec(v);
+  if (mapped) return publicIp(mapped[1]);
+  return !(v === "::" || v === "::1" || /^f[cd]/.test(v) || /^fe[89ab]/.test(v) || /^ff/.test(v) || v.startsWith("64:ff9b:"));
+}
+const hostVerdict = new Map();
+async function hostAllowed(host) {
+  host = host.replace(/^\[|\]$/g, "");
+  if (PRIVATE.test(host)) return false;
+  if (hostVerdict.has(host)) return hostVerdict.get(host);
+  let ok;
+  if (isIP(host)) ok = publicIp(host);
+  else {
+    try { const addrs = await lookup(host, { all: true }); ok = addrs.length > 0 && addrs.every((a) => publicIp(a.address)); }
+    catch { ok = false; }
+  }
+  hostVerdict.set(host, ok);
+  return ok;
+}
+async function urlAllowed(raw) {
+  let u; try { u = new URL(raw); } catch { return false; }
+  if (u.protocol === "data:" || u.protocol === "blob:") return true;          // no network
+  if (u.protocol === "file:") return !!A["allow-file"];
+  if (u.protocol !== "https:" && u.protocol !== "wss:") return false;
+  return hostAllowed(u.hostname);
+}
+if (url.protocol === "https:" && !(await urlAllowed(url.href))) die("URL host is not a public address", 5);
 
 const profile = mkdtempSync(join(tmpdir(), "rs-cap-"));
 const chrome = spawn(A.chrome, [
@@ -82,6 +122,18 @@ const evalJs = async (expr) => (await send("Runtime.evaluate", { expression: exp
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 await send("Page.enable"); await send("Runtime.enable");
+let mainFrameId = null, mainBlocked = null;
+const blocked = [];
+listeners.push(async (m) => {
+  if (m.method !== "Fetch.requestPaused") return;
+  const { requestId, request, resourceType, frameId } = m.params;
+  if (await urlAllowed(request.url)) { send("Fetch.continueRequest", { requestId }).catch(() => {}); return; }
+  blocked.push(request.url.slice(0, 120));
+  if (resourceType === "Document" && (!mainFrameId || frameId === mainFrameId)) mainBlocked = request.url;
+  send("Fetch.failRequest", { requestId, errorReason: "BlockedByClient" }).catch(() => {});
+});
+await send("Fetch.enable", { patterns: [{ urlPattern: "*", requestStage: "Request" }] });
+mainFrameId = (await send("Page.getFrameTree")).frameTree.frame.id;
 await send("Browser.setDownloadBehavior", { behavior: "deny" }).catch(() => {});
 await send("Emulation.setDeviceMetricsOverride", { width: W, height: H, deviceScaleFactor: DPR, mobile: !A.desktop });
 await send("Emulation.setUserAgentOverride", { userAgent: A.desktop ? DESKTOP_UA : MOBILE_UA, acceptLanguage: "ru-RU,kk-KZ;q=0.9,en;q=0.8" });
@@ -97,11 +149,19 @@ const t0 = Date.now();
 while (!loaded && Date.now() - t0 < TIMEOUT) await sleep(200);
 await sleep(1800);                                   // late layout, web fonts, lazy hero images
 
+if (mainBlocked) { cleanup(); die(`navigation to a non-public/non-https URL blocked: ${String(mainBlocked).slice(0, 80)}`, 5); }
 const finalUrl = await evalJs("location.href");
+const finalHost = (() => { try { return new URL(finalUrl).host; } catch { return ""; } })();
+// the page must stay on the same host for the whole capture (no JS navigation away mid-scroll)
+async function stillHere() {
+  if (mainBlocked) return false;
+  const now = await evalJs("location.href").catch(() => "");
+  try { const u = new URL(now); return u.host === finalHost && (await urlAllowed(u.href)); } catch { return false; }
+}
 try {
   const fu = new URL(finalUrl);
   if (!(fu.protocol === "https:" || (A["allow-file"] && fu.protocol === "file:"))) throw new Error("scheme");
-  if (fu.protocol === "https:" && PRIVATE.test(fu.hostname)) throw new Error("private host");
+  if (fu.protocol === "https:" && !(await urlAllowed(fu.href))) throw new Error("non-public host");
 } catch (e) { cleanup(); die(`final URL rejected (${e.message}): ${String(finalUrl).slice(0, 80)}`, 5); }
 
 // 1) trivial cookie / consent banner → one click on an obvious accept button, nothing else
@@ -147,6 +207,7 @@ const BLUR = `(() => {
 let blurred = (await evalJs(BLUR).catch(() => 0)) || 0;
 
 if (A.shot) {
+  if (!(await stillHere())) { cleanup(); die("page navigated away from the approved host", 5); }
   const r = await send("Page.captureScreenshot", { format: "png", captureBeyondViewport: true });
   writeFileSync(A.shot, Buffer.from(r.data, "base64"));
   clearTimeout(hard); cleanup(); process.exit(0);
@@ -164,10 +225,11 @@ for (let i = 0; i < N; i++) {
   await evalJs(`window.scrollTo(0, ${y})`);
   if (i % 20 === 10) blurred += (await evalJs(BLUR).catch(() => 0)) || 0;
   if (i === 0) await sleep(300);
+  if (!(await stillHere())) { cleanup(); die("page navigated away from the approved host during capture", 5); }
   const r = await send("Page.captureScreenshot", { format: "jpeg", quality: 90, fromSurface: true });
   writeFileSync(join(A.out, `f_${String(i).padStart(5, "0")}.jpg`), Buffer.from(r.data, "base64"));
 }
-writeFileSync(join(A.out, "meta.json"), JSON.stringify({ final_url: finalUrl, title, frames: N, fps: FPS, scroll_px: dist, page_height: pageH, viewport: [W, H, DPR], dismissed, blurred }, null, 1));
+writeFileSync(join(A.out, "meta.json"), JSON.stringify({ final_url: finalUrl, title, frames: N, fps: FPS, scroll_px: dist, page_height: pageH, viewport: [W, H, DPR], dismissed, blurred, blocked_requests: blocked.length }, null, 1));
 clearTimeout(hard);
 cleanup();
 process.exit(0);
