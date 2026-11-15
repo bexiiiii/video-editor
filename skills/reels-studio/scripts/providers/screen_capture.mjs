@@ -147,7 +147,7 @@ const profile = mkdtempSync(join(tmpdir(), "rs-cap-"));
 const chrome = spawn(A.chrome, [
   "--headless", "--remote-debugging-port=0", `--user-data-dir=${profile}`, "--no-first-run",
   "--no-default-browser-check", "--disable-extensions", "--mute-audio", "--hide-scrollbars",
-  "--disable-features=Translate,MediaRouter,WebRtcHideLocalIpsWithMdns", "--disable-quic", "--disable-background-networking",
+  "--disable-features=Translate,MediaRouter", "--disable-quic", "--disable-background-networking",
   "--force-webrtc-ip-handling-policy=disable_non_proxied_udp", "--webrtc-ip-handling-policy=disable_non_proxied_udp",
   `--proxy-server=http://127.0.0.1:${proxyPort}`, "--proxy-bypass-list=<-loopback>",
   "--host-resolver-rules=MAP * ~NOTFOUND , EXCLUDE 127.0.0.1",   // Chrome resolves nothing itself
