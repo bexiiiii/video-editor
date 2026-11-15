@@ -24,7 +24,8 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { lookup } from "node:dns/promises";
-import { isIP } from "node:net";
+import { isIP, connect as netConnect } from "node:net";
+import { createServer } from "node:http";
 
 const A = {};
 for (let i = 2; i < process.argv.length; i++) {
@@ -46,41 +47,99 @@ const MOBILE_UA = "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (
 
 const PRIVATE = /^(localhost|.*\.local|.*\.internal|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|169\.254\.|0\.|\[?::1\]?|\[?f[cd]|\[?fe80)/i;
 
-// Network policy, enforced INSIDE Chrome for every request (document, redirects, subresources):
-// https only, and every address the host resolves to must be public. The page itself is untrusted
-// (it can redirect or embed anything), so checking only the initial URL is not enough.
+// Network policy. The captured page is untrusted: it can redirect, navigate, embed, open WebSockets
+// or start workers. All of Chrome's traffic is forced through a local policy proxy that (1) accepts
+// only CONNECT tunnels to port 443 (https/wss), (2) resolves the host ONCE, requires every address
+// to be public, and (3) connects to that same vetted IP — so Chrome never resolves anything itself
+// and DNS rebinding cannot swap the address after the check. Plain-HTTP proxy requests are refused.
+
+/** Parse an IPv4/IPv6 literal into bytes (Uint8Array of 4 or 16) or null. Handles "::" and an
+ *  embedded dotted IPv4 tail (::ffff:1.2.3.4, 64:ff9b::1.2.3.4). Hex forms are parsed the same way. */
+function ipBytes(raw) {
+  const ip = raw.replace(/^\[|\]$/g, "").split("%")[0];
+  const fam = isIP(ip);
+  if (fam === 4) return Uint8Array.from(ip.split(".").map(Number));
+  if (fam !== 6) return null;
+  let s = ip, tail = [];
+  const m = /^(.*:)(\d+\.\d+\.\d+\.\d+)$/.exec(s);
+  if (m) {
+    const q = m[2].split(".").map(Number);
+    tail = [(q[0] << 8) | q[1], (q[2] << 8) | q[3]];
+    s = m[1].endsWith("::") ? m[1] : m[1].slice(0, -1);
+  }
+  const parts = s.split("::");
+  if (parts.length > 2) return null;
+  const grp = (x) => (x ? x.split(":").map((h) => (/^[0-9a-f]{1,4}$/i.test(h) ? parseInt(h, 16) : NaN)) : []);
+  const head = grp(parts[0]), rest = parts.length === 2 ? grp(parts[1]) : [];
+  const fill = 8 - head.length - rest.length - tail.length;
+  const groups = parts.length === 2 ? [...head, ...Array(Math.max(fill, 0)).fill(0), ...rest, ...tail] : [...head, ...tail];
+  if (groups.length !== 8 || groups.some((g) => Number.isNaN(g))) return null;
+  const out = new Uint8Array(16);
+  groups.forEach((g, i) => { out[2 * i] = g >> 8; out[2 * i + 1] = g & 255; });
+  return out;
+}
+function publicV4(b) {
+  const [a, c] = b;
+  return !(a === 0 || a === 10 || a === 127 || a >= 224 || (a === 100 && c >= 64 && c <= 127) ||
+    (a === 169 && c === 254) || (a === 172 && c >= 16 && c <= 31) || (a === 192 && c === 168) ||
+    (a === 192 && c === 0) || (a === 198 && (c === 18 || c === 19)) || (a === 192 && c === 88 && b[2] === 99));
+}
+/** Deny by default: only global unicast IPv4, and IPv6 2000::/3 minus documentation/6to4/Teredo
+ *  tunnels to private v4; IPv4-mapped/compatible/NAT64 forms are judged by their embedded IPv4. */
 function publicIp(ip) {
-  if (isIP(ip) === 4) {
-    const [a, b] = ip.split(".").map(Number);
-    return !(a === 0 || a === 10 || a === 127 || a >= 224 || (a === 100 && b >= 64 && b <= 127) ||
-      (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) ||
-      (a === 192 && b === 0) || (a === 198 && (b === 18 || b === 19)));
-  }
-  const v = ip.toLowerCase();
-  const mapped = /^::ffff:(\d+\.\d+\.\d+\.\d+)$/.exec(v);
-  if (mapped) return publicIp(mapped[1]);
-  return !(v === "::" || v === "::1" || /^f[cd]/.test(v) || /^fe[89ab]/.test(v) || /^ff/.test(v) || v.startsWith("64:ff9b:"));
+  const b = ipBytes(ip);
+  if (!b) return false;
+  if (b.length === 4) return publicV4(b);
+  const zero = (n) => b.slice(0, n).every((x) => x === 0);
+  if (zero(10) && b[10] === 0xff && b[11] === 0xff) return publicV4(b.slice(12));           // ::ffff:a.b.c.d / ::ffff:7f00:1
+  if (zero(12)) return false;                                                               // ::, ::1, ::a.b.c.d (deprecated compat)
+  if (b[0] === 0x00 && b[1] === 0x64 && b[2] === 0xff && b[3] === 0x9b) return publicV4(b.slice(12)); // 64:ff9b::/96 NAT64
+  if ((b[0] & 0xe0) !== 0x20) return false;                                                 // outside 2000::/3 (ULA fc00::/7, link-local, multicast…)
+  if (b[0] === 0x20 && b[1] === 0x01 && b[2] === 0x0d && b[3] === 0xb8) return false;       // 2001:db8::/32 documentation
+  if (b[0] === 0x20 && b[1] === 0x01 && b[2] === 0x00 && b[3] === 0x00) return false;       // 2001::/32 Teredo
+  if (b[0] === 0x20 && b[1] === 0x02) return publicV4(b.slice(2, 6));                       // 2002::/16 6to4
+  return true;
 }
-const hostVerdict = new Map();
-async function hostAllowed(host) {
+
+let blockedCount = 0;
+const blockedList = [];
+const block = (what) => { blockedCount++; if (blockedList.length < 20) blockedList.push(String(what).slice(0, 120)); };
+
+/** Resolve once and return a vetted public address (or null). */
+async function vettedAddress(host) {
   host = host.replace(/^\[|\]$/g, "");
-  if (PRIVATE.test(host)) return false;
-  if (hostVerdict.has(host)) return hostVerdict.get(host);
-  let ok;
-  if (isIP(host)) ok = publicIp(host);
-  else {
-    try { const addrs = await lookup(host, { all: true }); ok = addrs.length > 0 && addrs.every((a) => publicIp(a.address)); }
-    catch { ok = false; }
-  }
-  hostVerdict.set(host, ok);
-  return ok;
+  if (/^(localhost|.*\.localhost|.*\.local|.*\.internal)$/i.test(host)) return null;
+  if (isIP(host)) return publicIp(host) ? host : null;
+  try {
+    const addrs = await lookup(host, { all: true, verbatim: true });
+    if (!addrs.length || !addrs.every((a) => publicIp(a.address))) return null;
+    return addrs[0].address;
+  } catch { return null; }
 }
+
+const proxy = createServer((req, res) => { block(`plain-http ${req.url}`); res.writeHead(403); res.end(); });
+proxy.on("connect", async (req, client, head) => {
+  const m = /^\[?([^\]]+?)\]?:(\d+)$/.exec(req.url || "");
+  const host = m?.[1], port = Number(m?.[2]);
+  const ip = m && port === 443 ? await vettedAddress(host) : null;
+  if (!ip) { block(`connect ${req.url}`); client.end("HTTP/1.1 403 Forbidden\r\n\r\n"); return; }
+  const up = netConnect({ host: ip, port }, () => {
+    client.write("HTTP/1.1 200 Connection Established\r\n\r\n");
+    if (head?.length) up.write(head);
+    up.pipe(client); client.pipe(up);
+  });
+  const kill = () => { up.destroy(); client.destroy(); };
+  up.on("error", kill); client.on("error", kill);
+});
+const proxyPort = await new Promise((res) => proxy.listen(0, "127.0.0.1", () => res(proxy.address().port)));
+
 async function urlAllowed(raw) {
   let u; try { u = new URL(raw); } catch { return false; }
   if (u.protocol === "data:" || u.protocol === "blob:") return true;          // no network
   if (u.protocol === "file:") return !!A["allow-file"];
   if (u.protocol !== "https:" && u.protocol !== "wss:") return false;
-  return hostAllowed(u.hostname);
+  if (u.port && u.port !== "443") return false;
+  return (await vettedAddress(u.hostname)) !== null;
 }
 if (url.protocol === "https:" && !(await urlAllowed(url.href))) die("URL host is not a public address", 5);
 
@@ -88,10 +147,13 @@ const profile = mkdtempSync(join(tmpdir(), "rs-cap-"));
 const chrome = spawn(A.chrome, [
   "--headless", "--remote-debugging-port=0", `--user-data-dir=${profile}`, "--no-first-run",
   "--no-default-browser-check", "--disable-extensions", "--mute-audio", "--hide-scrollbars",
-  "--disable-features=Translate,MediaRouter", "about:blank",
+  "--disable-features=Translate,MediaRouter", "--disable-quic", "--disable-background-networking",
+  `--proxy-server=http://127.0.0.1:${proxyPort}`, "--proxy-bypass-list=<-loopback>",
+  "--host-resolver-rules=MAP * ~NOTFOUND , EXCLUDE 127.0.0.1",   // Chrome resolves nothing itself
+  "about:blank",
 ], { stdio: ["ignore", "ignore", "pipe"] });
 let cleaned = false;
-const cleanup = () => { if (cleaned) return; cleaned = true; try { chrome.kill("SIGKILL"); } catch {} try { rmSync(profile, { recursive: true, force: true }); } catch {} };
+const cleanup = () => { if (cleaned) return; cleaned = true; try { chrome.kill("SIGKILL"); } catch {} try { proxy.close(); } catch {} try { rmSync(profile, { recursive: true, force: true }); } catch {} };
 process.on("exit", cleanup);
 const hard = setTimeout(() => { cleanup(); die("hard timeout", 4); }, TIMEOUT + SECONDS * FPS * 1500 + 30000);
 
@@ -123,12 +185,11 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 await send("Page.enable"); await send("Runtime.enable");
 let mainFrameId = null, mainBlocked = null;
-const blocked = [];
 listeners.push(async (m) => {
   if (m.method !== "Fetch.requestPaused") return;
   const { requestId, request, resourceType, frameId } = m.params;
   if (await urlAllowed(request.url)) { send("Fetch.continueRequest", { requestId }).catch(() => {}); return; }
-  blocked.push(request.url.slice(0, 120));
+  block(request.url);
   if (resourceType === "Document" && (!mainFrameId || frameId === mainFrameId)) mainBlocked = request.url;
   send("Fetch.failRequest", { requestId, errorReason: "BlockedByClient" }).catch(() => {});
 });
@@ -229,7 +290,7 @@ for (let i = 0; i < N; i++) {
   const r = await send("Page.captureScreenshot", { format: "jpeg", quality: 90, fromSurface: true });
   writeFileSync(join(A.out, `f_${String(i).padStart(5, "0")}.jpg`), Buffer.from(r.data, "base64"));
 }
-writeFileSync(join(A.out, "meta.json"), JSON.stringify({ final_url: finalUrl, title, frames: N, fps: FPS, scroll_px: dist, page_height: pageH, viewport: [W, H, DPR], dismissed, blurred, blocked_requests: blocked.length }, null, 1));
+writeFileSync(join(A.out, "meta.json"), JSON.stringify({ final_url: finalUrl, title, frames: N, fps: FPS, scroll_px: dist, page_height: pageH, viewport: [W, H, DPR], dismissed, blurred, blocked_requests: blockedCount, blocked: blockedList }, null, 1));
 clearTimeout(hard);
 cleanup();
 process.exit(0);
