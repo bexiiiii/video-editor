@@ -11,13 +11,14 @@ when present, else `python3`). API keys come from the environment or `./.env` in
 ## Layout
 ```
 doctor.py            environment check -> env.json
-asr.py tts.py cleanup.py music.py music_local.py music_search.py   thin CLI wrappers for providers/*.py
+asr.py tts.py cleanup.py music.py music_local.py music_search.py broll.py   thin CLI wrappers for providers/*.py
 providers/common.py  .env, urllib HTTP + multipart, ffmpeg helpers, transcript building, env.json
 providers/asr.py     ElevenLabs Scribe v2 -> OpenAI whisper-1 -> mlx-whisper -> faster-whisper
 providers/tts.py     ElevenLabs v3 -> Gemini -> Yandex v3 -> Azure -> edge-tts (+ASR timing fallback)
 providers/cleanup.py (ElevenLabs Isolator) -> DeepFilterNet 3 (atten-lim ladder) -> ffmpeg afftdn ladder; guard + −16 LUFS speech-gated
 providers/music.py   input/music.* -> music_search (Openverse/Jamendo) -> ElevenLabs Music -> Lyria (opt-in) -> music_local
 providers/music_search.py  internet music search, licence filter, librosa ranking, downbeat fit, CREDITS.txt
+providers/broll.py   scene B-roll: client clip -> screen capture (screen_capture.mjs, HyperFrames Chrome, Node 22 CDP) -> Pexels/Pixabay/Wikimedia -> slot
 providers/audio_meter.py   BS.1770 meter: speech-gated / masked loudness, short-term curve, true peak
 providers/music_local.py  procedural beds: soft-subbass | upbeat | tense
 sfx_kit.py           regenerates assets/sfx/*.wav (CC0)

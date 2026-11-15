@@ -3,12 +3,12 @@
 > Teardown with frame-level numbers: `teardowns/style-f/tt_7632011473379790097.md`. Pack: `assets/style-f/` (global `RSF`, API in `components.md` → "Style F"). Audio: `audio-policy.md`. Layout, variety and anti-AI rules: `layouts.md` (binding).
 
 ## When to use
-Use it for expert / service talking heads that sell one clear idea per sentence: car and credit services, finance advice, personal brands, B2B services ("2 options", "the debt stays on you", "we find the buyer"). **Footage-first, always**: the base is the client's real talking-head video — the style needs footage (like D) and never draws people. Languages: kk / ru / uz with code-switching; Montserrat Alternates covers ә ғ қ ң ө ұ ү һ і and Uzbek oʻ gʻ.
+Use it for expert / service talking heads that sell one clear idea per sentence: car and credit services, finance advice, personal brands, B2B services ("2 options", "the debt stays on you", "we find the buyer"). **Footage-first, always**: the base is the client's real talking-head video — the style needs footage (like D) and never draws people. Languages: kk / ru / uz with code-switching; the kinetic face (Montserrat 800 + single-storey а) covers ә ғ қ ң ө ұ ү һ і and Uzbek oʻ gʻ natively.
 
 ## 1. Structure
 - **Head segments of ≈ 2.2 s** (median; 0.8–4.8) cut hard on word boundaries. One camera, **two framings**: wide 1.0 ↔ tight ≈ 1.4 about the face, alternating on every head cut; after an insert the head returns **wide**; tight segments are shorter (≈ 2.0 s vs 2.7 s).
 - **Two text layers that never overlap**: small literal captions on every head segment; a **kinetic stack** (huge mixed-size lowercase words) on the key phrase of a sentence (≈ 25 % of head time), during which the captions are muted.
-- **Inserts** (1.2–2.2 s, ≈ 1 every 8–10 s): flat white `#FCFCFC` (most) or salmon `#EEB596` page + one cut-out object + a stack; once per reel a **tilted full-bleed screen recording** of the real product/site with a stack on top.
+- **Inserts** (1.2–2.2 s, ≈ 1 every 8–10 s): flat white `#FCFCFC` (most) or salmon `#EEB596` page + one **generated glossy 3D object** (reels-art) standing on a stack; once per reel a **tilted full-bleed B-roll** — screen recording of the site/app the speaker names, or a stock clip — with a stack on top (`scenes[].broll`, `broll.md`).
 - **Hook**: the question stacks up word by word over the speaker's chest (words rise from below), then a hard cut to a white insert answering it ("2-ақ вариант бар!"). Visual question → answer in ≤ 3 s.
 - **Ending**: hard cut to a black "link below" card (white double chevron + 2 lines, one yellow word). No logo, no follow button.
 - Optional: one 3-frame **light-leak** flash over a cut that opens the closing argument.
@@ -17,32 +17,34 @@ Use it for expert / service talking heads that sell one clear idea per sentence:
 - **Footage**: the client's video, untouched grade (ref: warm dark interior, mustard wall `#89712A`, cool shadows `#506474`). No vignette, no grain, no scrim boxes.
 - **Kinetic colours**: white `#FCFCFC` · black `#000000` (on white / salmon) · **yellow `#FCF900`** (key word over footage, caption highlight; brand accent replaces it) · **red `#FC0000`** (negative / problem word) · dim white 62 % (trailing "…").
 - **Insert pages**: white `#FCFCFC`, salmon `#EEB596` (brand accent2 replaces it), end card `#000000`.
-- **Accent rule**: exactly one accent word or 2-word phrase per stack — yellow over footage (positive/neutral) or red (problem); red on white inserts; black on salmon.
+- **Accent rule**: **at most** one accent word or 2-word phrase per stack, and only where it carries meaning — many stacks have none. White inserts: plain black (red only for a rare negative word). Over footage: white, optionally one red problem word or one yellow key word. Over B-roll: white + one yellow word. Salmon: white + black.
 - Text shadow only on white type over footage: `0 2px 12px rgba(0,0,0,.35)`.
 - Column x 90–990 (ref stacks reach 97–990).
 
-## 3. Type scale (Montserrat Alternates 800, −0.06 em, lowercase)
+## 3. Type scale (kinetic face "RSF Kinetic" 800, −0.07 em, lowercase)
+Face = **Montserrat 800** for every glyph + only the single-storey **а / a** from Montserrat Alternates (tokens.css, `unicode-range`); x-height 0.542 em. Never Montserrat Alternates as a whole (m-shaped т / г: "саҒam"). Fit and candidates: teardown §3.
 
 | Role | Spec |
 |---|---|
-| **XL** | 240 px (x-height ≈ 130) — the punch word ("жаяу", "жарна", "бар!") |
-| **L** | 165 px (x-height 88) — the anchor line, usually the widest (750–860 px) |
-| **M** | 122 px (x-height 66) |
-| **S** | 90 px (x-height 48) — connective words tucked beside big ones |
+| **XXL** | 300 px (x-height 163) — one-word poster line ("тупо") |
+| **XL** | 240 px (x-height 130) — the punch word ("2-ақ", "бар!", "жарна") |
+| **L** | 160 px (x-height 86) — equal-size stacks over footage / B-roll |
+| **M** | 115 px (x-height 62) — the small word tucked under a big one ("вариант" = 0.48 × XL) |
+| **S** | 92 px (x-height 50) — connective words ("жіберу", "ретінде") |
 | Condensed headline (inserts) | Oswald 700, 232 px, cap ≈ 183, uppercase black ("2-ВАРИАНТ") |
 | Number (inserts) | keep-case digits 170 px + label 64 px above ("остаток / 2 000 000") |
 | **Small caption** | 800, **56 px** (x-height 31), line pitch 52, −0.03 em, white, highlight yellow, centred, ≤ 2 lines, box top y 1300 |
 | End card | 78 px lines, white + one yellow word; chevron 248×295 white |
 
-Stacks auto-fit to 900 px (all sizes scale together). The reference face is ≈ 12 % narrower than the substitute; −0.06 em tracking keeps line widths within ±4 %.
+Stacks auto-fit to 900 px (all sizes scale together). Inserts: big / small / big contrast; over footage and B-roll: mostly equal L lines.
 
 ## 4. Layout geometry (measured)
 - **Stack over the head**: centred on x 540, x-bands in **y 1050–1460** (centre 1255 = chest/lap), never over the face (face y 300–900 wide, 250–1000 tight). Hook ref: x-bands 1102–1190 / 1218–1287 / 1338–1409.
-- **Interlock**: next line's x-top = previous baseline + 0.17 × mean(font sizes), + 0.2 × next size when the next line has ascenders (б ё і һ, digits, ! ?). Descenders may kiss the next line.
-- **Alignment grammar**: one anchor line; others **left / right / centre against the anchor's edges** (e.g. L full · S left · XL right · S right). Mixed sizes may share a baseline ("ақша" M + "алады" S).
+- **Interlock (measured, teardown §4)**: next x-top = previous baseline + **min(0.12 × previous x-height, 16 px)** (ref 10–15 px); a line with ascenders (б і һ digits !) drops only until its ascender top sits **3 px** under the previous baseline (ref "бар!" б kisses "вариант"); descenders of the line above dig into the next line.
+- **Alignment grammar**: a **left-aligned block** whose bounding box is centred in frame; per-line nudges `dx` (indent / overhang ≈ 0.6–0.8 × x-height: ref "бар!" +104 px), `align:"right"` for a line that hangs off the right edge of the widest line, `rot` ≈ +3° on the small tucked line (ref "вариант"). Mixed sizes may share a baseline ("ақша" M + "алады" S). No two consecutive stacks with the same nudge pattern.
 - **Small caption**: box top 1300, x-band 1313–1343, second line 1365–1394.
-- **Inserts**: content block centred on y ≈ 960 (ref 648–1383 / 253–1286 / 500–1553 / 452–1503); object 380–520 px (circle 400–460); condensed headline top 500.
-- **Screen recording**: full-bleed, rotate −10°, rotateX 8°, scale 1.25 of an oversized plane, dim 20 %, scroll ≈ 60 px/s; stack centred on y 960.
+- **Inserts**: object(s) stand **directly on** the stack (gap 0, contact shadow behind the first line), block (object ∪ stack) centred on y ≈ 1015 (ref 648–1382); object height ≈ 0.45–0.5 × stack height (ref capsules 240 px over a 493 px stack; single objects 280–420 px; circle 400–460); condensed headline top 500.
+- **B-roll (`media`)**: full-bleed, rotate −10°, rotateX 8°, plane scale 1.8 for a produced clip (one listing card fills the width; 1.25 for a long screenshot), dim 20 %, the clip scrolls itself (`broll.py`, ≈ 225 px/s on screen) + plane drift 22 px/s and zoom 1 → 1.06; stack centred on y 960.
 
 ## 5. Layouts — `RSF.layout.<id>` mapped to the `layouts.md` catalogue
 
@@ -63,8 +65,8 @@ Variety: never two inserts in a row; alternate white and salmon only when there 
 `footage` (framings + labelled slot) · `stack` · `caption` · `insert` · `headline` · `object` · `broll` · `leak` · `cta` · `exit` · `layer` · `tx.swap`.
 
 - Stacks rewrite a sentence into ≤ 6 key words (keep the speaker's words; literal is best).
-- Objects are real cut-outs: product shot, app icon, brand logo the client supplied, b/w stock photo of a situation (eyes blurred), money/document props from `reels-art` (one consistent art direction). Missing → labelled slot.
-- The screen recording is the client's real site/app/listing (`materials.md`); missing → labelled slot.
+- Objects are real renders / cut-outs, never a labelled box in a delivered reel: every insert gets an `assets[]` entry for `reels-art` with the art direction **"glossy photoreal 3D <object>, studio light, white seamless background, soft shadow"** (+ niche/brand words, transparent PNG), or a client product shot / app icon / logo, or a b/w stock photo of a situation (eyes blurred). `RSF.object({src})` adds the soft contact shadow. Labelled slot only when generation failed (list it in the report).
+- B-roll: `scenes[].broll` → `scripts/run broll.py --work work/<slug>` → `broll/<scene>.mp4`, passed as a root-level `<video>` to `RSF.broll({node})` (`broll.md`); missing → labelled slot.
 
 ## 7. Motion
 - **Word reveal**: in place on the spoken onset (lead 0.04 s): opacity 0→1, blur 16→0, scale 1.05→1, **0.22 s power1.out** (5–6 frames). No slides, no bounce, no typewriter.
@@ -93,5 +95,6 @@ Variety: never two inserts in a row; alternate white and salmon only when there 
 - Punch 1.12 (reads as a mistake) instead of 1.35–1.5 (reads as a second camera); slow zooms instead of hard framing cuts.
 - Bouncy pops, slide-ins or typewriter on stack words; whoosh on every cut; a music bed in `reference`.
 - Text over the face; stacks below y 1470 (Reels UI) or above the chin.
-- A font without Kazakh glyphs (fallback mid-word on қ ғ ү ұ ө ә).
-- Demo deviation: the footage, objects and screen recording are labelled slots; the slot re-frames per segment to show the two-framing logic.
+- A font without Kazakh glyphs (fallback mid-word on қ ғ ү ұ ө ә); Montserrat Alternates' m-shaped т / г.
+- An accent colour in every stack; centred lines with even spacing; loose leading (gaps > 16 px between lines).
+- Demo deviation: the footage and screen recording are labelled slots (the slot re-frames per segment to show the two-framing logic); the insert object is a Fluent Emoji 3D PNG standing in for the reels-art render.

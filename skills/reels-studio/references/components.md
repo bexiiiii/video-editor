@@ -289,9 +289,9 @@ Known deviations: photos are labelled neutral slots (no material); Inter/Inter T
 
 ## Style F — "Kinetic Talking Head" (cinematic head + kinetic stacks) · `assets/style-f/`
 
-Files: `tokens.css` (Montserrat Alternates 800 + Oswald 700 via Google Fonts, colours, type scale, all component CSS, scoped to `.rsf`) · `lib.js` (global `RSF`, self-contained: GSAP + RS only) · `demo/` (27 s Kazakh "Link HR" reel, 11 beats / 7 layouts; run `demo/prepare.sh` first — copies runtime + F into `demo/lib/` with the assembler's names). Spec: `style-f.md`; teardown `teardowns/style-f/tt_7632011473379790097.md`.
+Files: `tokens.css` (kinetic face "RSF Kinetic A" = Montserrat 800 + single-storey а from Montserrat Alternates via `unicode-range`, + Oswald 700, Google Fonts, colours, type scale, all component CSS, scoped to `.rsf`) · `lib.js` (global `RSF`, self-contained: GSAP + RS only) · `demo/` (27 s Kazakh "Link HR" reel, 11 beats / 7 layouts; run `demo/prepare.sh` first — copies runtime + F into `demo/lib/` with the assembler's names). Spec: `style-f.md`; teardown `teardowns/style-f/tt_7632011473379790097.md`.
 Load order: CSS `tokens-f.css`; JS GSAP → `runtime.js` → `f.js` (assembler: style `f` → pack `f`, root bg `#000000`, hard cuts by default, caption track `CAP_STYLE["f"]`). Build inside `await RSF.ready()` (fonts incl. Kazakh glyphs; measures the face's x-height), register the timeline last.
-Every builder: `RSF.x(container, props, tl, at) → HTMLElement`; absolute local seconds; entrances `fromTo`, later states `RSF.ft`. Constants `RSF.M` (word 0.22 s blur 16 scale 1.05 power1.out lead 0.04 · rise 0.32 s +400 px · exit 0.28 s blur 18 · object 0.42 s 760 px · gap 0.17 / asc 0.2 · tight 1.4), `RSF.SIZE` (xl 240 · l 165 · m 122 · s 90), `RSF.STACK_CY` 1255, `RSF.CAP_TOP` 1300. Helpers: `RSF.wordIn`, `RSF.enter`, `RSF.exit`, `RSF.audit(root)` (stack metrics).
+Every builder: `RSF.x(container, props, tl, at) → HTMLElement`; absolute local seconds; entrances `fromTo`, later states `RSF.ft`. Constants `RSF.M` (word 0.22 s blur 16 scale 1.05 power1.out lead 0.04 · rise 0.32 s +400 px · exit 0.28 s blur 18 · object 0.42 s 760 px · gap 0.12 × prev x-height ≤ gapMax 16 · ascKiss 3 · tight 1.4), `RSF.SIZE` (xxl 300 · xl 240 · l 160 · m 115 · s 92), `RSF.FONT`, `RSF.STACK_CY` 1255, `RSF.CAP_TOP` 1300. Helpers: `RSF.wordIn`, `RSF.enter`, `RSF.exit`, `RSF.audit(root)` (stack metrics).
 Footage-only: the head is always real footage (`footage.node` framework `<video>`, `footage.src`, or `transparent:true` over the assembled head.mp4); otherwise a labelled slot. In assembled runs the framings come from `edit/cuts.json` (`edit_head.py --framing two-cam`, automatic for style F).
 
 ### Builders
@@ -299,12 +299,12 @@ Footage-only: the head is always real footage (`footage.node` framework `<video>
 |---|---|---|---|
 | `layer` | `kind head\|insert\|broll\|cta` | full-frame `.rsf` layer (white type gets the soft shadow over footage) | — |
 | `footage` | `node \| src \| transparent`, `framings[{at, scale, origin, drift, end}]`, `label, sub, badge` | talking-head base; framings = hard scale sets (1.0 wide ↔ 1.4 tight about 50 % 30 %), optional linear drift; labelled slot (face box + eye line + framing badge) that visibly re-frames | §1/§6 two framings |
-| `stack` | `lines[{text \| words[{w,t,role,color}], role xl\|l\|m\|s, color, size, align left\|right\|center, dx, gap, at, stagger}]`, `theme dark\|light\|salmon`, `cy \| top \| bottom`, `cx, maxW=900, enter blur\|rise, exitAt, keepCase, accent` | kinetic stack: per-word size roles + colours (`*word*` / `*two words*` = accent: yellow on footage, red on white, black on salmon), interlocking lines aligned to the anchor line, auto-fit 900 px, words blur in on their times; `.metrics` | §3/§4/§5A |
+| `stack` | `lines[{text \| words[{w,t,role,color}], role xxl\|xl\|l\|m\|s, color, size, align left(default)\|right\|center, dx, rot, gap, at, stagger, accent}]`, `theme dark\|light\|salmon`, `cy \| top (ink top) \| bottom (last baseline)`, `cx, maxW=900, enter blur\|rise, exitAt, keepCase, accent` | kinetic stack: per-word size roles + colours (`*word*` / `*two words*` = the one optional accent: yellow on footage, red on white, black on salmon; `accent:"red"` overrides), left-aligned block centred on `cx` with `dx` nudges / `rot` tilt, measured interlock (gap min(0.12·xh, 16 px), ascender kiss 3 px), auto-fit 900 px, words blur in on their times; `.metrics` (+ per-line `lines[]`) | §3/§4/§5A |
 | `caption` | `phrases[{text, at, end, hl[]}]`, `top`, `force` | small literal captions 56 px white, yellow highlight (`*w*` or `hl`), ≤ 2 lines (`/`), whole phrase on, hard swap; hidden when the assembler caption track is on | §5B/§7 |
 | `insert` | `bg white\|salmon\|black\|hex` | flat colour page (`.theme` light/salmon/dark) | §2 |
 | `headline` | `text, top=500, size=232, color` | condensed caps (Oswald 700, cap ≈ 183), shrink-to-fit, blur-in | §3 "2-ВАРИАНТ" |
-| `object` | `src \| node \| label,sub`, `w, h, x, y` (centre), `circle, bw, from top\|bottom\|blur, dist` | cut-out object, drops / rises 0.42 s with vertical motion blur; white circle mask; b/w photo; labelled slot | §5D |
-| `broll` | `node \| src \| label`, `rotate=-10, tiltX=8, scale=1.25, dim=.2, scroll=60, dur` | full-bleed screen recording on a tilted oversized plane, dimmed, slow scroll; labelled slot page | §5E |
+| `object` | `src \| node \| label,sub`, `w, h, x, y` (centre), `circle, bw, rotate, shadow=true, from top\|bottom\|blur, dist` | glossy 3D render / cut-out (reels-art PNG) with soft contact shadow, drops / rises 0.42 s with vertical motion blur; white circle mask; b/w photo; labelled slot only when missing | §5D |
+| `broll` | `node (broll.py clip as root <video>) \| src (long screenshot) \| label`, `rotate=-10, tiltX=8, scale=1.8 clip / 1.25 image, dim=.2, scroll=22 clip / 60 image, zoom=1.06, dur` | full-bleed B-roll on a tilted oversized plane, dimmed, drift + slow zoom (clip) or scroll (image); labelled slot page | §5E |
 | `leak` | — | 3-frame orange/white light leak over a cut | §5F |
 | `cta` | `lines, handle` | black card, white double chevron 248×295 (y 583), "төмендегі / *сілтемеге* өтіңіз" 78 px, optional handle | §5G |
 | `exit` / `tx.swap` | `at` | in-segment stack blur-out 0.28 s; `swap` returns the next start (+0.25 s clean) | §4 |
@@ -315,15 +315,16 @@ Footage-only: the head is always real footage (`footage.node` framework `<video>
 | `head` | `footage, caption?` | head with framings, captions only |
 | `head-side` (`headSide`) | `footage, stack \| stacks[]` | kinetic stack(s) over the chest (cy 1255), `exitAt` between stacks |
 | `insert-statement` (`insertStatement`) | `bg, headline?, stack` | colour page + headline (top 500) + stack (cy 960 / under the headline) |
-| `insert-object` (`insertObject`) | `bg, object, stack, above?` | colour page + cut-out (y 700) + stack under (+ stack above) |
-| `media` | `broll, stack` | tilted screen recording + stack (cy 960) |
+| `insert-object` (`insertObject`) | `bg, object \| objects[] (spread 230), stack, above?, cy=1015, gap=0` | colour page + object(s) standing directly on the stack, block centred on `cy` (+ stack above) |
+| `media` | `broll, stack` | tilted B-roll clip / screenshot / slot + stack (cy 960) |
 | `number` | `bg, label, value, valueAt, object?, stack?` | label + 170 px number + cut-out rising over it + stack |
 | `list` | `bg, headline, items[{n, text, at}]` | condensed headline + numbered kinetic lines (index in the accent colour) |
 | `cta` | `lines?, handle?` | end card |
 
 ### Verification (demo)
 Demo = 11 beats / 27 s, Kazakh, brand "Link HR" / "@linkhr": head-side (hook, rise) → insert-object (white) → head (W, captions) → head-side (T, 4-line interlock) → media (screen-rec slot) → head-side (W→T, stack blur-out → caption) → number (salmon, circle object) → head (W→T) → list (white, "3 ҚАДАМ") → head-side (W→T, light leak) → cta. 7 distinct layouts, 3 colour inserts + 1 B-roll; the footage slot re-frames 1.0 ↔ 1.4 per segment. `lint` 0 errors (2 density warnings for the single-file demo). Snapshots of every beat's final state measured against reference stills (`research/an/tt_7632011473379790097/cmp_ref_vs_demo.jpg`): hook x-bands 1097–1186 / 1236–1301 / 1347–1412 (ref 1102–1190 / 1218–1287 / 1338–1409; the larger 2nd gap is the ascender rule for "есебін"), L x-height 90 (ref 88), M 66 (ref 70), caption x-band 1316–1345 (ref 1313–1343), caption pitch 52 (=), end card chevron 248×295 at 583 (=). Rendered `demo/style-f-demo.mp4` (1080×1920, 30 fps, 27 s).
-Known deviations: footage / objects / screen recording are labelled slots; Montserrat Alternates vs the original narrower face (−0.06 em tracking); demo is silent (reference = voice only).
+v1.1 (client review): face switched to Montserrat 800 + single-storey а (Alternates' m-shaped т/г were wrong), stack grammar re-measured (teardown §4), insert s2 rebuilt on the reference composition — side-by-side vs ref 2.9 s: x-height 135 vs 130, line-1→2 gap 26 vs 15 (the breve of "й" triggers the ascender kiss), line-2→3 б kiss = (ref), stack ink 932–1427 vs 889–1382, first-line ink x 145–662 vs 205–717, 3rd-line indent +100 vs +104.
+Known deviations: footage / screen recording are labelled slots; the insert object is a Fluent Emoji 3D PNG (MIT) standing in for a reels-art render; demo is silent (reference = voice only).
 
 ## Technique pack "head-umar" (optional, any style) · `assets/techniques/head-umar.{css,js}` → global `RSX`
 

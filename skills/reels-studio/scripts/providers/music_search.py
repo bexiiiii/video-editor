@@ -478,7 +478,7 @@ def write_credits(work: Path, section: str, lines: list[str]) -> Path:
             elif cur:
                 sections[cur].append(ln)
     sections[section] = lines
-    out = ["# CREDITS — third-party audio in this reel. Lines marked CAPTION must be pasted into the",
+    out = ["# CREDITS — third-party audio and video in this reel. Lines marked CAPTION must be pasted into the",
            "# post caption (CC BY / CC BY-SA require attribution). CC0 / bundled kit need none.", ""]
     for name in ("music", "sfx", *[s for s in sections if s not in ("music", "sfx")]):
         if name in sections:

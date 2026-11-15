@@ -42,11 +42,13 @@ Show the user a compact scene table (time · text · visual · technique) and co
 
 ## 2b · Materials (ask the client — read `references/materials.md`)
 From the plan, list every real asset the reel needs — screenshots, screen recordings, logos, photos/B-roll, stats screenshots, footage, avatar, voice sample — with exact specs and the scene it serves, write `plan/materials.json`, and ask the client in ONE short numbered message (≤ 6 items, required/optional). Also ask up front at the brief stage if the topic obviously needs them (an app demo → screenshots/recording). Wait for the answer; save files to `input/`; missing items fall back to graphics and are listed in the final report. Never invent real metrics or a real company's UI.
+Scenes that show a named site/app or a generic place get `scenes[].broll` (screen URL or English stock query, `references/broll.md`); the client's own recording wins, the rest is produced automatically in step 3.
 
 ## 3 · Fan out (parallel workers)
 Write one `scenes/<id>/brief.json` per scene (format in contracts.md), then spawn in parallel:
 - **art** workers (skill `reels-art`) — one per scene that has `assets[]`; images land in `assets/img/`.
 - **scene-builder** workers (skill `reels-scene`) — one per motion scene; each writes `scenes/<id>/index.html` + `result.json` using only `$SKILL/assets/<style>/lib.js` components.
+- **B-roll** (you, in parallel): `$SKILL/scripts/run broll.py --work work/<slug>` → `broll/<id>.mp4` (client clip → screen capture of the named public page → Pexels/Pixabay/Wikimedia stock → slot; licences into `CREDITS.txt`). Generated video only via the ElevenLabs connector after approval. Give scene builders the clip path (`media/broll/<id>.mp4`) or "slot".
 - **sound** worker (skill `reels-sound`) — `music.py` (client track → internet search `music_search.py` → generators; top-3 in `audio/music_candidates.json`) + `sfx_plan.py` (auto SFX cues) + `mix.py` → `audio/mix.wav` (−14 LUFS / −1 dBTP, voice king, music 9–12 dB under it) + `qa_audio.py`.
 
 How to spawn (same contract on both hosts — workers read their brief, write only into their `out` dir, finish with `result.json`):
@@ -73,4 +75,4 @@ Send `renders/final.mp4` to the user with: length, style/mode/lang, providers us
 - Audio profile (`brief.audio_profile`, `references/audio-policy.md`): default `energetic` for every style — audible music + SFX, voice always king; `reference` (A/D voice only, B bed under graphics only…) only when the client asks for the purist look. Footage voice always goes through `cleanup.py`.
 - Ask before any paid generation larger than the plan (e.g. re-generating all images) and before deleting user files.
 
-References: `contracts.md` · `providers.md` · `director.md` · `materials.md` · `layouts.md` · `techniques.md` · `connector-elevenlabs.md` · `style-a.md` · `style-b.md` · `components.md` · `audio-policy.md` · `qa-checklist.md` · `modes.md` · `style-guide.md` · `teardowns/` (per-video forensic specs).
+References: `contracts.md` · `providers.md` · `director.md` · `materials.md` · `broll.md` · `layouts.md` · `techniques.md` · `connector-elevenlabs.md` · `style-a.md` · `style-b.md` · `components.md` · `audio-policy.md` · `qa-checklist.md` · `modes.md` · `style-guide.md` · `teardowns/` (per-video forensic specs).

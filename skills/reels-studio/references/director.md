@@ -29,8 +29,14 @@ caption track and every reveal inherit the error.
 
 ## 3b. Visual per scene
 - A: one hero 3D object per scene (generated, transparent) OR a glass/UI card OR a screenshot frame. Alternate dark/light themes; accent backgrounds for hook and payoff scenes only (≤ 3 per video).
+- F: every insert (`insert-object`, `number` with object) gets one generated object in `assets[]` — "glossy photoreal 3D <object>, studio light, white seamless background, soft shadow, no text", transparent, 1024x1024 (+ niche/brand words); the stack under it is plain black unless one word must be red. Stacks: ≤ 1 accent, many none (`style-f.md` §2).
 - B: one component per beat from `components.md` (card, capsule, player, ring, counter, calendar, notification, selection highlight, typing dots, profile card…). Theme flips per chapter: light → dark → blue ("masalan / for example" moments) → light. Chapter changes advance the page dots.
 - Talking head (`head` / `head_overlay`): punch-in 1.0 ↔ 1.12 on cuts every 3–5 s; overlays only in the chest band (y 880–1460); head ↔ motion transitions come from the assembler (A/D blur-drift or whip, B/C dissolve or portal, E blur-swap). The literal caption track (`brief.captions` "auto") is added by the assembler — never plan subtitles inside scenes; keep scene text out of the caption band y 1400–1520 in head scenes.
+
+## 3c. B-roll (`scenes[].broll`, `broll.md`)
+- The script names a website / app / marketplace (kolesa, kaspi, krisha, olx, the client's site) → `{"kind":"screen","url":"https://<public page>","query":"<English fallback>","seconds":n}` — the exact public page (a listing/search page, never a login or personal page). The client's own screen recording beats it — request it in `materials.json` first.
+- A generic action / place ("car dealership", "office team", "city traffic") → `{"kind":"stock","query":"<English>"}`.
+- `generated` only if the client approved connector credits. Style F: ≤ 1 B-roll per 20 s on a `media` scene. Then run `$SKILL/scripts/run broll.py --work work/<slug>` (step 3, parallel with art).
 
 ## 4. Asset prompts (`assets[]`)
 - Append the niche preset's `art_direction` words (`assets/niches.json`) to every prompt, plus the brand colours as the dominant accent of the object; same words for every image of the reel.

@@ -33,6 +33,9 @@ Language of the message = language the client writes in. Ask only for what the p
    "fallback": "RSB.calendar mock with neutral data"}]}
 ```
 
+## B-roll the client does not send
+Scenes with `broll` (`broll.md`) are produced automatically by `scripts/broll.py`: a received `broll` / `screen_recording` item for that scene wins; otherwise a smooth screen capture of the public page the director named, else stock video (Pexels → Pixabay → Wikimedia Commons CC0/BY/BY-SA, attribution into `CREDITS.txt`), else the labelled slot. Generated video only via the ElevenLabs connector after the client approves the credits.
+
 ## After the client answers
 - Save files to `input/` with the item id prefix; set `status`. Check them: resolution, aspect, no private data visible (offer blur), recording length.
 - Screen recordings: trim to the needed part (`ffmpeg -ss … -t …`), scale to fit the phone/screenshot frame, keep 30 fps.

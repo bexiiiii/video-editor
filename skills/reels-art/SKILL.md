@@ -10,7 +10,7 @@ description: Worker for reels-studio. Generates the images (glossy 3D hero objec
 If the orchestrator already delivered `assets/img/<id>.png` via the ElevenLabs connector, only verify/cut out (`image.py --cutout`) — do not generate again.
 
 For each `assets[]` item in your brief:
-1. Build the prompt: item prompt + style preset (A: glossy inflated 3D, soft studio light, centered, plain background, no text · B: Apple 3D emoji style, centered, no text). Never put real people, trademarks presented as genuine UI, or text in images.
+1. Build the prompt: item prompt + style preset (A: glossy inflated 3D, soft studio light, centered, plain background, no text · B: Apple 3D emoji style, centered, no text · F (insert objects): glossy photoreal 3D <object>, studio light, white seamless background, soft shadow, no text — always transparent; style F inserts need a real render, never leave the labelled slot). Never put real people, trademarks presented as genuine UI, or text in images.
 2. Generate:
    - **Codex**: use your built-in image generation tool (portrait/square as requested, plain flat background — never fetch stock or existing images), note the exact file path it returns, then `$STUDIO/scripts/run image.py --import <that exact path> --out assets/img/<id>.png [--transparent]` (cuts out the background). Always pass the path: art workers run in parallel, so "newest file" could be another worker's image.
    - **Elsewhere**: `$STUDIO/scripts/run image.py --prompt "<prompt>" --style <a|b> --size <WxH> [--transparent] --out assets/img/<id>.png` (OpenAI → Gemini → Fluent Emoji 3D fallback).

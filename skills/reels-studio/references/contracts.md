@@ -19,6 +19,7 @@ work/<slug>/
   scenes/<id>/index.html     # step 3b sub-composition (scene-builder)
   scenes/<id>/result.json    # step 3b {ok, duration, notes, warnings[]}
   assets/img/<asset_id>.png  # step 3a art (transparent PNG where requested)
+  broll/<id>.mp4 broll/<id>.json  # step 3a scripts/broll.py: muted 1080×1920 30 fps clip + {status, source, provider, url, licence, attribution} (broll.md)
   audio/music.wav audio/sfx.wav   # step 3c sound (music.py / sfx_plan.py)
   audio/music_candidates.json # step 3c music_search.py: top-3 tracks {rank,title,artist,licence,licence_url,attribution,source_url,analysis{bpm,…},score,file}, "chosen"
   audio/music_src.<ext>      # step 3c original of the chosen track (client track or download)
@@ -98,6 +99,9 @@ Which tokens each style overrides and which stay fixed: `references/branding.md`
                                                             // dur 0.35–0.6; omit → style default; "owner":"scene" = the scene draws it
       "captions": null,                                     // optional per-scene override of the caption track (true/false)
       "caption_mute": [[0.6, 2.1]],                         // optional scene-local windows without captions (style F: kinetic-stack windows)
+      "broll": {"kind": "screen", "url": "https://kolesa.kz/cars/", "query": "car listings", "seconds": 2.0},
+                                                            // optional B-roll (broll.md): kind screen (public https page the script names)
+                                                            // | stock (English query) | generated (connector, orchestrator only); url/query/seconds
       "kicker": {"text": "…", "at": 7.9},
       "headline": {"text": "…", "highlight": ["word"],      // A: keywords (paraphrase) · B: literal words
                    "words": [{"w": "…", "t": 8.02}]},       // t = reveal time (from transcript)
@@ -150,7 +154,7 @@ root-level layer (`#rs-captions`, above all scenes) — independent of scene bui
   lowercase white + soft shadow · B/C RSX karaoke grey #9A9A9A → white · E uppercase grey;
 - the libs see `window.RS_CAPTIONS = {on, y, ranges}`: RSD lifts its lower-zone headline to y 1255 and drops the
   duplicate grey caption; keyword headlines in motion scenes stay as they are;
-- style F: 1–3 words / ≤ 22 chars, Montserrat Alternates 800 56 px white, phrase shown whole on its first word (hard
+- style F: 1–3 words / ≤ 22 chars, kinetic face (Montserrat 800 + single-storey а, "RSF Kinetic A") 56 px white, phrase shown whole on its first word (hard
   swap, no scrim), numbers + `brief.captions_highlight` in yellow; scene `caption_mute` windows are subtracted
   (stacks and small captions never overlap); inserts are motion scenes, so they carry no captions in auto mode;
 - targets: ≥ 98 % of spoken words in caption ranges, sync −0.10…+0.05 s (qa.py `caption_coverage` / `caption_sync`).

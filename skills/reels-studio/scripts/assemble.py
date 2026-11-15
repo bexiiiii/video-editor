@@ -17,6 +17,7 @@ Layout produced (mirrors the work dir, so the same relative paths work in both p
   composition/assets/img/…          assets/img/*
   composition/media/head.mp4        edit/head.mp4 without its audio track (the mix carries the voice)
   composition/media/mix.wav         audio/mix.wav — the single audio track
+  composition/media/broll/<id>.mp4  broll/<id>.mp4 — scripts/broll.py clips (muted), root-relative "media/broll/<id>.mp4"
 
 Path rules verified against hyperframes@0.8.154 (compositionAssembly / rewriteAssetPath): inside a
 sub-composition, a relative URL that starts with "../" is resolved against the scene file's directory
@@ -37,7 +38,7 @@ head clip starts ov/2 early and settles from scale 1.06 + blur. Host/clip window
 head ↔ head_overlay = same footage: only the outgoing overlay fades. transition_in {"type":"cut"} = hook hard cut;
 {"owner":"scene"} = the incoming scene draws its own transition (it then paints above the previous tail).
 Style F ("Kinetic Talking Head") is a hard-cut style: its default boundary is "cut" (no warning), its caption track is
-small Montserrat Alternates phrases shown whole (hard swap, digits / brief.captions_highlight in yellow), and
+small kinetic-face (Montserrat 800 + single-storey а) phrases shown whole (hard swap, digits / brief.captions_highlight in yellow), and
 edit/cuts.json punch_ins may carry "drift" (slow linear zoom inside a segment).
 
 Captions (talking-head modes, brief.captions auto|all|off): scripts/captions.py turns audio/transcript.json into
@@ -98,7 +99,7 @@ CAP_STYLE = {
 }
 CAP_STYLE["d"] = dict(CAP_STYLE["a"], scrim=0.30)   # D already has its own lower scrim
 # F: small centred phrases (x-height 31 ≈ 56 px), white, highlight yellow, no scrim, whole phrase on the first word
-CAP_STYLE["f"] = {"font": "var(--rsf-font, 'Montserrat Alternates', Montserrat, sans-serif)", "weight": 800, "size": 56,
+CAP_STYLE["f"] = {"font": "var(--rsf-font, 'RSF Kinetic A', Montserrat, sans-serif)", "weight": 800, "size": 56,
                   "ls": "-0.03em", "color": "#FCFCFC", "case": "lowercase", "shadow": "0 2px 10px rgba(0,0,0,.45)",
                   "scrim": 0.0, "karaoke": False, "phrase": True, "hl": "#FCF900"}
 CAP_STYLE["c"] = CAP_STYLE["b"]
@@ -300,6 +301,9 @@ def main() -> None:
         shutil.copy2(mix, media / "mix.wav")
     else:
         warnings.append("audio/mix.wav missing — composition will be silent")
+    for clip in sorted((work / "broll").glob("*.mp4")) if (work / "broll").is_dir() else []:
+        (media / "broll").mkdir(parents=True, exist_ok=True)   # broll.py clips → media/broll/<id>.mp4 (broll.md)
+        shutil.copy2(clip, media / "broll" / clip.name)
     img = work / "assets" / "img"
     if img.is_dir():
         copy_tree(img, comp / "assets" / "img", skip=())

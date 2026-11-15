@@ -409,7 +409,7 @@ STOCK_FONT = {"--rsa-font": '"Google Sans Flex", "Google Sans", "Onest", "Manrop
               "--rsb-font": '"Inter", "SF Pro Display", system-ui, sans-serif',
               "--rsc-font": '"Inter", "SF Pro Display", system-ui, sans-serif',
               "--rse-font": '"Inter", "SF Pro Display", system-ui, sans-serif',
-              "--rsf-font": '"Montserrat Alternates", "Montserrat", system-ui, sans-serif'}
+              "--rsf-font": '"RSF Kinetic A", "Montserrat", system-ui, sans-serif'}
 
 # ───────────────────────────── fonts ─────────────────────────────
 

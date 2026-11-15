@@ -8,7 +8,9 @@
          Identity is the demo brand "Link HR" / "@linkhr" — never the reference channel.
          Footage = labelled neutral slot (never a drawn person); the slot re-frames per segment (wide 1.0 ↔ tight 1.4)
          to show the one-camera "two framings" logic that edit_head.py writes into edit/cuts.json for real footage.
-         Objects / screen recording = labelled slots. Silent (Style F reference is voice-only; mix.py adds the energetic profile). -->
+         Object = Microsoft Fluent Emoji 3D "Mobile phone" (MIT, github.com/microsoft/fluentui-emoji), Lanczos-upscaled,
+         standing in for the reels-art glossy 3D render a real run generates. Screen recording = labelled slot
+         (scripts/broll.py produces the real clip in a run; third-party captures are never committed). Silent (Style F reference is voice-only; mix.py adds the energetic profile). -->
     <link rel="stylesheet" href="lib/tokens-f.css" />
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
     <script src="lib/runtime.js"></script>
@@ -48,48 +50,49 @@
         const T = RSF.M.tight;                                          // tight framing ≈ 1.4 about the face
         const cam = (...f) => Object.assign({ framings: f.map(([at, scale]) => ({ at, scale })) }, HEAD);
 
-        /* s1 · head-side (W) — hook: question stacks up word by word, words RISE from below (hook only) */
+        /* s1 · head-side (W) — hook: question stacks up word by word, words RISE from below (hook only).
+           Over footage: equal-size white lines, one red problem word (ref "ол ито / жүзеге / аспайды"). */
         L.headSide($("s1"), {
           footage: cam([0, 1]),
           stack: { enter: "rise", lines: [
-            { text: "смена", role: "l", align: "left", at: 0.2 },
-            { text: "*есебін*", role: "m", align: "left", at: 0.5 },
-            { text: "әлі қолмен?", role: "m", align: "left", at: 0.85, stagger: 0.25 },
+            { text: "смена", role: "l", at: 0.2 },
+            { text: "есебін әлі", role: "l", at: 0.5, stagger: 0.25 },
+            { text: "*қолмен?*", role: "l", dx: 60, accent: "red", at: 1.05 },
           ] },
         }, tl, 0);
 
-        /* s2 · insert-object (white) — object drops from the top, stack answers */
+        /* s2 · insert-object (white) — the reference composition (2.6 s "2-ақ / вариант / бар!" under two capsules):
+           glossy 3D object standing on a big / small (+3° tilt) / big stack, all black, left-aligned, third line nudged. */
         L.insertObject($("s2"), {
           bg: "white",
-          object: { label: "сағат", sub: "объект · PNG без фона", w: 380, from: "top", at: 3.08 },
+          object: { src: "obj-phone.png", w: 200, h: 280, rotate: -8, from: "top", at: 3.08 },
           stack: { lines: [
-            { text: "аптасына", role: "m", align: "left", at: 3.0 },
-            { text: "*12 сағат*", role: "xl", align: "center", at: 3.3 },
-            { text: "жоғалады", role: "s", align: "right", at: 3.85 },
+            { text: "1-ақ", role: "xl", at: 3.0 },
+            { text: "түйме", role: "m", rot: 3, dx: 8, at: 3.3 },
+            { text: "басу!", role: "xl", dx: 100, at: 3.6 },
           ] },
         }, tl, 2.8);
 
         /* s3 · head (W after the insert) — small captions only */
         L.head($("s3"), { footage: cam([4.6, 1]) }, tl, 4.6);
 
-        /* s4 · head-side (T) — interlocking stack: L full / S left / XL accent right / S right */
+        /* s4 · head-side (T) — equal-size white stack, one yellow key phrase */
         L.headSide($("s4"), {
           footage: cam([7, T]),
           stack: { lines: [
-            { text: "телефоннан", role: "l", align: "center", at: 7.7 },
-            { text: "бір", role: "s", align: "left", at: 8.05 },
-            { text: "*түрту*", role: "xl", align: "right", at: 8.25 },
-            { text: "жеткілікті", role: "s", align: "right", at: 8.7 },
+            { text: "аптасына", role: "l", at: 7.7 },
+            { text: "*12 сағат*", role: "l", dx: 70, at: 8.05 },
+            { text: "үнемдейсіз", role: "l", at: 8.5 },
           ] },
         }, tl, 7);
 
-        /* s5 · media — tilted full-bleed screen recording + stack */
+        /* s5 · media — tilted full-bleed screen recording + white stack, one yellow word (ref 15.2 s) */
         L.media($("s5"), {
           broll: { label: "запись экрана · Link HR", dur: 2.4 },
           stack: { lines: [
-            { text: "табель", role: "l", align: "left", at: 9.8 },
-            { text: "*өзі*", role: "xl", align: "right", at: 10.15 },
-            { text: "толтырылады", role: "m", align: "center", at: 10.5 },
+            { text: "табель", role: "l", at: 9.8 },
+            { text: "*өзі*", role: "l", dx: 90, at: 10.15 },
+            { text: "толтырылады", role: "l", at: 10.5 },
           ] },
         }, tl, 9.6);
 
@@ -97,8 +100,8 @@
         L.headSide($("s6"), {
           footage: cam([12, 1], [13.9, T]),
           stack: { exitAt: 13.45, lines: [
-            { text: "кешігулер", role: "l", align: "center", at: 12.15 },
-            { text: "*азайды*", role: "xl", align: "center", at: 12.55 },
+            { text: "кешігулер", role: "l", at: 12.15 },
+            { text: "азайды", role: "xl", dx: 40, at: 12.55 },
           ] },
         }, tl, 12);
 
@@ -127,8 +130,8 @@
         L.headSide($("s10"), {
           footage: cam([21.9, 1], [23.2, T]),
           stack: { exitAt: 22.85, lines: [
-            { text: "*сынап*", role: "xl", align: "center", at: 22.05 },
-            { text: "көріңіз", role: "l", align: "center", at: 22.4 },
+            { text: "*сынап*", role: "xl", at: 22.05 },
+            { text: "көріңіз", role: "m", align: "right", at: 22.4 },
           ] },
         }, tl, 21.9);
         RSF.leak($("fx"), tl, 21.9);

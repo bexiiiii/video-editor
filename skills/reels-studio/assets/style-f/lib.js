@@ -19,7 +19,7 @@
 (function () {
   "use strict";
   const RS = window.RS || {};
-  const RSF = { version: "1.0.0" };
+  const RSF = { version: "1.1.0" };
   const el = (tag, cls, parent, html) => {
     const e = document.createElement(tag);
     if (cls) e.className = cls;
@@ -42,14 +42,16 @@
   /* ------------------------------------------------------------------ *
    * Measured constants (teardown §3–§6)
    * ------------------------------------------------------------------ */
-  RSF.SIZE = { xl: 240, l: 165, m: 122, s: 90 };          // role → font px (x-height 130 / 88 / 66 / 48)
+  RSF.SIZE = { xxl: 300, xl: 240, l: 160, m: 115, s: 92 }; // role → font px (x-height 163 / 130 / 86 / 62 / 50)
+  RSF.FONT = "'RSF Kinetic A', Montserrat";               // Montserrat 800 + single-storey а (tokens.css)
   RSF.M = {
     word: { blur: 16, scale: 1.05, dur: 0.22, ease: "power1.out", lead: 0.04 },   // 5–6 frames, in place
     rise: { blur: 18, y: 400, dur: 0.32, ease: "power3.out", lead: 0.2 },         // hook only
     exit: { blur: 18, dur: 0.28, ease: "power1.in" },                              // in-segment stack swap
     obj: { dur: 0.42, ease: "power3.out", dist: 760 },                             // drop / rise with motion blur
-    gap: 0.17,            // baseline → next x-top = gap × mean(font sizes) (+ ascender clearance)
-    asc: 0.2,             // extra clearance × next font size when the next line has ascenders (б ё і һ digits ! ?)
+    gap: 0.12,            // baseline → next x-top = gap × previous x-height, capped at gapMax (ref 10–15 px)
+    gapMax: 16,
+    ascKiss: 3,           // a line with ascenders (б і һ digits ! ?): ascender top = previous baseline + 3 px
     stagger: 0.22,        // default word spacing in time when no word times are given
     capPitch: 52,         // small caption line pitch
     insertGap: 0.2,       // inserts open on an empty colour page for 0.16–0.28 s
@@ -60,15 +62,15 @@
   RSF.COLORS = { white: "#FCFCFC", black: "#000000", yellow: "#FCF900", red: "#FC0000", salmon: "#EEB596" };
 
   let XH = 0.54;           // x-height / em of the kinetic face, measured in ready()
-  /** Wait for Montserrat Alternates (+ Oswald) incl. Kazakh glyphs, then measure the x-height. */
+  /** Wait for the kinetic face (Montserrat 800 + single-storey а) and Oswald incl. Kazakh glyphs, then measure the x-height. */
   RSF.ready = function () {
     const f = document.fonts;
-    const sample = "ӘәҒғҚқҢңӨөҰұҮүҺһІі абвгдежзийклмнопрстуфхцчшщъыьэюя 0123456789";
-    const specs = ["700 56px 'Montserrat Alternates'", "800 56px 'Montserrat Alternates'", "800 165px 'Montserrat Alternates'", "700 232px Oswald"];
+    const sample = "ӘәҒғҚқҢңӨөҰұҮүҺһІі абвгдежзийклмнопрстуфхцчшщъыьэюя a 0123456789";
+    const specs = ["700 56px Montserrat", "800 56px Montserrat", "800 165px Montserrat", "800 165px 'RSF Kinetic A'", "700 232px Oswald"];
     const done = () => {
       try {
         const c = document.createElement("canvas").getContext("2d");
-        c.font = "800 200px 'Montserrat Alternates'";
+        c.font = `800 200px ${RSF.FONT}`;
         const m = c.measureText("x");
         if (m && m.actualBoundingBoxAscent > 50) XH = m.actualBoundingBoxAscent / 200;
       } catch (e) { /* keep default */ }
@@ -191,7 +193,6 @@
   /* ------------------------------------------------------------------ *
    * KINETIC STACK
    * ------------------------------------------------------------------ */
-  const ASC = /[бёіїһ0-9!?%₸ʻ'"«»ДЙ]/;
   const accentOf = (theme) => (theme === "light" ? "red" : theme === "salmon" ? "black" : "yellow");
 
   function normLines(lines, at, stagger, theme, accent) {
@@ -224,22 +225,28 @@
         k++;
         return { w, t, role: o.role || role, color: c || color, size: o.size || ln.size || null };
       });
-      return { words, align: ln.align || "center", dx: ln.dx || 0, gap: ln.gap, role };
+      return { words, align: ln.align || "left", dx: ln.dx || 0, gap: ln.gap, rot: ln.rot || 0, role };
     });
   }
 
   /**
-   * Kinetic stack: lines of huge lowercase words with per-word size roles (xl 240 · l 165 · m 122 · s 90 px) and
-   * colours (white · black · yellow · red · dim; `*word*` = accent: yellow over footage, red on white, black on salmon),
-   * laid out at their FINAL positions (interlocking: next x-top = previous baseline + 0.17 × mean size, + ascender
-   * clearance), aligned left / right / centre against the widest (anchor) line, auto-fit to 900 px, then each word
-   * blurs in on its spoken time. The stack never re-centres while words arrive.
+   * Kinetic stack (measured on the reference, teardown §4): lines of huge lowercase words with per-word size roles
+   * (xxl 300 · xl 240 · l 160 · m 115 · s 92 px; big/small/big contrast: "2-ақ" xl / "вариант" m ≈ 0.48 / "бар!" xl)
+   * and colours (white · black · yellow · red · dim; `*word*` = the ONE optional accent: yellow over footage, red on
+   * white, black on salmon — most insert stacks are plain black, most footage stacks plain white).
+   * Geometry: a LEFT-aligned block (per-line `align` right/center against the widest line and `dx` nudges allowed)
+   * whose bounding box is centred on `cx`; lines interlock — next x-top = previous baseline + min(0.12 × previous
+   * x-height, 16 px) (ref 10–15 px), and a line with ascenders / digits / ! is lowered only until its ascender top
+   * sits 3 px under the previous baseline (ref б of "бар!" kisses "вариант"); descenders of the line above dig into
+   * the next line. `rot` tilts one line (deg, about its left baseline; ref "вариант" +3°). Auto-fit to `maxW` 900.
+   * Words blur in on their spoken times at their FINAL positions (the block never re-centres while words arrive).
    * @param {{lines: Array<string | {text?:string, words?:Array<{w:string,t?:number,role?:string,color?:string}>,
-   *          role?:'xl'|'l'|'m'|'s', color?:string, size?:number, align?:'left'|'right'|'center', dx?:number,
-   *          gap?:number, at?:number, stagger?:number, accent?:string}>,
+   *          role?:'xxl'|'xl'|'l'|'m'|'s', color?:string, size?:number, align?:'left'|'right'|'center', dx?:number,
+   *          gap?:number, rot?:number, at?:number, stagger?:number, accent?:string}>,
    *          theme?:'dark'|'light'|'salmon', cy?:number, top?:number, bottom?:number, cx?:number, maxW?:number,
    *          enter?:'blur'|'rise', exitAt?:number, keepCase?:boolean, stagger?:number}} props
-   * @returns {HTMLElement} stack with `.metrics {top, xTop, base, bottom, left, right, k}` and `.words`
+   *          top = ink top (ascenders incl.), bottom = last baseline, cy = centre of the ink block
+   * @returns {HTMLElement} stack with `.metrics {top, xTop, base, bottom, left, right, k, lines[]}` and `.words`
    */
   RSF.stack = function (host, props, tl, at) {
     const theme = props.theme || "dark";
@@ -258,46 +265,65 @@
       const bl = el("i", "bl", d);
       return { ln, d, spans, bl };
     });
-    const apply = (k) => rows.forEach((r) => r.ln.words.forEach((o, i) => { r.spans[i].style.fontSize = ((o.size || RSF.SIZE[o.role] || RSF.SIZE.m) * k).toFixed(2) + "px"; }));
+    const sizeOf = (o) => o.size || RSF.SIZE[o.role] || RSF.SIZE.m;
+    const apply = (k) => rows.forEach((r) => r.ln.words.forEach((o, i) => { r.spans[i].style.fontSize = (sizeOf(o) * k).toFixed(2) + "px"; }));
+    // horizontal: relative x of each line against the widest (anchor) line, then centre the bounding box on cx
+    const layoutX = (k) => {
+      const ws = rows.map((r) => r.d.offsetWidth);
+      const Wa = Math.max(1, ...ws);
+      const xs = rows.map((r, i) => (r.ln.align === "right" ? Wa - ws[i] : r.ln.align === "center" ? (Wa - ws[i]) / 2 : 0) + r.ln.dx * k);
+      const minX = Math.min(...xs), maxX = Math.max(...xs.map((x, i) => x + ws[i]));
+      return { ws, xs, minX, W: maxX - minX };
+    };
     apply(1);
-    let W = Math.max(1, ...rows.map((r) => r.d.offsetWidth));
-    let k = 1;
-    if (W > maxW) { k = maxW / W; apply(k); W = Math.max(1, ...rows.map((r) => r.d.offsetWidth)); }
-    // vertical: baselines from x-heights + interlock gaps
-    let base = 0, prevF = 0;
+    let k = 1, X = layoutX(1);
+    if (X.W > maxW) { k = maxW / X.W; apply(k); X = layoutX(k); }
+    // ink ascent of each line (canvas, same face / size / tracking) → ascender kiss
+    const cv = document.createElement("canvas").getContext("2d");
+    const inkAsc = (r) => Math.max(...r.ln.words.map((o) => {
+      const fs = sizeOf(o) * k;
+      cv.font = `800 ${fs}px ${RSF.FONT}`;
+      const m = cv.measureText(props.keepCase ? o.w : o.w.toLowerCase());
+      return m && m.actualBoundingBoxAscent ? m.actualBoundingBoxAscent : XH * fs;
+    }));
+    let base = 0, prevXh = 0;
     const meta = rows.map((r, i) => {
-      const f = Math.max(...r.ln.words.map((o) => (o.size || RSF.SIZE[o.role] || RSF.SIZE.m) * k));
+      const f = Math.max(...r.ln.words.map((o) => sizeOf(o) * k));
       const xh = XH * f;
-      const txt = r.ln.words.map((o) => o.w).join(" ").toLowerCase();
-      const asc = props.keepCase ? true : ASC.test(txt);
+      const ascX = Math.max(0, inkAsc(r) - xh);                  // ascender height above the x-height
+      const hasAsc = ascX > 0.12 * xh;
       let xTop;
       if (i === 0) xTop = 0;
-      else xTop = base + (r.ln.gap != null ? r.ln.gap * k : RSF.M.gap * (prevF + f) / 2 + (asc ? RSF.M.asc * f : 0));
-      base = xTop + xh; prevF = f;
-      return { f, xh, asc, xTop, base, w: r.d.offsetWidth, off: r.bl.offsetTop };
+      else if (r.ln.gap != null) xTop = base + r.ln.gap * k;
+      else {
+        xTop = base + Math.min(RSF.M.gap * prevXh, RSF.M.gapMax * k);
+        if (hasAsc) xTop = Math.max(xTop, base + RSF.M.ascKiss * k + ascX);
+      }
+      base = xTop + xh; prevXh = xh;
+      return { f, xh, ascX, hasAsc, xTop, base, w: X.ws[i], off: r.bl.offsetTop };
     });
     const last = meta[meta.length - 1];
-    let Y0;
-    if (props.top != null) Y0 = props.top;
+    const top0 = meta[0].hasAsc ? -meta[0].ascX : 0;            // ink top relative to the first x-top
+    const inkH = last.base - top0;
+    let Y0;                                                       // y of the first line's x-top
+    if (props.top != null) Y0 = props.top - top0;
     else if (props.bottom != null) Y0 = props.bottom - last.base;
-    else Y0 = (props.cy ?? RSF.STACK_CY) - last.base / 2;
+    else Y0 = (props.cy ?? RSF.STACK_CY) - inkH / 2 - top0;
     const cx = props.cx ?? 540;
-    const left0 = Math.round(cx - W / 2);
+    const left0 = Math.round(cx - X.W / 2 - X.minX);
     rows.forEach((r, i) => {
       const m = meta[i];
-      let x = left0;
-      if (r.ln.align === "right") x = left0 + W - m.w;
-      else if (r.ln.align === "center") x = left0 + (W - m.w) / 2;
-      x += r.ln.dx;
-      r.d.style.left = Math.round(x) + "px";
+      r.d.style.left = Math.round(left0 + X.xs[i]) + "px";
       r.d.style.top = Math.round(Y0 + m.base - m.off) + "px";
+      if (r.ln.rot) { r.d.style.transformOrigin = `0px ${m.off}px`; r.d.style.transform = `rotate(${r.ln.rot}deg)`; }
       r.spans.forEach((s, j) => wordIn(tl, s, r.ln.words[j].t, props.enter));
     });
     st.words = rows.flatMap((r) => r.spans);
     st.metrics = {
-      top: Math.round(Y0 - (meta[0].asc ? 0.2 * meta[0].f : 0)), xTop: Math.round(Y0), base: Math.round(Y0 + last.base),
-      bottom: Math.round(Y0 + last.base + 0.2 * last.f), left: left0, right: left0 + Math.round(W), k: +k.toFixed(3),
+      top: Math.round(Y0 + top0), xTop: Math.round(Y0), base: Math.round(Y0 + last.base),
+      bottom: Math.round(Y0 + last.base + 0.2 * last.f), left: Math.round(cx - X.W / 2), right: Math.round(cx + X.W / 2), k: +k.toFixed(3),
       firstAt: Math.min(...lines.flatMap((l) => l.words.map((o) => o.t))),
+      lines: meta.map((m, i) => ({ xTop: Math.round(Y0 + m.xTop), base: Math.round(Y0 + m.base), xh: Math.round(m.xh), left: Math.round(left0 + X.xs[i]), w: Math.round(m.w) })),
     };
     if (props.exitAt != null) RSF.exit(tl, st, props.exitAt);
     return st;
@@ -364,18 +390,25 @@
   };
 
   /**
-   * Cut-out object (transparent PNG, no shadow): drops from the top or rises from the bottom with motion blur
+   * Cut-out object: a real glossy 3D render / product shot / logo as a transparent PNG (`src`, from reels-art:
+   * "glossy photoreal 3D <object>, studio light, white seamless background, soft shadow" → cut out) with a soft
+   * contact shadow under it on inserts (ref capsules); drops from the top or rises from the bottom with motion blur
    * (0.42 s power3.out), or blurs in. `circle:true` = white circle mask (ref money circle 459 px); `bw:true` = b/w photo
-   * cut-out. Without src/node → labelled slot (never a drawn person).
+   * cut-out; `rotate` tilts the object (deg, ref capsules ±6°); `shadow:false` drops the contact shadow.
+   * Without src/node → labelled slot (never a drawn person).
    * @param {{src?:string, node?:HTMLElement, label?:string, sub?:string, w?:number, h?:number, x?:number, y?:number,
-   *          circle?:boolean, bw?:boolean, from?:'top'|'bottom'|'blur', dist?:number, at?:number}} props  x/y = centre
+   *          circle?:boolean, bw?:boolean, rotate?:number, shadow?:boolean, from?:'top'|'bottom'|'blur', dist?:number,
+   *          at?:number}} props  x/y = centre
    */
   RSF.object = function (host, props, tl, at) {
     const w = props.w ?? 420, h = props.h ?? w;
     const o = el("div", "rsf-obj" + (props.circle ? " circle" : "") + (props.bw ? " bw" : ""), host);
     Object.assign(o.style, { left: Math.round((props.x ?? 540) - w / 2) + "px", top: Math.round((props.y ?? 760) - h / 2) + "px", width: w + "px", height: h + "px" });
+    const real = !!(props.src || props.node);
+    if (real && props.shadow !== false && !props.circle) el("div", "shadow", o);
     const inner = el("div", "in", o);
-    if (props.src || props.node) {
+    if (props.rotate) inner.style.transform = `rotate(${props.rotate}deg)`;
+    if (real) {
       const m = props.node || el("img");
       if (!props.node) { m.src = props.src; m.alt = ""; }
       inner.appendChild(m);
@@ -387,7 +420,8 @@
     }
     const t = props.at ?? at, m = RSF.M.obj, from = props.from || "top";
     if (from === "blur") {
-      tl.fromTo(inner, { opacity: 0, scale: 1.08, filter: "blur(16px)" }, { opacity: 1, scale: 1, filter: "blur(0px)", duration: 0.28, ease: "power1.out" }, t);
+      const r = props.rotate || 0;
+      tl.fromTo(inner, { opacity: 0, scale: 1.08, rotation: r, filter: "blur(16px)" }, { opacity: 1, scale: 1, rotation: r, filter: "blur(0px)", duration: 0.28, ease: "power1.out" }, t);
     } else {
       const d = (props.dist ?? m.dist) * (from === "top" ? -1 : 1);
       tl.fromTo(o, { y: d, opacity: 0 }, { y: 0, opacity: 1, duration: m.dur, ease: m.ease }, t);
@@ -397,19 +431,25 @@
   };
 
   /**
-   * Full-bleed screen-recording B-roll, rotated ≈ −10° with mild perspective, scaled ≈ 1.8, darkened ≈ 20 %, slow
-   * upward scroll. Real page via `node` (framework <video>) or `src` (long screenshot); otherwise a labelled slot.
+   * Full-bleed B-roll, rotated ≈ −10° with mild perspective (rotateX 8°), darkened ≈ 20 %, slow motion. Three sources:
+   *  - `node` = the produced clip as a framework-owned <video> (scripts/broll.py → broll/<scene>.mp4, 1080×1920,
+   *    muted; author it statically with its own data-start/data-duration at the ROOT, never inside a timed wrapper):
+   *    the clip already scrolls, so the plane only drifts (`scroll` default 22 px/s) and zooms 1 → 1.06 (`zoom`);
+   *    plane scale default 1.8 (ref: one listing card fills the width — a desktop-layout capture needs it),
+   *  - `src` = a long page screenshot (image): scrolls up at `scroll` px/s (default 60);
+   *  - nothing → labelled slot (scrolling fake listing).
    * @param {{node?:HTMLElement, src?:string, label?:string, rotate?:number, tiltX?:number, scale?:number, dim?:number,
-   *          scroll?:number, dur?:number}} props  scroll in px/s (default 60)
+   *          scroll?:number, zoom?:number, dur?:number}} props
    */
   RSF.broll = function (host, props, tl, at) {
-    const b = el("div", "rsf-broll", host);
+    const isClip = !!(props.node && props.node.tagName === "VIDEO") || /\.(mp4|webm|mov)(\?|$)/i.test(props.src || "");
+    const b = el("div", "rsf-broll" + (isClip ? " clip" : ""), host);
     const plane = el("div", "plane", b);
-    plane.style.transform = `rotateX(${props.tiltX ?? 8}deg) rotate(${props.rotate ?? -10}deg) scale(${props.scale ?? 1.25})`;
+    plane.style.transform = `rotateX(${props.tiltX ?? 8}deg) rotate(${props.rotate ?? -10}deg) scale(${props.scale ?? (isClip ? 1.8 : 1.25)})`;
     const page = el("div", "page", plane);
     if (props.node || props.src) {
-      const m = props.node || el("img");
-      if (!props.node) { m.src = props.src; m.alt = ""; }
+      const m = props.node || el(isClip ? "video" : "img");
+      if (!props.node) { m.src = props.src; if (isClip) { m.muted = true; m.playsInline = true; } else m.alt = ""; }
       m.classList.add("rsf-media");
       page.appendChild(m);
     } else {
@@ -424,7 +464,8 @@
       bd.innerHTML = `<i></i>${esc(props.label || "запись экрана")} · слот`;
     }
     const dur = props.dur ?? 2.5;
-    tl.fromTo(page, { y: 0 }, { y: -(props.scroll ?? 60) * dur, duration: dur, ease: "none" }, at);
+    const sp = props.scroll ?? (isClip ? 22 : 60);
+    tl.fromTo(page, { y: 0, scale: 1 }, { y: -sp * dur, scale: isClip ? (props.zoom ?? 1.06) : 1, duration: dur, ease: "none" }, at);
     tl.fromTo(plane, { filter: "blur(8px)" }, { filter: "blur(0px)", duration: 0.25, ease: "power1.out" }, at);
     return b;
   };
@@ -517,25 +558,41 @@
   };
 
   /**
-   * `insert-object` — flat colour page + one cut-out object (drops / rises) + stack under it (+ optional stack above).
-   * Block (above ∪ object ∪ stack) is centred on y ≈ 960 when `object.y` is omitted.
-   * @param {{bg?:string, object:object, stack:object, above?:object}} spec  object = RSF.object props
+   * `insert-object` — flat colour page + cut-out object(s) (drop / rise) sitting DIRECTLY on the stack under it
+   * (+ optional stack above). Ref 2.6 s: capsules y 648–890 (≈ 240 px tall, ≈ 0.45 × stack height), stack ink
+   * 889–1382, object bottom = stack ink top − `gap` (default 0; the contact shadow tucks behind the first line),
+   * whole block centred on y ≈ 1015 (`cy`). `objects:[…]` places several objects side by side (ref: red + blue pill,
+   * x centres ±115 px from the block centre). object.x/y override the automatic placement.
+   * @param {{bg?:string, object?:object, objects?:object[], stack:object, above?:object, cy?:number, gap?:number}} spec
    */
   layout.insertObject = layout["insert-object"] = function (clip, spec, tl, at) {
     const L = RSF.insert(clip, { bg: spec.bg || "white" });
     const parts = {};
-    const ob = Object.assign({ w: 420 }, spec.object);
-    const oh = ob.h ?? ob.w;
-    const oy = ob.y ?? (spec.above ? 900 : 700);
-    parts.object = RSF.object(L, Object.assign({}, ob, { y: oy }), tl, ob.at ?? at + RSF.M.insertGap + 0.08);
-    if (spec.above) parts.above = RSF.stack(L, Object.assign({ theme: L.theme, bottom: oy - oh / 2 - 40 }, spec.above), tl, spec.above.at ?? at + RSF.M.insertGap);
-    parts.stack = RSF.stack(L, Object.assign({ theme: L.theme, top: oy + oh / 2 + 44 }, spec.stack), tl, spec.stack.at ?? at + RSF.M.insertGap + 0.25);
+    const obs = (spec.objects || [spec.object]).map((o) => Object.assign({ w: 420 }, o));
+    const oh = Math.max(...obs.map((o) => o.h ?? o.w));
+    const t0 = at + RSF.M.insertGap;
+    // build the stack first (hidden measuring pass is the real one: positions are final, words reveal on time)
+    const gap = spec.gap ?? 0;
+    parts.stack = RSF.stack(L, Object.assign({ theme: L.theme, top: 0 }, spec.stack), tl, spec.stack.at ?? t0 + 0.25);
+    const sm = parts.stack.metrics;
+    const stackH = sm.base - sm.top;
+    const blockH = oh + gap + stackH;
+    const top = obs[0].y != null ? obs[0].y - oh / 2 : Math.round((spec.cy ?? 1015) - blockH / 2);
+    const dy = top + oh + gap - sm.top;
+    parts.stack.querySelectorAll(".rsf-line").forEach((d) => { d.style.top = (parseFloat(d.style.top) + dy) + "px"; });
+    ["top", "xTop", "base", "bottom"].forEach((k) => { sm[k] += dy; });
+    sm.lines.forEach((l) => { l.xTop += dy; l.base += dy; });
+    const cxs = obs.length === 1 ? [540] : obs.map((o, i) => 540 + (i - (obs.length - 1) / 2) * (o.spread ?? 230));
+    parts.objects = obs.map((o, i) => RSF.object(L, Object.assign({ x: cxs[i] }, o, { y: o.y ?? top + oh - (o.h ?? o.w) / 2 }), tl, o.at ?? t0 + 0.08 + i * 0.06));
+    parts.object = parts.objects[0];
+    if (spec.above) parts.above = RSF.stack(L, Object.assign({ theme: L.theme, bottom: top - 40 }, spec.above), tl, spec.above.at ?? t0);
     L.parts = parts; L.layout = "insert-object";
     return L;
   };
 
   /**
-   * `media` — tilted full-bleed screen-recording B-roll + kinetic stack (white/yellow) centred on y 960.
+   * `media` — tilted full-bleed B-roll + kinetic stack (white, ≤ 1 yellow word) centred on y 960. `broll.node` = the
+   * scripts/broll.py clip as a root-level <video> (see RSF.broll); without it the labelled slot.
    * @param {{broll:object, stack:object}} spec
    */
   layout.media = function (clip, spec, tl, at) {
