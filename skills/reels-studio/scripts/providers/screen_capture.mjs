@@ -147,7 +147,8 @@ const profile = mkdtempSync(join(tmpdir(), "rs-cap-"));
 const chrome = spawn(A.chrome, [
   "--headless", "--remote-debugging-port=0", `--user-data-dir=${profile}`, "--no-first-run",
   "--no-default-browser-check", "--disable-extensions", "--mute-audio", "--hide-scrollbars",
-  "--disable-features=Translate,MediaRouter", "--disable-quic", "--disable-background-networking",
+  "--disable-features=Translate,MediaRouter,WebRtcHideLocalIpsWithMdns", "--disable-quic", "--disable-background-networking",
+  "--force-webrtc-ip-handling-policy=disable_non_proxied_udp", "--webrtc-ip-handling-policy=disable_non_proxied_udp",
   `--proxy-server=http://127.0.0.1:${proxyPort}`, "--proxy-bypass-list=<-loopback>",
   "--host-resolver-rules=MAP * ~NOTFOUND , EXCLUDE 127.0.0.1",   // Chrome resolves nothing itself
   "about:blank",
@@ -201,7 +202,9 @@ await send("Emulation.setUserAgentOverride", { userAgent: A.desktop ? DESKTOP_UA
 await send("Page.setLifecycleEventsEnabled", { enabled: true }).catch(() => {});
 // close pop-ups; never follow window.open
 listeners.push((m) => { if (m.method === "Page.windowOpen") { /* ignored: we never act on it */ } });
-await send("Page.addScriptToEvaluateOnNewDocument", { source: "window.open = () => null; window.alert = () => {}; window.confirm = () => false; window.prompt = () => null;" });
+await send("Page.addScriptToEvaluateOnNewDocument", { source: "window.open = () => null; window.alert = () => {}; window.confirm = () => false; window.prompt = () => null;" +
+  // WebRTC sends UDP straight to IP literals, bypassing the proxy — no capture needs it, so remove the API.
+  " for (const k of ['RTCPeerConnection','webkitRTCPeerConnection','RTCDataChannel','RTCIceCandidate','RTCSessionDescription']) { try { Object.defineProperty(window, k, { value: undefined, configurable: false, writable: false }); } catch (e) {} }" });
 
 let loaded = false;
 listeners.push((m) => { if (m.method === "Page.loadEventFired") loaded = true; });
