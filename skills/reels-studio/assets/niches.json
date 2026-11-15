@@ -419,7 +419,8 @@
         "recommended": [
           {"id": "C", "why": "Energetic 3D car-part heroes + UI price/spec cards; whips suit the niche."},
           {"id": "D", "why": "A mechanic or dealer on camera explains with authority; keywords name the part or price."},
-          {"id": "B", "why": "Checklists (what to inspect), service prices and booking steps."}
+          {"id": "B", "why": "Checklists (what to inspect), service prices and booking steps."},
+          {"id": "F", "why": "Dealer or buyer on camera: two-framing cuts, big kinetic words on the price/problem and flat inserts with one car-part cut-out — the reference look (car-credit buyout)."}
         ],
         "avoid": [
           {"id": "E", "why": "Static news page undersells motion; only for market-price news with sources."}
@@ -505,7 +506,8 @@
         "recommended": [
           {"id": "E", "why": "Rates, inflation and 'what changed' explainers with sources — sober data cards build trust."},
           {"id": "B", "why": "Calm iOS cards: calculators, step-by-step app flows, myth vs fact."},
-          {"id": "A", "why": "Voice-only, faceless concept explainers (what is a deposit, how compound interest works)."}
+          {"id": "A", "why": "Voice-only, faceless concept explainers (what is a deposit, how compound interest works)."},
+          {"id": "F", "why": "An advisor on camera turns each point into a big kinetic phrase (\"2 options\", the debt amount) with calm flat inserts — trust of a face, clarity of type, no 3D hype."}
         ],
         "avoid": [
           {"id": "C", "why": "Whips, glitches and 3D spectacle read as hype — dangerous for money topics."}
@@ -591,7 +593,8 @@
         "recommended": [
           {"id": "D", "why": "The face IS the brand; A keywords and 3D beside the speaker make an expert's talk premium."},
           {"id": "B", "why": "The reference look for experts (iOS keynote): literal words, profile-card CTA, chat objections."},
-          {"id": "C", "why": "Talking head at hook/CTA with cinematic 3D + UI between — for launches and big ideas."}
+          {"id": "C", "why": "Talking head at hook/CTA with cinematic 3D + UI between — for launches and big ideas."},
+          {"id": "F", "why": "Footage-first: the expert's face with two-framing cuts, small captions and poster-like kinetic words on key phrases — premium without graphics overload."}
         ],
         "avoid": [
           {"id": "A", "why": "Faceless hides the person the brand is built on; use only for a side explainer series."}

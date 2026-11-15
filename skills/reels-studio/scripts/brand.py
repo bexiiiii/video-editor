@@ -384,16 +384,32 @@ def pack_e(br: dict, R: Report):
     return css, js
 
 
-PACKS = {"a": pack_a, "b": pack_b, "c": pack_c, "e": pack_e}
-STYLE_PACKS = {"a": ["a"], "b": ["b"], "c": ["a", "b", "c"], "d": ["a"], "e": ["e"]}
+def pack_f(br: dict, R: Report):
+    """Style F: brand accent → the key-word colour over footage (stock yellow #FCF900) and the caption highlight;
+    accent2 → the salmon insert page. Red (negative word) and black/white stay fixed."""
+    acc, acc2 = br["accent"], br.get("accent2")
+    css, js = [], {}
+    key = R.fit("f.accent (key word over dark footage)", acc, [("F footage", "#1A1612")], LARGE, "display text")
+    rules = {"--rsf-yellow": key}
+    js["accent"] = key
+    if acc2:
+        rules["--rsf-salmon"] = acc2
+        js["salmon"] = acc2
+    css.append(".rsf { " + " ".join(f"{k}: {v};" for k, v in rules.items()) + " }")
+    return css, js
+
+
+PACKS = {"a": pack_a, "b": pack_b, "c": pack_c, "e": pack_e, "f": pack_f}
+STYLE_PACKS = {"a": ["a"], "b": ["b"], "c": ["a", "b", "c"], "d": ["a"], "e": ["e"], "f": ["f"]}
 
 # CSS font variables per pack (display/accent/caption faces that define a style's signature stay fixed)
 FONT_VARS = {"a": (":root", ["--rsa-font"]), "b": (":root", ["--rsb-font"]), "c": (":root", ["--rsc-font"]),
-             "e": (".rse", ["--rse-font"])}
+             "e": (".rse", ["--rse-font"]), "f": (".rsf", ["--rsf-font"])}
 STOCK_FONT = {"--rsa-font": '"Google Sans Flex", "Google Sans", "Onest", "Manrope", sans-serif',
               "--rsb-font": '"Inter", "SF Pro Display", system-ui, sans-serif',
               "--rsc-font": '"Inter", "SF Pro Display", system-ui, sans-serif',
-              "--rse-font": '"Inter", "SF Pro Display", system-ui, sans-serif'}
+              "--rse-font": '"Inter", "SF Pro Display", system-ui, sans-serif',
+              "--rsf-font": '"Montserrat Alternates", "Montserrat", system-ui, sans-serif'}
 
 # ───────────────────────────── fonts ─────────────────────────────
 

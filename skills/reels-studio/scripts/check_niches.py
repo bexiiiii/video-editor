@@ -22,7 +22,7 @@ for k,n in d["niches"].items():
     for l in n["layouts"]["favor"]:
         if l not in lay: errs.append(f"{k}: unknown layout {l}")
     ids=[s["id"] for s in n["styles"]["recommended"]+n["styles"]["avoid"]]
-    if any(i not in "ABCDE" for i in ids) or len(ids)!=len(set(ids)): errs.append(f"{k}: bad style ids {ids}")
+    if any(i not in "ABCDEF" for i in ids) or len(ids)!=len(set(ids)): errs.append(f"{k}: bad style ids {ids}")
     for lg in ("ru","uz","kk"):
         if len(n["copy"]["hooks"][lg])!=3: errs.append(f"{k}: hooks {lg} != 3")
         if lg not in n["label"] or lg not in n["copy"]["cta_verbs"] or lg not in n["copy"]["avoid_words"]: errs.append(f"{k}: missing {lg}")

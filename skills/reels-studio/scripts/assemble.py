@@ -36,6 +36,9 @@ E blur-swap; also whip / portal / zoom / lum) while the incoming scene's own ent
 head clip starts ov/2 early and settles from scale 1.06 + blur. Host/clip windows are extended to cover the overlap.
 head ↔ head_overlay = same footage: only the outgoing overlay fades. transition_in {"type":"cut"} = hook hard cut;
 {"owner":"scene"} = the incoming scene draws its own transition (it then paints above the previous tail).
+Style F ("Kinetic Talking Head") is a hard-cut style: its default boundary is "cut" (no warning), its caption track is
+small Montserrat Alternates phrases shown whole (hard swap, digits / brief.captions_highlight in yellow), and
+edit/cuts.json punch_ins may carry "drift" (slow linear zoom inside a segment).
 
 Captions (talking-head modes, brief.captions auto|all|off): scripts/captions.py turns audio/transcript.json into
 1–4-word phrases; they are rendered as ONE root-level layer (#rs-captions, z 900) with per-word reveals ending at
@@ -66,7 +69,8 @@ import captions  # noqa: E402  (scripts/captions.py — caption track planner)
 
 # ---- cross-layer transitions (head ↔ motion, motion ↔ motion without a scene-owned transition)
 OV_MIN, OV_MAX, OV_DEFAULT = 0.35, 0.6, 0.45
-TX_DEFAULT = {"a": "blur-drift", "d": "blur-drift", "b": "dissolve", "c": "dissolve", "e": "blur-swap"}
+TX_DEFAULT = {"a": "blur-drift", "d": "blur-drift", "b": "dissolve", "c": "dissolve", "e": "blur-swap", "f": "cut"}
+HARD_CUT_STYLES = ("f",)   # styles whose default boundary is a hard cut (no transition drawn, no warning)
 TX_ALIAS = {"blur": "blur-drift", "drift": "blur-drift", "blurdrift": "blur-drift", "crossfade": "dissolve",
             "fade": "dissolve", "light-orb": "portal", "orb": "portal", "swap": "blur-swap", "blurswap": "blur-swap",
             "datamosh": "dissolve", "rgb-ghost": "dissolve", "rgbghost": "dissolve", "glitch": "dissolve",
@@ -93,6 +97,10 @@ CAP_STYLE = {
           "color": "#D2D2D2", "case": "uppercase", "shadow": _SH, "scrim": 0.48, "karaoke": False},
 }
 CAP_STYLE["d"] = dict(CAP_STYLE["a"], scrim=0.30)   # D already has its own lower scrim
+# F: small centred phrases (x-height 31 ≈ 56 px), white, highlight yellow, no scrim, whole phrase on the first word
+CAP_STYLE["f"] = {"font": "var(--rsf-font, 'Montserrat Alternates', Montserrat, sans-serif)", "weight": 800, "size": 56,
+                  "ls": "-0.03em", "color": "#FCFCFC", "case": "lowercase", "shadow": "0 2px 10px rgba(0,0,0,.45)",
+                  "scrim": 0.0, "karaoke": False, "phrase": True, "hl": "#FCF900"}
 CAP_STYLE["c"] = CAP_STYLE["b"]
 
 
@@ -183,7 +191,7 @@ def main() -> None:
     ap.add_argument("--work", required=True, help="work/<slug> directory")
     ap.add_argument("--no-lint", action="store_true", help="skip `npx hyperframes lint`")
     ap.add_argument("--gsap", choices=["local", "cdn"], default="local", help="vendor GSAP locally (default) or CDN")
-    ap.add_argument("--bg", default=None, help="root background colour (default by style: A/C #0B0D0D, B/D #1A1A1C, E #FCFCFC)")
+    ap.add_argument("--bg", default=None, help="root background colour (default by style: A/C #0B0D0D, B/D #1A1A1C, E #FCFCFC, F #000000)")
     a = ap.parse_args()
 
     work = Path(a.work).resolve()
@@ -225,6 +233,7 @@ def main() -> None:
     # style "c" (Keynote 3D) is built on the A and B packs: copy + load a → b → c
     # style "d" (Talking Head × 3D Keyword = Style A over the head) is built on the A pack: copy + load a → d
     # style "e" (Data News) is self-contained: pack e only (default branch below)
+    # style "f" (Kinetic Talking Head) is self-contained as well: pack f only
     packs = {"c": ["a", "b", "c"], "d": ["a", "d"]}.get(style, [style])
     # technique pack assets/techniques/head-umar.{css,js} (global RSX) is always copied + loaded after the style
     # packs; it is inert unless a scene calls RSX. RSX depends on RSB, so when a scene uses it and the style does
@@ -353,9 +362,11 @@ def main() -> None:
         ttype = str(tin.get("type") or "").lower().replace("_", "-")
         ttype = TX_ALIAS.get(ttype, ttype)
         ov = min(OV_MAX, max(OV_MIN, float(tin.get("dur") or OV_DEFAULT)))
+        if ttype in ("", "none") and style in HARD_CUT_STYLES and tin.get("owner") != "scene":
+            ttype = "cut"
         if ttype == "cut":
             mode = "cut"
-            if T > 3.5:
+            if T > 3.5 and style not in HARD_CUT_STYLES:
                 warnings.append(f"{P['sid']}→{N['sid']}: hard cut at {T:.2f}s — only allowed at the hook")
         elif tin.get("owner") == "scene":
             mode = "scene"  # the incoming scene draws its own transition over the previous scene's tail
@@ -363,7 +374,7 @@ def main() -> None:
             mode = "continuous"  # same footage on both sides: only the outgoing overlay fades
         else:
             mode = "xfade"
-        if ttype not in TX_TYPES:
+        if ttype not in TX_TYPES and mode != "cut":
             if ttype not in ("", "none"):
                 warnings.append(f"{N['sid']}: transition_in.type {ttype!r} not supported across layers — using {tx_default}")
             ttype = tx_default
@@ -465,9 +476,15 @@ def main() -> None:
         z0 = 1.0
         for p in punches:
             sc = float(p.get("scale", 1.0))
-            if abs(sc - z0) > 1e-4 or not tl_lines:
-                tl_lines.append(f'      tl.set(".headcam", {{ scale: {sc} }}, {f3(round(punch_time(float(p["start"])), 3))});')
+            t0 = round(punch_time(float(p["start"])), 3)
+            if abs(sc - z0) > 1e-4 or not tl_lines or p.get("drift"):
+                tl_lines.append(f'      tl.set(".headcam", {{ scale: {sc} }}, {f3(t0)});')
                 z0 = sc
+            if p.get("drift"):  # slow linear zoom inside the segment (edit_head.py --drift, style F option)
+                d_ = max(0.1, float(p.get("end", t0 + 3)) - t0 - 0.04)
+                z1 = round(sc * (1 + float(p["drift"])), 4)
+                tl_lines.append(f'      tl.fromTo(".headcam", {{ scale: {sc} }}, {{ scale: {z1}, duration: {f3(round(d_, 3))}, ease: "none", immediateRender: false }}, {f3(t0)});')
+                z0 = z1
         if not tl_lines:
             tl_lines.append('      tl.set(".headcam", { scale: 1 }, 0);')
     n_punch = len(tl_lines)
@@ -489,7 +506,9 @@ def main() -> None:
                    f"background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,{cs_['scrim']}) 55%, rgba(0,0,0,{cs_['scrim']}) 100%); }}")
         rows = []
         for k, p in enumerate(capres["phrases"]):
-            ws_ = "".join(f'<span class="cw" id="cw-{k}-{j}">{html.escape(w["w"])}</span>' for j, w in enumerate(p["words"]))
+            ws_ = "".join(f'<span class="cw" id="cw-{k}-{j}"'
+                          + (f' style="color:{cs_["hl"]}"' if w.get("hl") and cs_.get("hl") else "")
+                          + f'>{html.escape(w["w"])}</span>' for j, w in enumerate(p["words"]))
             rows.append(f'      <div class="ph" id="cph-{k}">{ws_}</div>')
             cap_lines.append(f'      tl.set("#cph-{k}", {{ opacity: 1 }}, {p["show"]});')
             if p.get("swap"):
@@ -497,6 +516,8 @@ def main() -> None:
             else:  # end of a caption run (pause / range end): soft fade with the layer transition
                 cap_lines.append(f'      tl.fromTo("#cph-{k}", {{ opacity: 1 }}, {{ opacity: 0, duration: 0.2, ease: "power1.in", immediateRender: false }}, {p["hide"]});')
             for j, w in enumerate(p["words"]):
+                if cs_.get("phrase"):
+                    continue  # style F: the whole phrase appears at once (hard swap), no per-word reveal
                 if cs_["karaoke"]:
                     cap_lines.append(f'      tl.fromTo("#cw-{k}-{j}", {{ color: "{cs_["from"]}" }}, {{ color: "{cs_["color"]}", duration: {w["dur"]}, ease: "power2.out", immediateRender: false }}, {w["t0"]});')
                 else:
@@ -517,7 +538,7 @@ def main() -> None:
         body.append(f'    <audio id="mix" src="media/mix.wav" data-start="0" data-duration="{f3(duration)}" '
                     f'data-track-index="9" data-volume="1"></audio>')
 
-    bg = a.bg or ("#0B0D0D" if style in ("a", "c") else "#FCFCFC" if style == "e" else "#1A1A1C")
+    bg = a.bg or ("#0B0D0D" if style in ("a", "c") else "#FCFCFC" if style == "e" else "#000000" if style == "f" else "#1A1A1C")
     script_tags = "\n".join(f'    <script src="{s}"></script>' for s in scripts)
     rs_caps = json.dumps({"on": bool(capres and not capres.get("error")), "y": (capres or {}).get("y"),
                           "ranges": (capres or {}).get("ranges", [])})

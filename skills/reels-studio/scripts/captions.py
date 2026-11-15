@@ -14,7 +14,10 @@ Rules (references/contracts.md → "Caption track"):
     last word end + HOLD s, whichever is first, and never past its caption range;
   * ranges: brief.captions "off" → none; "all" → whole reel; "auto" (default) → every kind head|head_overlay
     scene (+ scenes with "captions": true, − scenes with "captions": false); faceless reels without head scenes
-    get no captions in auto mode.
+    get no captions in auto mode. A scene's "caption_mute": [[s, e], …] (scene-local seconds) removes those
+    windows — style F mutes the small captions while a kinetic stack is on screen;
+  * style F: phrases of 1–3 words / ≤ 22 chars shown WHOLE on the first word (hard swap, no per-word reveal) and a
+    highlight flag on words with digits or listed in brief.captions_highlight (rendered yellow by assemble.py).
 """
 from __future__ import annotations
 
@@ -29,7 +32,9 @@ PAUSE = 0.28          # s — a gap this long between two words swaps the phrase
 LEAD = 0.03           # s — word fully visible at onset − LEAD
 REVEAL = 0.08         # s — word reveal tween length (starts at onset − LEAD − REVEAL)
 HOLD = 0.55           # s — keep the last phrase of a run this long after its last word
-STYLE_Y = {"d": 1470}  # caption centre y (px) by style; others 1440 (lower third, face-safe band 1250–1500)
+STYLE_Y = {"d": 1470, "f": 1328}  # caption centre y (px) by style; others 1440 (lower third, face-safe band 1250–1500)
+STYLE_LIMITS = {"f": (3, 22)}      # (max words, max chars) per phrase by style; default (MAX_WORDS, MAX_CHARS)
+FOOTAGE_STYLES = ("d", "f")        # styles that always sit on talking-head footage
 DEFAULT_Y = 1440
 SENT_END = re.compile(r"[.!?…:;]$")
 COMMA = re.compile(r"[,—–]$")
@@ -38,7 +43,7 @@ COMMA = re.compile(r"[,—–]$")
 def head_modes(brief: dict, plan: dict) -> bool:
     style = str(plan.get("style") or brief.get("style") or "a").lower()
     scenes = plan.get("scenes", [])
-    return (brief.get("mode") in ("hook_cta", "head_overlay") or style == "d"
+    return (brief.get("mode") in ("hook_cta", "head_overlay") or style in FOOTAGE_STYLES
             or any(s.get("kind") in ("head", "head_overlay") for s in scenes))
 
 
@@ -53,7 +58,7 @@ def caption_ranges(brief: dict, plan: dict) -> list[list[float]]:
         for s in scenes:  # explicit opt-outs still apply
             if s.get("captions") is False:
                 rs = _subtract(rs, float(s["start"]), float(s["end"]))
-        return rs
+        return _mute(rs, scenes)
     if not head_modes(brief, plan):
         return []
     rs: list[list[float]] = []
@@ -67,7 +72,18 @@ def caption_ranges(brief: dict, plan: dict) -> list[list[float]]:
                 rs[-1][1] = en
             else:
                 rs.append([st, en])
-    return rs
+    return _mute(rs, scenes)
+
+
+def _mute(rs, scenes):
+    """Subtract every scene's caption_mute windows (scene-local seconds) — e.g. style F kinetic-stack windows."""
+    for s in scenes:
+        st = float(s["start"])
+        for w in s.get("caption_mute") or []:
+            a, b = float(w[0]) + st, float(w[1]) + st
+            if b > a:
+                rs = _subtract(rs, a, b)
+    return [r for r in rs if r[1] - r[0] > 0.05]
 
 
 def _subtract(rs, a, b):
@@ -90,7 +106,8 @@ def in_range(t: float, rs) -> int:
     return -1
 
 
-def build(words: list[dict], ranges: list[list[float]]) -> list[dict]:
+def build(words: list[dict], ranges: list[list[float]], max_words: int = MAX_WORDS,
+          max_chars: int = MAX_CHARS) -> list[dict]:
     """Group transcript words (final timeline) into caption phrases."""
     phrases: list[dict] = []
     cur: list[dict] = []
@@ -116,7 +133,7 @@ def build(words: list[dict], ranges: list[list[float]]) -> list[dict]:
         if cur:
             chars = len(" ".join(x["w"] for x in cur)) + 1 + len(txt)
             gap = s - float(prev["e"])
-            brk = (r != cur_r or len(cur) >= MAX_WORDS or chars > MAX_CHARS or gap >= PAUSE
+            brk = (r != cur_r or len(cur) >= max_words or chars > max_chars or gap >= PAUSE
                    or SENT_END.search(prev["w"]) or (COMMA.search(prev["w"]) and len(cur) >= 2))
             if brk:
                 flush()
@@ -167,8 +184,16 @@ def plan_captions(work: Path, plan: dict | None = None, brief: dict | None = Non
         return {"error": "audio/transcript.json missing", "ranges": ranges, "phrases": []}
     tr = json.loads(tr_p.read_text())
     words = tr.get("words", [])
-    phrases = build(words, ranges)
     style = str(plan.get("style") or brief.get("style") or "a").lower()
+    mw, mc = STYLE_LIMITS.get(style, (MAX_WORDS, MAX_CHARS))
+    phrases = build(words, ranges, mw, mc)
+    if style == "f":  # highlight words: digits + brief.captions_highlight (yellow in the assembled track)
+        hl = {str(x).lower() for x in (brief.get("captions_highlight") or [])}
+        for p in phrases:
+            for w in p["words"]:
+                clean = re.sub(r"[.,!?…:;«»\"]", "", w["w"]).lower()
+                if re.search(r"\d", clean) or clean in hl:
+                    w["hl"] = True
     y = int(brief.get("captions_y") or STYLE_Y.get(style, DEFAULT_Y))
     return {"style": style, "y": y, "ranges": ranges, "phrases": phrases, "lead": LEAD, "reveal": REVEAL,
             "source": tr.get("source"), "coverage": coverage(words, ranges, phrases)}

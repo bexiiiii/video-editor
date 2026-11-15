@@ -1,0 +1,141 @@
+/* reels-studio · Style F "Kinetic Talking Head" — design tokens (all scoped to .rsf)
+ * Frame 1080×1920. Numbers measured on the reference (teardowns/style-f/tt_7632011473379790097.md).
+ *
+ * FONT: the reference kinetic face is a heavy geometric grotesk with a single-storey "а" (≈ 12 % narrower than
+ * Montserrat). Substitute = Montserrat Alternates 800 (single-storey а, same Cyrillic construction) at −0.06 em.
+ * It ships the Google Fonts "cyrillic-ext" subset: Kazakh ә ғ қ ң ө ұ ү һ і, Russian, Uzbek Latin oʻ gʻ.
+ * Condensed insert headline ("2-ВАРИАНТ") = Oswald 700 (cyrillic-ext as well).
+ *
+ * BASE: footage only. The head layer is always the client's real talking-head video (or, in assembled runs, the
+ * edit/head.mp4 clip underneath with `transparent:true`); without footage a labelled neutral slot. Never a drawn person.
+ */
+@import url("https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@700;800;900&family=Oswald:wght@600;700&display=block");
+
+.rsf {
+  /* ---------- type ---------- */
+  --rsf-font: "Montserrat Alternates", "Montserrat", system-ui, sans-serif;
+  --rsf-font-cond: "Oswald", "Roboto Condensed", sans-serif;
+  --rsf-track: -0.06em;            /* kinetic words (ref face is narrower than the substitute) */
+  --rsf-track-cap: -0.03em;        /* small captions */
+
+  /* ---------- colours (sampled) ---------- */
+  --rsf-white: #FCFCFC;            /* kinetic white / white insert page (sampled #FCFCFC) */
+  --rsf-black: #000000;            /* type on white / salmon, end card */
+  --rsf-yellow: #FCF900;           /* key word over footage, caption highlight (sampled #FCF900 / #FBFC00) */
+  --rsf-red: #FC0000;              /* negative word (sampled #FC0000 on white, #E00B08 over footage) */
+  --rsf-dim: rgba(252, 252, 252, .62); /* de-emphasised trailing word ("бар адамға…") */
+  --rsf-salmon: #EEB596;           /* accent insert page (sampled #EEB596) */
+  --rsf-ink-shadow: 0 2px 12px rgba(0, 0, 0, .35);  /* barely visible, white type over footage only */
+
+  /* ---------- type scale (x-height → Montserrat Alternates size, x-height ≈ 0.54 em) ---------- */
+  --rsf-xl: 240px;                 /* x-height 123–135 (жаяу, жарна, 2-ақ) */
+  --rsf-l: 165px;                  /* x-height 78–97 (кредитке 88) — the anchor line */
+  --rsf-m: 122px;                  /* x-height 64–74 (машинасы 70) */
+  --rsf-s: 90px;                   /* x-height 46–54 (айырылады 48) */
+  --rsf-cap: 56px;                 /* small caption, x-height 31, line pitch 52 */
+  --rsf-cond: 232px;               /* condensed caps headline, cap height ≈ 183 */
+
+  /* ---------- geometry ---------- */
+  --rsf-mx: 90px;                  /* layouts.md side margin (ref stacks reach x 97–990) */
+  --rsf-stack-cy: 1255px;          /* kinetic stack centre over the head (band 1050–1460) */
+  --rsf-cap-top: 1300px;           /* small caption box top (x-band 1313–1343, 2nd line to 1407) */
+
+  position: absolute; inset: 0; overflow: hidden;
+  font-family: var(--rsf-font);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------------------------------------------------------------- layers */
+.rsf-layer { position: absolute; inset: 0; overflow: hidden; }
+.rsf-insert { background: var(--rsf-white); }
+.rsf-insert.salmon { background: var(--rsf-salmon); }
+.rsf-insert.black { background: var(--rsf-black); }
+
+/* ---------------------------------------------------------------- footage base + framing camera */
+.rsf-head { position: absolute; inset: 0; overflow: hidden; background: #15110D; }
+.rsf-head.transparent { background: transparent; }
+.rsf-cam { position: absolute; inset: 0; transform-origin: 50% 30%; }      /* framings zoom about the face */
+.rsf-cam > .rsf-media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* labelled neutral footage slot (demo / missing footage) — never a drawn person */
+.rsf-slot { position: absolute; inset: 0;
+  background: radial-gradient(70% 45% at 50% 34%, #5A4A2E 0%, #3A3022 45%, #1E1914 80%, #15110D 100%); }
+.rsf-slot .grid { position: absolute; inset: 0; opacity: .35;
+  background-image: linear-gradient(rgba(255,255,255,.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px);
+  background-size: 120px 120px; }
+.rsf-slot .face { position: absolute; left: 300px; width: 480px; top: 300px; height: 600px; border-radius: 48px;
+  border: 3px dashed rgba(255,255,255,.32); background: rgba(255,255,255,.05);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; text-align: center; color: #D9D2C4; }
+.rsf-slot .face svg { width: 84px; height: 63px; color: #B9B0A0; }
+.rsf-slot .face .lb { font: 600 40px/1.1 var(--rsf-font); letter-spacing: -0.02em; }
+.rsf-slot .face .sb { font: 600 22px/1.2 var(--rsf-font); letter-spacing: .06em; text-transform: uppercase; color: #A79F90; }
+.rsf-slot .body { position: absolute; left: 160px; right: 160px; top: 960px; bottom: 0; border-radius: 120px 120px 0 0;
+  border: 3px dashed rgba(255,255,255,.14); border-bottom: 0; }
+.rsf-slot .eyes { position: absolute; left: 0; right: 0; top: 576px; height: 0; border-top: 2px dotted rgba(255,255,255,.22); }
+.rsf-slot .eyes span { position: absolute; right: 110px; top: 8px; font: 600 22px var(--rsf-font); color: #9A9283; }
+.rsf-badge { position: absolute; left: 90px; top: 250px; height: 54px; padding: 0 22px; border-radius: 27px;
+  display: flex; align-items: center; gap: 12px; background: rgba(0,0,0,.42); color: #EDE6D8;
+  font: 700 24px var(--rsf-font); letter-spacing: -0.01em; }
+.rsf-badge i { width: 14px; height: 14px; border-radius: 50%; background: var(--rsf-yellow); }
+
+/* ---------------------------------------------------------------- kinetic stack */
+.rsf-stack { position: absolute; inset: 0; pointer-events: none; }
+.rsf-line { position: absolute; left: 0; top: 0; white-space: nowrap; line-height: 1;
+  font-family: var(--rsf-font); font-weight: 800; letter-spacing: var(--rsf-track); text-transform: lowercase; }
+.rsf-line .bl { display: inline-block; width: 0; height: 0; vertical-align: baseline; }
+.rsf-w { display: inline-block; white-space: pre; }
+.rsf-w.xl { font-size: var(--rsf-xl); } .rsf-w.l { font-size: var(--rsf-l); }
+.rsf-w.m { font-size: var(--rsf-m); }   .rsf-w.s { font-size: var(--rsf-s); }
+.rsf-w.white { color: var(--rsf-white); } .rsf-w.black { color: var(--rsf-black); }
+.rsf-w.yellow { color: var(--rsf-yellow); } .rsf-w.red { color: var(--rsf-red); } .rsf-w.dim { color: var(--rsf-dim); }
+.rsf-on-footage .rsf-w { text-shadow: var(--rsf-ink-shadow); }
+.rsf-stack.keep-case .rsf-line { text-transform: none; }
+
+/* ---------------------------------------------------------------- small caption */
+.rsf-caps { position: absolute; left: var(--rsf-mx); right: var(--rsf-mx); top: var(--rsf-cap-top); height: 140px; pointer-events: none; }
+.rsf-ph { position: absolute; left: 0; right: 0; top: 0; text-align: center; opacity: 0;
+  font: 800 var(--rsf-cap)/52px var(--rsf-font); letter-spacing: var(--rsf-track-cap); color: var(--rsf-white);
+  text-transform: lowercase; text-shadow: 0 2px 10px rgba(0,0,0,.45); }
+.rsf-ph .hl { color: var(--rsf-yellow); }
+.rsf-ph .ln { display: block; white-space: nowrap; }
+
+/* ---------------------------------------------------------------- inserts: condensed headline, number, objects */
+.rsf-cond { position: absolute; left: var(--rsf-mx); right: var(--rsf-mx); text-align: center; white-space: nowrap;
+  font: 700 var(--rsf-cond)/1 var(--rsf-font-cond); letter-spacing: -0.01em; text-transform: uppercase; color: var(--rsf-black); }
+.rsf-obj { position: absolute; }
+.rsf-obj .in { position: absolute; inset: 0; }
+.rsf-obj img, .rsf-obj .rsf-media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; display: block; }
+.rsf-obj.bw img { filter: grayscale(1) contrast(1.08); }
+.rsf-obj.circle .in { border-radius: 50%; background: #FFFFFF; overflow: visible; }
+.rsf-obj.circle img { inset: 12%; width: 76%; height: 76%; }
+.rsf-objslot { position: absolute; inset: 0; border-radius: 40px; border: 3px dashed rgba(0,0,0,.28); background: rgba(0,0,0,.04);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; color: #5C5C5C; }
+.rsf-obj.circle .rsf-objslot { border-radius: 50%; inset: 9%; }
+.rsf-objslot svg { width: 64px; height: 64px; color: #7A7A7A; }
+.rsf-objslot .lb { font: 700 30px/1.1 var(--rsf-font); letter-spacing: -0.02em; color: #3E3E3E; }
+.rsf-objslot .sb { font: 600 19px/1.2 var(--rsf-font); letter-spacing: .05em; text-transform: uppercase; }
+.rsf-dark .rsf-objslot { border-color: rgba(255,255,255,.3); background: rgba(255,255,255,.05); color: #BDBDBD; }
+.rsf-dark .rsf-objslot .lb { color: #E6E6E6; }
+
+/* ---------------------------------------------------------------- screen-recording B-roll (full-bleed, tilted) */
+.rsf-broll { position: absolute; inset: 0; background: #2B2B2E; overflow: hidden; perspective: 1600px; }
+.rsf-broll .plane { position: absolute; left: -10%; top: -20%; width: 120%; height: 160%; transform-origin: 50% 50%; }
+.rsf-broll .page { position: absolute; left: 0; right: 0; top: 0; }
+.rsf-broll .page > .rsf-media { width: 100%; height: auto; display: block; }
+.rsf-broll .shade { position: absolute; inset: 0; background: #000; pointer-events: none; }
+.rsf-brslot { background: #ECEDEF; padding: 60px 70px; }
+.rsf-brslot .tag { display: inline-flex; align-items: center; gap: 14px; height: 70px; padding: 0 28px; border-radius: 35px;
+  border: 3px dashed rgba(0,0,0,.3); color: #444; font: 700 30px var(--rsf-font); letter-spacing: -0.02em; margin-bottom: 40px; }
+.rsf-brslot .row { display: flex; gap: 28px; margin-bottom: 34px; padding: 26px; border-radius: 28px; background: #FFFFFF; }
+.rsf-brslot .ph { width: 260px; height: 190px; border-radius: 18px; background: #CFD3D9; flex: none; }
+.rsf-brslot .tx { flex: 1; display: flex; flex-direction: column; gap: 16px; padding-top: 8px; }
+.rsf-brslot .tx b { display: block; height: 30px; border-radius: 8px; background: #2F6FD6; opacity: .55; width: 62%; }
+.rsf-brslot .tx i { display: block; height: 22px; border-radius: 8px; background: #D9DCE1; }
+.rsf-brslot .tx u { display: inline-block; height: 40px; width: 210px; border-radius: 12px; background: #F2D33C; }
+
+/* ---------------------------------------------------------------- light leak, end card */
+.rsf-leak { position: absolute; inset: -20%; pointer-events: none; mix-blend-mode: screen;
+  background: radial-gradient(40% 32% at 38% 62%, #FFF6E0 0%, #FFC062 30%, #FF8A1E 58%, rgba(255,90,0,0) 82%); }
+.rsf-cta { position: absolute; inset: 0; background: var(--rsf-black); }
+.rsf-chev { position: absolute; left: 50%; width: 248px; height: 295px; margin-left: -124px; color: var(--rsf-white); }
+.rsf-handle { position: absolute; left: 0; right: 0; text-align: center; font: 700 34px var(--rsf-font); letter-spacing: -0.02em; color: #8E8E8E; }

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Branded style previews: the stock demos re-rendered with the client's brand layer (references/branding.md).
 #
-#   make_brand_previews.sh <work/<slug> | brief.json> [a b c d e]      (default: all five styles)
+#   make_brand_previews.sh <work/<slug> | brief.json> [a b c d e f]    (default: all six styles)
 #     options (before the positional args):
 #       --out DIR     where style-<x>.jpg go (default: <work>/previews, or <dir of brief.json>/previews)
 #       --at T1,T2…   override the timestamps (default: assets/previews/timestamps.json — the same 4 instants as
@@ -31,7 +31,7 @@ if [[ -d "$src" ]]; then brief="$(cd "$src" && pwd)/brief.json"; base="$(cd "$sr
 else brief="$(cd "$(dirname "$src")" && pwd)/$(basename "$src")"; base="$(dirname "$brief")"; fi
 [[ -f "$brief" ]] || { echo "no brief.json at $brief" >&2; exit 2; }
 out="${out:-$base/previews}"; mkdir -p "$out"; out="$(cd "$out" && pwd)"
-styles=("$@"); [[ ${#styles[@]} -gt 0 ]] || styles=(a b c d e)
+styles=("$@"); [[ ${#styles[@]} -gt 0 ]] || styles=(a b c d e f)
 
 # node ≥ 22 (nvm fallback)
 if ! command -v node >/dev/null || [[ "$(node -v | sed 's/v\([0-9]*\).*/\1/')" -lt 22 ]]; then
@@ -46,7 +46,7 @@ tmp="$(mktemp -d "${TMPDIR:-/tmp}/rs-brandprev.XXXXXX")"
 trap 'rm -rf "$tmp"' EXIT
 # packs each demo's prepare.sh reads (relative to assets/)
 deps() { case "$1" in a) echo "shared style-a";; b) echo "shared style-b";; c) echo "shared style-a style-b style-c";;
-                      d) echo "shared style-a style-d";; e) echo "shared style-e";; esac; }
+                      d) echo "shared style-a style-d";; e) echo "shared style-e";; f) echo "shared style-f";; esac; }
 
 for s in "${styles[@]}"; do
   s="$(echo "$s" | tr 'A-Z' 'a-z')"

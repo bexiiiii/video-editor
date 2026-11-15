@@ -11,7 +11,7 @@ work/<slug>/
   input/                     # user footage / script.txt / logo
   audio/voice.wav            # step 1  clean voice on the FINAL timeline, 48 kHz mono (edit_head keeps voice.source.wav)
   audio/transcript.json      # step 1  word timings on the FINAL timeline
-  edit/cuts.json             # step 1a footage only: kept source ranges
+  edit/cuts.json             # step 1a footage only: kept source ranges + punch_ins [{start,end,scale,on,framing?,drift?}] + punch_anchor (style F: two-cam wide 1.0 ↔ tight 1.4 on every cut, anchor from face detection)
   edit/head.mp4              # step 1a footage only: cut talking head, 1080×1920 30fps, audio = voice.wav
   plan/scenes.json           # step 2  director
   plan/materials.json        # step 2b assets requested from the client (materials.md)
@@ -38,7 +38,7 @@ work/<slug>/
 ```json
 {
   "slug": "linkhr-ru-01",
-  "style": "A",                       // "A" 3D Keyword | "B" iOS Keynote | "C" Keynote 3D | "D" 3D Keyword Talking Head = style A over footage (needs footage) — chosen from assets/previews
+  "style": "A",                       // "A" 3D Keyword | "B" iOS Keynote | "C" Keynote 3D | "D" 3D Keyword Talking Head = style A over footage (needs footage) | "E" Data News | "F" Kinetic Talking Head (needs footage; hard cuts, two framings, kinetic stacks) — chosen from assets/previews
   "mode": "faceless",                 // "faceless" | "hook_cta" | "head_overlay"
   "lang": "ru",                       // "ru" | "uz" | "kk" — asked FIRST, before style
   "target_sec": 45,
@@ -58,7 +58,8 @@ work/<slug>/
   "audio_profile": "energetic",             // "energetic" (default, all styles: audible music + SFX) | "reference" (purist per-style policy, only on request) — audio-policy.md
   "captions": "auto",                       // "auto" (default: literal subtitles over every head|head_overlay scene in talking-head
                                             // reels — hook_cta, head_overlay, style D) | "all" (whole reel) | "off"
-  "captions_y": null                        // optional caption centre y px (default 1440; style D 1470), keep inside 1250–1500
+  "captions_y": null,                       // optional caption centre y px (default 1440; style D 1470, F 1328), keep inside 1250–1500
+  "captions_highlight": []                  // style F: extra caption words drawn yellow (numbers are automatic)
 }
 ```
 
@@ -96,6 +97,7 @@ Which tokens each style overrides and which stay fixed: `references/branding.md`
                                                             // types blur-drift|whip|dissolve|portal|blur-swap|zoom|lum|cut,
                                                             // dur 0.35–0.6; omit → style default; "owner":"scene" = the scene draws it
       "captions": null,                                     // optional per-scene override of the caption track (true/false)
+      "caption_mute": [[0.6, 2.1]],                         // optional scene-local windows without captions (style F: kinetic-stack windows)
       "kicker": {"text": "…", "at": 7.9},
       "headline": {"text": "…", "highlight": ["word"],      // A: keywords (paraphrase) · B: literal words
                    "words": [{"w": "…", "t": 8.02}]},       // t = reveal time (from transcript)
@@ -148,6 +150,9 @@ root-level layer (`#rs-captions`, above all scenes) — independent of scene bui
   lowercase white + soft shadow · B/C RSX karaoke grey #9A9A9A → white · E uppercase grey;
 - the libs see `window.RS_CAPTIONS = {on, y, ranges}`: RSD lifts its lower-zone headline to y 1255 and drops the
   duplicate grey caption; keyword headlines in motion scenes stay as they are;
+- style F: 1–3 words / ≤ 22 chars, Montserrat Alternates 800 56 px white, phrase shown whole on its first word (hard
+  swap, no scrim), numbers + `brief.captions_highlight` in yellow; scene `caption_mute` windows are subtracted
+  (stacks and small captions never overlap); inserts are motion scenes, so they carry no captions in auto mode;
 - targets: ≥ 98 % of spoken words in caption ranges, sync −0.10…+0.05 s (qa.py `caption_coverage` / `caption_sync`).
   Sync is only as good as the transcript: forced-language ASR with word timestamps (Scribe v2 or whisper `large-v3`);
   `small`/`base` whisper models are for pipeline tests only.

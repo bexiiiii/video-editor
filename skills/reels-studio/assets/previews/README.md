@@ -9,6 +9,7 @@ Show these images to the client **before** starting a reel and ask which style t
 | `style-c.jpg` | C "Keynote 3D" | A × B hybrid: cinematic 3D scenes alternate with iOS UI scenes under one chrome | product/app promos, mixed content |
 | `style-d.jpg` | D "3D Keyword Talking Head" | Style A over the client's footage: keyword headlines above/below the face, 3D objects beside the speaker, full-screen A inserts | expert talking-head reels (needs footage) |
 | `style-e.jpg` | E "Data News" | White editorial news page: channel header + chapter tabs, gold-accent headlines, news cover / post / data cards with count-ups and bars, uppercase literal captions | news, statistics, education/HR data explainers |
+| `style-f.jpg` | F "Kinetic Talking Head" | The client's footage cut wide ↔ tight (one camera, two framings), small literal captions, big mixed-size kinetic words on key phrases (one yellow/red accent), flat white/salmon inserts with a cut-out object, tilted screen-recording B-roll | expert / service talking heads: auto, finance, personal brand (needs footage) |
 
 Regenerate after a demo changes: extract 4 settled frames (text fully revealed, not mid-transition) at 360 px width and `hstack` them, as in `scripts/make_previews.sh`.
 The 4 instants used for each strip are in `timestamps.json` (reuse them when regenerating).

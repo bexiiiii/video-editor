@@ -1,6 +1,6 @@
 # Branding — client colours, font and logo on any style
 
-Every style (A–E) can wear a client's brand without losing its look: the brand replaces the style's **accent role**
+Every style (A–F) can wear a client's brand without losing its look: the brand replaces the style's **accent role**
 only. Backgrounds, greys, typography scale, layouts, motion, signature display faces and semantic colours stay stock.
 
 Input: `brief.brand` (contracts.md) → `{name, logo, accent, accent2|null, ink|null, font|null, keep_style_palette}`.

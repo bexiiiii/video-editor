@@ -11,7 +11,7 @@ Parses every scenes/<id>/index.html <script> and flags:
   set_show       tl.set(…, {opacity: 1 | autoAlpha: 1 | visibility: "visible"}) — a hard pop-in
   static_t0      content builder called at local t = 0 with no entrance (only plates may: page/layer/background/chrome …)
   early_word     a word reveal time t < 0 (text visible before the scene / before its word)
-  no_lib         no RSA/RSB/RSC/RSD/RSE/RSX builder call at all (hand-made scene — review its entrances)
+  no_lib         no RSA/RSB/RSC/RSD/RSE/RSF/RSX builder call at all (hand-made scene — review its entrances)
 Rules come from references/contracts.md → "Entrances" and skills/reels-scene/SKILL.md. Exit code 0 unless --strict.
 """
 from __future__ import annotations
@@ -22,7 +22,7 @@ import re
 import sys
 from pathlib import Path
 
-LIBS = ("RSA", "RSB", "RSC", "RSD", "RSE", "RSX")
+LIBS = ("RSA", "RSB", "RSC", "RSD", "RSE", "RSF", "RSX")
 # builders that draw plates/containers only (allowed static at t=0 — the assembler transition covers them)
 PLATES = {"page", "layer", "background", "chrome", "headBase", "headLayer", "insertLayer", "scrim", "slot", "band",
           "beat", "footage", "lens", "ready", "header", "tabs", "window"}

@@ -9,6 +9,7 @@ Multi-agent production of vertical reels (Instagram Reels / TikTok / Shorts, 108
   - **C "Keynote 3D"**: hybrid. Chapters alternate a cinematic 3D scene in the A look with an iOS UI scene in the B look, held together by B's chrome.
   - **D "3D Keyword Talking Head"**: style A applied over the client's own talking-head footage. Keyword headlines sit above or below the face, 3D objects appear beside the speaker, and full-screen A inserts run between head segments.
   - **E "Data News"**: white editorial news explainer with a gold accent. A channel header and chapter tabs stay on screen, cards count numbers up and fill their bars, and literal uppercase captions run at the bottom. Reverse-engineered from a Kazakh education-news reel.
+  - **F "Kinetic Talking Head"**: the client's footage cut between wide and tight framings on every cut (two-camera look from one camera). Small word-synced captions, big mixed-size kinetic word stacks on key phrases, flat colour inserts with a cut-out object, and tilted screen-recording B-roll.
   - A and B were reverse-engineered frame by frame from reference reels (`skills/reels-studio/references/teardowns/`). C is built on top of both.
 - **Layouts:** 10 layout types (`references/layouts.md`) with enforced spacing and variety rules: no layout twice in a row, no component reused within 3 scenes, no drawn people, no emoji or placeholder heroes.
 - **Techniques:** 25 signature moves, such as the portal transition, jump zoom, iPhone proof, paper section and karaoke captions (`references/techniques.md`). They are picked per script, and a reel history (`scripts/history.py`) stops a brand's reels from repeating them.
@@ -63,7 +64,7 @@ The orchestrator asks for anything missing: clone vs stock voice for faceless re
 
 ## Repo layout
 ```
-skills/reels-studio/   orchestrator: SKILL.md, references/, scripts/, assets/{shared,style-a,style-b,style-c,style-d,style-e,techniques,previews,sfx}, examples/
+skills/reels-studio/   orchestrator: SKILL.md, references/, scripts/, assets/{shared,style-a,style-b,style-c,style-d,style-e,style-f,techniques,previews,sfx}, examples/
 skills/reels-{scene,art,sound,editor,qa}/   worker skills
 tools/agents.yaml      worker roster → agents/*.md (Claude) + codex/agents/*.toml (Codex) via tools/gen_agents.py
 .claude-plugin/        Claude Code plugin + marketplace manifests

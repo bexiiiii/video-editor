@@ -1,6 +1,6 @@
 # Audio policy
 
-Two profiles, recorded in `brief.audio_profile`. **Default: `energetic` for every style (A–E).**
+Two profiles, recorded in `brief.audio_profile`. **Default: `energetic` for every style (A–F).**
 Client feedback that made this the default: "music barely audible, no dynamics, no sound effects,
 voice not cleaned / then suppressed". A reel is watched on a phone speaker — a −35 LUFS sub-bass bed
 and silence between words read as "no sound design".
@@ -29,12 +29,12 @@ found (title · artist · licence) — offer the other 2 candidates from `audio/
 
 ## `reference` profile — the measured reference videos per style
 
-| | Style A "3D Keyword" | Style B "iOS Keynote" | Style C "Keynote 3D" | Style D "Talking Head × 3D Keyword" | Style E "Data News" |
-|---|---|---|---|---|---|
-| Voice | dry, mono-compatible, −14 LUFS, LRA ≈ 1.7, gaps 0.3–0.5 s | dry, dominant, −14 LUFS | dry, dominant, gaps 0.3–0.5 s | speaker's footage voice: cleanup.py, gaps 0.3–0.5 s | dry, ≈130 wpm (Kazakh), gaps 0.3–0.5 s |
-| Music | none | low beat 99–117 BPM ~11 dB under voice, only under graphics (after the hook) | as B, off under hook/CTA footage | none | low pad under the whole piece, ≈15 dB under voice |
-| SFX | none | UI clicks/taps, ticks on counters, boom on portals, notification blips | sparse UI SFX, one whoosh per whip (at − 0.12), boom on portals | none | none |
-| Master | −14 LUFS, −1 dBTP | same; duck music under voice | same; whoosh peaks ≈ 6 dB below voice peaks | same | same |
+| | Style A "3D Keyword" | Style B "iOS Keynote" | Style C "Keynote 3D" | Style D "Talking Head × 3D Keyword" | Style E "Data News" | Style F "Kinetic Talking Head" |
+|---|---|---|---|---|---|---|
+| Voice | dry, mono-compatible, −14 LUFS, LRA ≈ 1.7, gaps 0.3–0.5 s | dry, dominant, −14 LUFS | dry, dominant, gaps 0.3–0.5 s | speaker's footage voice: cleanup.py, gaps 0.3–0.5 s | dry, ≈130 wpm (Kazakh), gaps 0.3–0.5 s | footage voice (cleanup.py), dry lav, −14 LUFS, LRA ≈ 2.4, almost no pauses (≈ 165 wpm) |
+| Music | none | low beat 99–117 BPM ~11 dB under voice, only under graphics (after the hook) | as B, off under hook/CTA footage | none | low pad under the whole piece, ≈15 dB under voice | none (pauses fall to −45 dBFS) |
+| SFX | none | UI clicks/taps, ticks on counters, boom on portals, notification blips | sparse UI SFX, one whoosh per whip (at − 0.12), boom on portals | none | none | none on cuts / stacks; one sub-boom (30–80 Hz) on the end-card cut |
+| Master | −14 LUFS, −1 dBTP | same; duck music under voice | same; whoosh peaks ≈ 6 dB below voice peaks | same | same | same |
 
 Even in `reference`, music that is present must pass the mix.py gap check (7–16 dB) and be HP-filtered —
 a bed nobody can hear on a phone is a bug, not a style.

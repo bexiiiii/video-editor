@@ -22,6 +22,11 @@ Pipeline
      audio/voice.source.wav keeps the source voice and audio/voice.wav becomes the cut voice.
   5. Write edit/cuts.json: segments (source→final), removed ranges with reasons, and punch-in suggestions
      (alternating scale 1.0 / 1.12 on cut points every ~3–5 s) for assemble.py.
+     Style F ("Kinetic Talking Head", `--framing auto` with brief.style "F", or `--framing two-cam`): the
+     "two camera" look from ONE camera — wide 1.0 ↔ tight `--tight` (default 1.4, ref 1.25–1.55) switched on
+     EVERY cut (tight segments ≤ 3.2 s; a long segment gets an extra switch on a word onset), anchored on the
+     face/eye line: OpenCV Haar face detection on the first seconds of the source when cv2 is installed, else
+     `--anchor-x/--anchor-y` (default 0.5 / 0.30). `--drift 0.03` adds a slow zoom inside segments ≥ 2.5 s.
 
 Resumable: skips when edit/head.mp4 and edit/cuts.json are newer than their inputs (use --force).
 Requires ffmpeg/ffprobe and numpy.
@@ -364,6 +369,76 @@ def punch_ins(frames, words_final, dur, lo=3.0, hi=5.0, zoom=1.12) -> list[dict]
     return out
 
 
+def face_anchor(source: Path, start: float = 0.5, n: int = 5, step: float = 0.6) -> dict | None:
+    """Face / eye-line anchor (0..1) from the first seconds of the CFR source via OpenCV's Haar cascade.
+    Returns None when cv2 is missing or no face is found (callers fall back to the configured anchor)."""
+    try:
+        import cv2  # type: ignore
+    except Exception:
+        return None
+    casc = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+    if casc.empty():
+        return None
+    cap = cv2.VideoCapture(str(source))
+    pts = []
+    for i in range(n):
+        cap.set(cv2.CAP_PROP_POS_MSEC, (start + i * step) * 1000)
+        ok, fr = cap.read()
+        if not ok:
+            continue
+        g = cv2.cvtColor(fr, cv2.COLOR_BGR2GRAY)
+        h, w = g.shape[:2]
+        faces = casc.detectMultiScale(g, scaleFactor=1.1, minNeighbors=5, minSize=(w // 10, w // 10))
+        if len(faces):
+            x, y, fw, fh = max(faces, key=lambda f: f[2] * f[3])
+            pts.append(((x + fw / 2) / w, (y + 0.42 * fh) / h))   # eye line ≈ 42 % down the face box
+    cap.release()
+    if not pts:
+        return None
+    pts.sort()
+    mx = pts[len(pts) // 2][0]
+    my = sorted(p[1] for p in pts)[len(pts) // 2]
+    return {"x": round(min(0.85, max(0.15, mx)), 3), "y": round(min(0.6, max(0.12, my)), 3), "source": "haar"}
+
+
+def two_camera(frames, words_final, dur, tight=1.4, drift=0.0, min_seg=1.2, max_tight=3.2, max_wide=4.0) -> list[dict]:
+    """Style F framing plan: wide 1.0 ↔ tight on EVERY cut point (kept-range joints ≥ min_seg apart); a segment longer
+    than max_tight (tight) / max_wide (wide) gets an extra switch on a word onset ~2–2.6 s in. Optional drift."""
+    cuts, o = [], 0.0
+    for f0, f1 in frames[:-1]:
+        o += (f1 - f0) / FPS
+        cuts.append(round(o, 3))
+    onsets = sorted({round(float(w["s"]), 3) for w in words_final})
+    pts, last = [], 0.0
+    for c in cuts:
+        if c - last >= min_seg and dur - c >= min_seg:
+            pts.append(c)
+            last = c
+    # fill long stretches with word-onset switches, alternating from wide at 0
+    out, t, scale, i = [], 0.0, 1.0, 0
+    bounds = pts + [dur]
+    while t < dur - 1e-3:
+        nxt = bounds[i] if i < len(bounds) else dur
+        lim = max_tight if scale > 1.0 else max_wide
+        on = "cut"
+        if nxt - t > lim:
+            cand = [x for x in onsets if t + 2.0 <= x <= t + 2.6 and dur - x >= min_seg]
+            if cand:
+                nxt, on = cand[0], "word"
+        else:
+            i += 1
+        if dur - nxt < min_seg:
+            nxt, on = dur, "end"
+        seg = {"start": round(t, 3), "end": round(nxt, 3), "scale": scale, "on": on, "framing": "tight" if scale > 1.0 else "wide"}
+        if drift and nxt - t >= 2.5:
+            seg["drift"] = drift
+        out.append(seg)
+        t, scale = nxt, (tight if scale == 1.0 else 1.0)
+        while i < len(bounds) and bounds[i] <= t + 1e-3:
+            i += 1
+    return out
+
+
 # ----------------------------------------------------------------------------- main
 
 def main() -> None:
@@ -378,6 +453,13 @@ def main() -> None:
     ap.add_argument("--xfade-ms", type=float, default=2 * 1024 / SR * 1000,
                     help="audio crossfade at cuts (default 2 AAC frames ≈ 42.7 ms)")
     ap.add_argument("--punch-zoom", type=float, default=1.12)
+    ap.add_argument("--framing", choices=["auto", "punch", "two-cam"], default="auto",
+                    help="punch = alternating 1.0/--punch-zoom every 3–5 s; two-cam = style F wide↔tight on every cut; "
+                         "auto = two-cam for brief.style F, else punch")
+    ap.add_argument("--tight", type=float, default=1.4, help="two-cam tight framing scale (ref 1.25–1.55)")
+    ap.add_argument("--drift", type=float, default=0.0, help="two-cam: slow zoom inside segments ≥ 2.5 s (e.g. 0.03)")
+    ap.add_argument("--anchor-x", type=float, default=0.5, help="framing anchor x (0..1) when no face is detected")
+    ap.add_argument("--anchor-y", type=float, default=None, help="framing anchor y (0..1); default 0.38 (punch) / 0.30 (two-cam)")
     ap.add_argument("--force", action="store_true", help="redo even if outputs are up to date")
     ap.add_argument("--keep-tmp", action="store_true", help="keep edit/tmp/source.mp4")
     ap.add_argument("--dry-run", action="store_true", help="plan and write cuts.json only, no render")
@@ -476,16 +558,29 @@ def main() -> None:
                          "out_s": round(o, 3), "out_e": round(o + d, 3), "f0": f0, "f1": f1})
         o += d
     tr_final = remap_transcript(tr, words, keep, frames, src_dur - kept) if tr else None
-    pis = punch_ins(frames, tr_final["words"] if tr_final else [], kept, zoom=a.punch_zoom)
+    style = str(brief.get("style") or "").lower()
+    framing = a.framing if a.framing != "auto" else ("two-cam" if style == "f" else "punch")
+    wf = tr_final["words"] if tr_final else []
+    if framing == "two-cam":
+        pis = two_camera(frames, wf, kept, tight=a.tight, drift=a.drift)
+        anchor = {"x": a.anchor_x, "y": a.anchor_y if a.anchor_y is not None else 0.30, "source": "config"}
+        fa = face_anchor(source)
+        if fa and a.anchor_y is None:
+            anchor = fa
+        log(f"two-camera framing: {len(pis)} segments, tight {a.tight}, anchor {anchor}")
+    else:
+        pis = punch_ins(frames, wf, kept, zoom=a.punch_zoom)
+        anchor = {"x": a.anchor_x, "y": a.anchor_y if a.anchor_y is not None else 0.38}
     cuts = {"fps": FPS, "width": W, "height": H, "duration": round(kept, 3), "source_duration": round(src_dur, 3),
             "takes": [{"path": str(Path(footage[i])), "offset": offsets[i], "duration": round(t["duration"], 3),
                        "rotation": t["rotation"], "size": f"{t['width']}x{t['height']}", "fps": round(t["fps"], 3)}
                       for i, t in enumerate(takes)],
             "audio_source": str(audio_src.relative_to(work)) if audio_src.is_relative_to(work) else str(audio_src),
             "segments": segments, "removed": sorted(removed, key=lambda r: r["s"]),
-            "punch_ins": pis, "punch_anchor": {"x": 0.5, "y": 0.38},
+            "punch_ins": pis, "punch_anchor": anchor, "framing": framing,
             "params": {"max_silence": a.max_silence, "pad": a.pad, "fillers": fillers,
-                       "retakes": not a.no_retakes, "xfade_ms": round(a.xfade_ms, 2), "crop_x": a.crop_x}}
+                       "retakes": not a.no_retakes, "xfade_ms": round(a.xfade_ms, 2), "crop_x": a.crop_x,
+                       "framing": framing, "tight": a.tight, "drift": a.drift}}
     edit.mkdir(exist_ok=True)
     if a.dry_run:
         cuts_p.write_text(json.dumps(cuts, ensure_ascii=False, indent=1))
