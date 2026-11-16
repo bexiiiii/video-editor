@@ -11,7 +11,7 @@ Parses every scenes/<id>/index.html <script> and flags:
   set_show       tl.set(…, {opacity: 1 | autoAlpha: 1 | visibility: "visible"}) — a hard pop-in
   static_t0      content builder called at local t = 0 with no entrance (only plates may: page/layer/background/chrome …)
   early_word     a word reveal time t < 0 (text visible before the scene / before its word)
-  no_lib         no RSA/RSB/RSC/RSD/RSE/RSF/RSX builder call at all (hand-made scene — review its entrances)
+  no_lib         no RSA/RSB/RSC/RSD/RSE/RSF/RSG/RSX builder call at all (hand-made scene — review its entrances)
 Rules come from references/contracts.md → "Entrances" and skills/reels-scene/SKILL.md. Exit code 0 unless --strict.
 """
 from __future__ import annotations
@@ -22,7 +22,9 @@ import re
 import sys
 from pathlib import Path
 
-LIBS = ("RSA", "RSB", "RSC", "RSD", "RSE", "RSF", "RSX")
+LIBS = ("RSA", "RSB", "RSC", "RSD", "RSE", "RSF", "RSG", "RSX")
+# (RSF / RSG builders take word times inside their specs — `RSG.layout.x(clip, spec, tl)` at 0 is normal — so the
+#  static_t0 check below only covers A–E/X; RSG words are checked by the negative-time rule: `at: -…`)
 # builders that draw plates/containers only (allowed static at t=0 — the assembler transition covers them)
 PLATES = {"page", "layer", "background", "chrome", "headBase", "headLayer", "insertLayer", "scrim", "slot", "band",
           "beat", "footage", "lens", "ready", "header", "tabs", "window"}
@@ -87,7 +89,7 @@ def lint_file(path: Path) -> list[dict]:
             if re.search(r",\s*tl\s*\)\s*$", call) or re.search(r",\s*null\s*,\s*0\s*$", call):
                 add("static_t0", f"{m.group(1)}.{name} called without a timeline/at — no entrance", line_of(base, js, m.start()))
         # 5) negative word times
-        for m in re.finditer(r"\bt\s*:\s*(-[\d.]+)", js):
+        for m in re.finditer(r"\b(?:t|at)\s*:\s*(-[\d.]+)", js):
             add("early_word", f"word time {m.group(1)} < 0 (visible before the scene starts)", line_of(base, js, m.start()))
     return finds
 

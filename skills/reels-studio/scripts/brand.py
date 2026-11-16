@@ -7,7 +7,7 @@
   add --check to print the report without writing files.
 
 What it does (references/branding.md is the spec):
-  * derives every brand-overridable token of the style's packs (A/D → a, B → b, C → a+b+c, E → e) from 1–2 brand
+  * derives every brand-overridable token of the style's packs (A/D → a, B → b, C → a+b+c, E → e, F → f, G → g) from 1–2 brand
     colours with OKLCH math: the stock ramp of each token family (e.g. A's 3D bookmark #1E8BFF → #7CCBFF/#0A4FD0…,
     E's gold #E89E0C → #C9822E → #A8672C, B's blue takeover #1C86FD → #0D4C90) is re-based onto the brand colour by
     transferring each stop's OKLCH offset (ΔL, C ratio, Δh) — so ramps keep the style's shading, only the hue changes;
@@ -399,17 +399,40 @@ def pack_f(br: dict, R: Report):
     return css, js
 
 
-PACKS = {"a": pack_a, "b": pack_b, "c": pack_c, "e": pack_e, "f": pack_f}
-STYLE_PACKS = {"a": ["a"], "b": ["b"], "c": ["a", "b", "c"], "d": ["a"], "e": ["e"], "f": ["f"]}
+def pack_g(br: dict, R: Report):
+    """Style G: the treatments are SEMANTIC (glow-pink = devotion/giving, serif = reflection, red = warning,
+    white = duty) and never take brand colours. Brand accent → only the "value" treatment (bold-yellow, stock
+    #F9E376, fitted for contrast over dark footage); accent2 → the kinetic insert (mint page #C3E0DE is re-based
+    onto accent2's hue as a pale page, ink = accent2 darkened until ≥ 7:1 on it)."""
+    acc, acc2 = br["accent"], br.get("accent2")
+    css, js = [], {}
+    val = R.fit("g.value (bold-yellow emphasis over footage)", acc, [("G footage", "#262E3E")], LARGE, "display text")
+    rules = {"--rsg-value": val}
+    js["value"] = val
+    if acc2:
+        _, c2, h2 = rgb_to_oklch(parse_hex(acc2))
+        page = lch_hex(0.885, min(c2 * 0.22, 0.035), h2)    # stock mint #C3E0DE ≈ L .885 C .03
+        edge = lch_hex(0.68, min(c2 * 0.15, 0.022), h2)     # stock edge #8DA09E ≈ L .68
+        ink = R.fit("g.insert ink (kinetic insert)", acc2, [("G kinetic page", page)], 7.0, "display text")
+        rules.update({"--rsg-mint": page, "--rsg-mint-edge": edge, "--rsg-navy": ink})
+        js.update({"mint": page, "mintEdge": edge, "navy": ink})
+    css.append(".rsg { " + " ".join(f"{k}: {v};" for k, v in rules.items()) + " }")
+    return css, js
+
+
+PACKS = {"a": pack_a, "b": pack_b, "c": pack_c, "e": pack_e, "f": pack_f, "g": pack_g}
+STYLE_PACKS = {"a": ["a"], "b": ["b"], "c": ["a", "b", "c"], "d": ["a"], "e": ["e"], "f": ["f"], "g": ["g"]}
 
 # CSS font variables per pack (display/accent/caption faces that define a style's signature stay fixed)
 FONT_VARS = {"a": (":root", ["--rsa-font"]), "b": (":root", ["--rsb-font"]), "c": (":root", ["--rsc-font"]),
-             "e": (".rse", ["--rse-font"]), "f": (".rsf", ["--rsf-font"])}
+             "e": (".rse", ["--rse-font"]), "f": (".rsf", ["--rsf-font"]),
+             "g": (".rsg", ["--rsg-font"])}   # G: only the grotesk; the serif treatment face stays fixed
 STOCK_FONT = {"--rsa-font": '"Google Sans Flex", "Google Sans", "Onest", "Manrope", sans-serif',
               "--rsb-font": '"Inter", "SF Pro Display", system-ui, sans-serif',
               "--rsc-font": '"Inter", "SF Pro Display", system-ui, sans-serif',
               "--rse-font": '"Inter", "SF Pro Display", system-ui, sans-serif',
-              "--rsf-font": '"RSF Kinetic A", "Montserrat", system-ui, sans-serif'}
+              "--rsf-font": '"RSF Kinetic A", "Montserrat", system-ui, sans-serif',
+              "--rsg-font": '"Inter Tight", "Arimo", system-ui, sans-serif'}
 
 # ───────────────────────────── fonts ─────────────────────────────
 
@@ -562,7 +585,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--work", help="work/<slug>: reads brief.json (+ plan/scenes.json), writes composition/lib/")
     ap.add_argument("--brief", help="explicit brief.json")
-    ap.add_argument("--style", help="a|b|c|d|e (default: plan/brief style)")
+    ap.add_argument("--style", help="a|b|c|d|e|f|g (default: plan/brief style)")
     ap.add_argument("--lang", help="ru|kk|uz (default: brief.lang or ru)")
     ap.add_argument("--out", help="output dir for brand.css/js/json")
     ap.add_argument("--accent"), ap.add_argument("--accent2"), ap.add_argument("--ink"), ap.add_argument("--font")

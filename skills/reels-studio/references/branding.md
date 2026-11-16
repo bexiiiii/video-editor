@@ -1,6 +1,6 @@
 # Branding — client colours, font and logo on any style
 
-Every style (A–F) can wear a client's brand without losing its look: the brand replaces the style's **accent role**
+Every style (A–G) can wear a client's brand without losing its look: the brand replaces the style's **accent role**
 only. Backgrounds, greys, typography scale, layouts, motion, signature display faces and semantic colours stay stock.
 
 Input: `brief.brand` (contracts.md) → `{name, logo, accent, accent2|null, ink|null, font|null, keep_style_palette}`.
@@ -50,6 +50,8 @@ Thresholds — WCAG 2.x, sized for a phone (1080 px video ≈ 400 CSS px, so 72 
 | **C** Keynote 3D | everything of A and B above + `--rsc-accent-dark/light` (keyword highlight), `--rsc-blue-a/b` + `.rsc-plate--blue`, hero glow default, chrome-dot glow, portal bloom (`RS_BRAND.palette.c`) | cinematic glows (orange/teal/emerald/navy/violet/lavender), glass, footage plate, greys, motion |
 | **D** 3D Keyword × head | = A (D loads pack a; scrims, footage slot and face-safe zones stay fixed) | = A + scrims |
 | **E** Data News | gold ramp `--rse-gold-1/2/3`, `--rse-gold` / `--rse-gold-v` gradients (headline accent, big numbers, bars, tabs, toggles, badges), kicker brown `--rse-kicker`, rubric dot `--rse-dot` (accent2 or derived), badge label colour if white fails, headline `--rse-ink` (ink only), JS: dot-row fill + line-chart gradient (`RS_BRAND.palette.e`) | page `#FCFCFC`, cards `#F4F4F6`, greys, track, Inter Tight caption track, type scale, motion |
+| **F** Kinetic Talking Head | key word / caption highlight `--rsf-yellow` (accent), salmon insert `--rsf-salmon` (accent2) | red negative word, black/white, footage, type, motion |
+| **G** Editorial Selfie | only the **value** treatment `--rsg-value` (bold-yellow, fitted ≥ 3:1 over dark footage `#262E3E`); accent2 → the kinetic insert: pale page `--rsg-mint`/`--rsg-mint-edge` (accent2 hue at L .885 / .68, low chroma) + ink `--rsg-navy` (accent2 darkened to ≥ 7:1); `--rsg-font` (grotesk) | **semantic treatments**: glow-pink (devotion/giving), serif-pink/grey/gold (reflection, honour), red (warning), bold-white (duty), glow-yellow neon (scenes); the serif face (Noto Serif Display condensed); lead white; white calligraphy page; footage; motion. Treatments carry meaning across reels, so a brand never recolours them |
 
 JS libs read `window.RS_BRAND.palette.<pack>.<key>` through a `brand(key, stock)` helper — absent brand = stock
 literal, so APIs and unbranded output are unchanged. Explicit props (`color`, `colors`, …) always win; a 3D object
@@ -60,7 +62,7 @@ with an explicit `color` keeps the stock shading stops.
   reel language: **ru** Cyrillic А–я Ёё · **kk** + Ә ә Ғ ғ Қ қ Ң ң Ө ө Ұ ұ Ү ү Һ һ І і (cyrillic-ext) ·
   **uz** Latin A–z + ʻ (U+02BB, oʻ gʻ) and ’.
 - Covered → `@import` (weights 300–800 when variable, else the static weights) and the **body** font variable becomes
-  `"<Brand>", <stock stack>`: A/D `--rsa-font`, B `--rsb-font`, C `--rsc-font` (A inside C follows it), E `--rse-font`.
+  `"<Brand>", <stock stack>`: A/D `--rsa-font`, B `--rsb-font`, C `--rsc-font` (A inside C follows it), E `--rse-font`, F `--rsf-font`, G `--rsg-font` (grotesk only; the G serif treatment face stays).
 - Not covered / family not found / offline → stock font kept + warning. Signature faces never change (A hook
   Unbounded + Montserrat italic, A mono, E Inter Tight captions). Tracking was tuned for the stock fonts — check the
   branded preview for wide families (shrink-to-fit still protects line width).

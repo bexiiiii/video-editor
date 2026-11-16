@@ -27,6 +27,8 @@ Pipeline
      EVERY cut (tight segments ≤ 3.2 s; a long segment gets an extra switch on a word onset), anchored on the
      face/eye line: OpenCV Haar face detection on the first seconds of the source when cv2 is installed, else
      `--anchor-x/--anchor-y` (default 0.5 / 0.30). `--drift 0.03` adds a slow zoom inside segments ≥ 2.5 s.
+     Style G ("Editorial Selfie", `--framing auto` with brief.style "G", or `--framing none`): one phone-selfie take,
+     never reframed — a single punch_in {scale 1.0} (cuts stay hidden under inserts / word boundaries).
 
 Resumable: skips when edit/head.mp4 and edit/cuts.json are newer than their inputs (use --force).
 Requires ffmpeg/ffprobe and numpy.
@@ -453,9 +455,9 @@ def main() -> None:
     ap.add_argument("--xfade-ms", type=float, default=2 * 1024 / SR * 1000,
                     help="audio crossfade at cuts (default 2 AAC frames ≈ 42.7 ms)")
     ap.add_argument("--punch-zoom", type=float, default=1.12)
-    ap.add_argument("--framing", choices=["auto", "punch", "two-cam"], default="auto",
+    ap.add_argument("--framing", choices=["auto", "punch", "two-cam", "none"], default="auto",
                     help="punch = alternating 1.0/--punch-zoom every 3–5 s; two-cam = style F wide↔tight on every cut; "
-                         "auto = two-cam for brief.style F, else punch")
+                         "none = no reframing (one take); auto = two-cam for brief.style F, none for G, else punch")
     ap.add_argument("--tight", type=float, default=1.4, help="two-cam tight framing scale (ref 1.25–1.55)")
     ap.add_argument("--drift", type=float, default=0.0, help="two-cam: slow zoom inside segments ≥ 2.5 s (e.g. 0.03)")
     ap.add_argument("--anchor-x", type=float, default=0.5, help="framing anchor x (0..1) when no face is detected")
@@ -559,7 +561,7 @@ def main() -> None:
         o += d
     tr_final = remap_transcript(tr, words, keep, frames, src_dur - kept) if tr else None
     style = str(brief.get("style") or "").lower()
-    framing = a.framing if a.framing != "auto" else ("two-cam" if style == "f" else "punch")
+    framing = a.framing if a.framing != "auto" else ("two-cam" if style == "f" else "none" if style == "g" else "punch")
     wf = tr_final["words"] if tr_final else []
     if framing == "two-cam":
         pis = two_camera(frames, wf, kept, tight=a.tight, drift=a.drift)
@@ -568,6 +570,10 @@ def main() -> None:
         if fa and a.anchor_y is None:
             anchor = fa
         log(f"two-camera framing: {len(pis)} segments, tight {a.tight}, anchor {anchor}")
+    elif framing == "none":   # style G: one phone-selfie take, never reframed
+        pis = [{"start": 0.0, "end": round(kept, 3), "scale": 1.0, "on": "start"}]
+        anchor = {"x": a.anchor_x, "y": a.anchor_y if a.anchor_y is not None else 0.40}
+        log("framing none: one take, scale 1.0 (style G)")
     else:
         pis = punch_ins(frames, wf, kept, zoom=a.punch_zoom)
         anchor = {"x": a.anchor_x, "y": a.anchor_y if a.anchor_y is not None else 0.38}

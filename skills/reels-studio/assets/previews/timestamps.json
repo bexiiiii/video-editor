@@ -1,9 +1,45 @@
 {
  "_note": "Seconds into each style's demo where the 4 preview tiles of assets/previews/style-<x>.jpg were taken (recovered by PSNR-matching the tiles against assets/style-<x>/demo/*.mp4, all ≥ 40 dB). Used by scripts/make_brand_previews.sh; reuse them in scripts/make_previews.sh when regenerating.",
- "a": [1.233, 9.9, 12.1, 17.6],
- "b": [5.733, 9.4, 12.8, 23.133],
- "c": [5.5, 9.367, 15.5, 19.333],
- "d": [3.433, 5.6, 9.7, 19.9],
- "e": [3.767, 12.3, 16.667, 26.367],
- "f": [4.4, 9.4, 11.8, 16.6]
+ "a": [
+  1.233,
+  9.9,
+  12.1,
+  17.6
+ ],
+ "b": [
+  5.733,
+  9.4,
+  12.8,
+  23.133
+ ],
+ "c": [
+  5.5,
+  9.367,
+  15.5,
+  19.333
+ ],
+ "d": [
+  3.433,
+  5.6,
+  9.7,
+  19.9
+ ],
+ "e": [
+  3.767,
+  12.3,
+  16.667,
+  26.367
+ ],
+ "f": [
+  4.4,
+  9.4,
+  11.8,
+  16.6
+ ],
+ "g": [
+  3.75,
+  9.55,
+  11.9,
+  24.15
+ ]
 }

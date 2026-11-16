@@ -20,7 +20,8 @@
         "recommended": [
           {"id": "E", "why": "Scores, deadlines and rule changes are news + numbers — E's cover/data cards and literal captions are made for it."},
           {"id": "B", "why": "Step-by-step study tips and lists read clearly as iOS cards with literal words."},
-          {"id": "D", "why": "A teacher on camera builds trust; keyword headlines keep the key rule on screen."}
+          {"id": "D", "why": "A teacher on camera builds trust; keyword headlines keep the key rule on screen."},
+          {"id": "G", "why": "A teacher's calm selfie explanation with the key term as an editorial stack (one emphasised word per sentence) — cheap to film, reads like a study note."}
         ],
         "avoid": [
           {"id": "C", "why": "Whips and 3D spectacle compete with dense study content; spend the budget on real score screenshots instead."}
@@ -594,7 +595,8 @@
           {"id": "D", "why": "The face IS the brand; A keywords and 3D beside the speaker make an expert's talk premium."},
           {"id": "B", "why": "The reference look for experts (iOS keynote): literal words, profile-card CTA, chat objections."},
           {"id": "C", "why": "Talking head at hook/CTA with cinematic 3D + UI between — for launches and big ideas."},
-          {"id": "F", "why": "Footage-first: the expert's face with two-framing cuts, small captions and poster-like kinetic words on key phrases — premium without graphics overload."}
+          {"id": "F", "why": "Footage-first: the expert's face with two-framing cuts, small captions and poster-like kinetic words on key phrases — premium without graphics overload."},
+          {"id": "G", "why": "Values / mindset talks filmed as a phone selfie: every sentence becomes an editorial stack with one emphasised word in a meaning-coded treatment (value yellow, warm pink glow, reflective serif, red warning)."}
         ],
         "avoid": [
           {"id": "A", "why": "Faceless hides the person the brand is built on; use only for a side explainer series."}
@@ -712,6 +714,59 @@
         "avoid_words": {"ru": ["ваш ребёнок отстаёт", "гений", "гарантируем результат", "плохие родители"], "uz": ["farzandingiz ortda qolmoqda", "daho", "natija kafolati", "yomon ota-ona"], "kk": ["балаңыз қалып жатыр", "данышпан", "нәтиже кепілдігі", "жаман ата-ана"]}
       },
       "compliance": ["Children on screen only with written parental consent.", "Ads must not urge children to persuade parents or exploit trust (RU 38-ФЗ ст.6; similar in KZ/UZ).", "No developmental/medical promises; speech therapy = specialist consultation framing.", "Toy safety: no claims without certification."]
+    },
+
+    "religion_spirituality": {
+      "label": {"ru": "Религия, духовность, нравственность", "uz": "Din, maʼnaviyat, axloq", "kk": "Дін, рухани құндылықтар, адамгершілік"},
+      "match": {
+        "ru": ["ислам", "религия", "духовность", "вера", "намаз", "коран", "сунна", "пророк", "мечеть", "имам", "нравственность", "дуа"],
+        "uz": ["islom", "din", "maʼnaviyat", "imon", "namoz", "qurʼon", "sunnat", "paygʻambar", "masjid", "imom", "axloq", "duo"],
+        "kk": ["ислам", "дін", "рухани", "иман", "намаз", "құран", "сүннет", "пайғамбар", "мешіт", "имам", "адамгершілік", "дұға"],
+        "en": ["islam", "religion", "faith", "spirituality", "quran", "sunnah", "prophet", "mosque", "imam", "church", "sermon", "ethics"]
+      },
+      "styles": {
+        "recommended": [
+          {"id": "G", "why": "The reference look for reflective faith talks: the speaker's calm selfie, editorial stacks with meaning-coded emphasis (pink glow for devotion, serif for remembrance), light-only generated scenes, client calligraphy."},
+          {"id": "F", "why": "For a more direct lecture rhythm: footage with wide/tight cuts and kinetic stacks, flat inserts — no sacred imagery needed."},
+          {"id": "E", "why": "For announcements (Ramadan schedule, event dates, charity totals) as a calm editorial news page."}
+        ],
+        "avoid": [
+          {"id": "A", "why": "Glossy 3D toys and keyword punchlines trivialise sacred topics."},
+          {"id": "C", "why": "Whips, portals and cinematic spectacle clash with a reflective tone."}
+        ]
+      },
+      "palette": {"accent": "#2E8B6E", "accent2": "#E9D58A", "mood": "deep green + warm parchment gold — calm, traditional, never flashy", "contrast": "green reads on light and dark pages; gold is a fill under ink"},
+      "art_direction": {
+        "append": "cinematic, reverent, soft volumetric light, warm amber and deep navy, dust in light beams, slow and calm, symbolic not literal, no text, no faces",
+        "props": ["open book of light", "lantern", "prayer beads (tasbih)", "light through mosque windows (geometric lattice)", "path of lights", "hands releasing light", "dawn horizon", "date palm silhouette"],
+        "avoid": ["faces of prophets, companions or holy figures", "any human face", "generated Arabic calligraphy or holy names", "readable text", "mosque or church interiors that identify a real place without permission", "luxury or comic imagery"]
+      },
+      "music": {"mood": "calm, ambient, warm pads or vocal-only (nasheed) — ask the client whether instruments are acceptable", "bpm": [96, 104], "voice_only_when": "the client prefers no instruments; Quran recitation present in the voice track; any doubt"},
+      "techniques": {"favor": ["lens_blur", "hero_word", "selection_highlight"], "avoid": ["glitch_cta", "rgb_ghost", "mute_gag", "glove_tap", "jump_zoom", "sticker_title", "strike_fix"]},
+      "layouts": {"favor": ["head", "head-side", "statement", "media", "hero"]},
+      "materials": {
+        "ask": ["talking-head footage (phone selfie is fine, calm light)", "the exact honorifics and spellings the speaker uses (с.а.с / ﷺ / (а.с))", "calligraphy or ornament files the client owns or licensed — verified by the client (spelling, harakat, orientation)", "sources for quoted hadith / verses (collection + number) if shown on screen", "handle & CTA keyword"],
+        "notes": "Quotes of verses and hadith appear only as the client provides them, with the source. Never paraphrase sacred text on screen."
+      },
+      "copy": {
+        "tone": "humble, reflective, first-person plural ('мы должны'), one value per reel, no fear-mongering, no judgement of others",
+        "hooks": {
+          "ru": ["Один навык, который меняет человека", "Это слово важнее, чем кажется", "Мы часто забываем об этом"],
+          "uz": ["Insonni oʻzgartiradigan bitta koʻnikma", "Bu soʻz oʻylagandan ham muhimroq", "Biz buni koʻpincha unutamiz"],
+          "kk": ["Адамды өзгертетін бір дағды", "Бұл сөз ойлағаннан да маңызды", "Біз мұны жиі ұмытамыз"]
+        },
+        "cta_verbs": {"ru": ["Сохраните", "Поделитесь с близкими", "Подпишитесь"], "uz": ["Saqlab qoʻying", "Yaqinlaringizga ulashing", "Obuna boʻling"], "kk": ["Сақтап қойыңыз", "Жақындарыңызбен бөлісіңіз", "Жазылыңыз"]},
+        "avoid_words": {"ru": ["шок", "вы не поверите", "лайфхак", "100% рай"], "uz": ["shok", "ishonmaysiz", "layfxak", "100% jannat"], "kk": ["шок", "сенбейсіз", "лайфхак", "100% жұмақ"]}
+      },
+      "compliance": [
+        "Never depict the faces of prophets, companions or holy figures — light, silhouette or an empty place only (style-g.md §8); avoid all human faces in generated scenes.",
+        "No AI-generated calligraphy or Arabic script of holy names or verses; only client-supplied, client-verified files.",
+        "Honorifics and sacred quotes exactly as the client supplies them, with sources; no paraphrase of sacred text on screen.",
+        "Respectful sound: no comic / meme SFX; ask about instruments (vocal-only or voice-only is common).",
+        "No content that mocks or attacks other faiths or groups; local laws on religious content apply (e.g. KZ / UZ registration rules for religious organisations' advertising).",
+        "Same care for any faith: no faces of holy figures or generated sacred script unless the client supplies approved art.",
+        "Never reuse names/handles, footage or generated scenes from reference videos."
+      ]
     },
 
     "default": {

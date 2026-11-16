@@ -326,6 +326,44 @@ Demo = 11 beats / 27 s, Kazakh, brand "Link HR" / "@linkhr": head-side (hook, ri
 v1.1 (client review): face switched to Montserrat 800 + single-storey а (Alternates' m-shaped т/г were wrong), stack grammar re-measured (teardown §4), insert s2 rebuilt on the reference composition — side-by-side vs ref 2.9 s: x-height 135 vs 130, line-1→2 gap 26 vs 15 (the breve of "й" triggers the ascender kiss), line-2→3 б kiss = (ref), stack ink 932–1427 vs 889–1382, first-line ink x 145–662 vs 205–717, 3rd-line indent +100 vs +104.
 Known deviations: footage / screen recording are labelled slots; the insert object is a Fluent Emoji 3D PNG (MIT) standing in for a reels-art render; demo is silent (reference = voice only).
 
+## Style G — "Editorial Selfie" (phone-selfie head + editorial caption stacks) · `assets/style-g/`
+
+Files: `tokens.css` (Inter Tight 700 grotesk, Noto Serif Display condensed (wdth 62.5) serif, Roboto Condensed 800, all Google Fonts with cyrillic-ext + Uzbek oʻ gʻ; colours, treatment classes `.rsg-t-<id>`, insert pages, scoped to `.rsg`) · `lib.js` (global `RSG`, self-contained: GSAP + RS only) · `demo/` (Russian "Link HR" reel; run `demo/prepare.sh` first — copies runtime + G into `demo/lib/` with the assembler's names). Spec: `style-g.md`; teardown `teardowns/style-g/DekIQiwIrSz.md`.
+Load order: CSS `tokens-g.css`; JS GSAP → `runtime.js` → `g.js` (assembler: style `g` → pack `g`, root bg `#000000`, hard cuts by default, caption track = `RSG.captionTrack` built inside `await RSG.ready()`). Build inside `await RSG.ready()` (fonts incl. Kazakh glyphs; measures baseline / x-height of each family → `RSG.MET`), register the timeline last.
+Every builder: `RSG.x(container, props, tl, at) → HTMLElement`; absolute local seconds; reveals `fromTo`, later states `RSG.ft`. Constants: `RSG.SIZE` (s 80 · m 125 · l 200 · xl 288), `RSG.FIT` (maxW 700, minScale 0.68 horizontal squeeze, xlChars 4, serifSize 200), `RSG.M` (fade 0.1 s · blur 5 · rise lead 6 / emph 24 / m 10 · settle 0.3 power2.out · glide 0.3 · gap baseline→x-top per role pair: lead>emph 6, emph>tuck −4, lead>lead 31, m>m 4 · flicker 6 frames), `RSG.BAND_CY` 1335, `RSG.CX` 520, `RSG.INSERT_CY` 960, `RSG.TREATMENTS`.
+Footage-only: the head is real footage (`node` / `src` / `transparent:true` over head.mp4) or a labelled slot; never reframed (edit_head `--framing none`). Generated scenes: abstract light / silhouettes only; calligraphy only from a client file (`style-g.md` §8).
+
+### Builders
+| Builder | Props (main) | Behaviour | Reproduces |
+|---|---|---|---|
+| `layer` / `insert` | `kind head\|mint\|paper\|scene\|dark` / `bg mint\|paper\|dark` | full-frame `.rsg` layer; mint = radial `#C3E0DE → #8DA09E` page (`.rsg-on-mint` turns leads navy), paper = `#FBF9FC` (leads ink) | §2 |
+| `footage` | `node \| src \| transparent, label, sub` | one-take selfie base; labelled slot (face box + eye line 40 %) | §1 |
+| `stack` | `lines[{role lead\|small\|m\|emph\|tuck\|title, text \| words[{w,at}], at, stagger, treat, align left\|center\|right\|spread, size, dx, gap, bullet, keepCase, fit{size,maxW}}]`, `cx, cy, until, glide, anchor` | editorial stack: lines measured + absolutely placed (x-top(next) = baseline(prev) + gap), emphasis fitted (L 200 / XL 288 / serif 200, squeezed ≤ 700 px), anchored on the emphasis x-band (cy 1335) or the block centre when lines follow the emphasis; words reveal on their times (3-frame fade + rise); lines added under the emphasis glide the block up; `glow-yellow` flickers in; hard hide at `until`; `.metrics` | §3–§5 |
+| `stacks` | `list[stack props]`, `{cy, until}` | sequence with hard swaps (each hides when the next one's first word starts) | §5 |
+| `fitSize` | `(container, text, treat, {size, maxW})` | → `{size, scale}` | §3.1 |
+| `captionTrack` | `plan {y, phrases[{words[{w,s}], emph{i,treat,tuck,leadAlign}, emph2, kind, show, hide}]}` | assembled caption layer: one stack per phrase (lead / emphasis / spread tuck / 2nd emphasis; statement = 2 M lines; small = 1 lead line), punctuation stripped, reveal at max(onset, show) | §4, §7 |
+| `flash` | `frames=1` | 1-frame white `#F5F9FA` flash (head → insert) | §7 |
+| `scene` | `node \| src \| label, push=0.06, dur` | full-bleed generated image/video, still → slow push; slot "свет / частицы, без лиц" | §6B |
+| `backdrop` | `text="100%", size=530, cy, opacity` | huge translucent number/word behind the stack, fade 0.3 s | §5 |
+| `calligraphy` | `src (client file only) \| label, box{x,y,w,h}` | white-page calligraphy image (580×490 at 204/626), fade-in; slot otherwise | §6C |
+| `wordIn` / `enter` / `audit` | — | reveal helper · soft block entrance · stack metrics of a root | — |
+
+Treatments (`treat`): `bold-yellow` `#F9E376` · `glow-pink` `#FAE0F9` + lilac glow · `serif-pink` `#F0D8F2` · `serif-grey` `#C9C6CF` · `serif-gold` `#F8E377` (keeps case) · `red` `#D9031D` · `bold-white` `#FBF9FE` · `glow-yellow` `#F4FF15` + halo + flicker · `navy` `#0B297E` · `condensed` · `ink`.
+
+### Layouts — `RSG.layout.<id>(clip, spec, tl, at)` → layer (`.parts`, `.layout`)
+| id | spec | composition |
+|---|---|---|
+| `head` | `footage, stacks[]` | footage + small lead lines / statements |
+| `head-emphasis` (`headEmphasis`) | `footage, stacks[]` | footage + editorial stacks (chest band, cy 1335) |
+| `insert-kinetic` (`insertKinetic`) | `bg mint\|paper, flash=true, stacks[]` | mint page + navy stack (cy 960), 1-frame flash in |
+| `insert-scene` (`insertScene`) | `media{src\|node\|label}, backdrop{text,at,size}?, stacks[], dur` | generated scene + translucent backdrop + neon / serif stack (cy 960) |
+| `insert-calligraphy` (`insertCalligraphy`) | `src?, box?, label?, stacks[], calligraphyAt` | white page + client calligraphy + black lead (cy 860) |
+| `statement` | `footage? \| bg, stacks[]` | white M two-line statement over footage or a dark page; optional CTA |
+
+### Verification (demo)
+Demo = 10 beats / 26 s, Russian, neutral topic (keeping your word at work), brand "Link HR" / "@linkhr": head-emphasis (hook, bold-yellow) → insert-kinetic (white flash → mint, navy L/S/L/XL) → head-emphasis (yellow run) → insert-scene (procedural light placeholder, glow-yellow flicker + translucent 100%) → head-emphasis (small line → glow-pink run → spread lead + serif-pink) → head (small lines) → statement (M two lines) → head-emphasis (red run incl. XL "слов", bold-white + spread tuck + glide) → head-emphasis closer (red / spread / red, glide) → statement CTA. 6 layouts, 7 treatments. `lint` 0 errors (2 density + 1 nested-img warnings for the single-file demo). Render-frame measurements vs reference stills (same masks): "где очень много / слов" lead x-band 1206–1261 (ref 1194–1257), emphasis 1256–1415 w 558 (ref 1259–1415 w 538); closer "даже · важнее" 1296–1351 (ref 1299–1349), "слово" 1190–1301 w 486 (ref 1169–1291 w 528); hook lead 1230–1279 (ref 1244–1298); reveal = 3-frame fade + blur + rise (30 fps strip matches `tr_21.0`). Font fit: Inter Tight 700 at −0.09 em = 1.01–1.04 × reference widths. Assembled path checked on a synthetic work dir (reference transcript + scenes[].emphasis): captions.py style g → 47 phrases, 100 % coverage, `RSG.captionTrack` stacks render, `lint` 0 errors. Rendered `demo/style-g-demo.mp4` (1080×1920, 30 fps, 26 s, silent).
+Known deviations: footage is a labelled slot; the generated scene is a procedural abstract placeholder (no people); the calligraphy insert is not in the demo (client file only, sensitive-content rule).
+
 ## Technique pack "head-umar" (optional, any style) · `assets/techniques/head-umar.{css,js}` → global `RSX`
 
 The talking-head editorial techniques from the creator's earlier reels (teardowns `style-b/Dd1b9kEA-KL.md`, `Dd3Uz4Mgbn-.md`), kept as opt-in tools — **not** part of Style D. Depends on RS + RSB (if RSB is missing, `RSX.available === false` and nothing is defined beyond that flag). Assembler always copies `assets/techniques/*` to `composition/lib/techniques/` and loads `head-umar.css/js` after the style packs; if a scene calls `RSX.` and the style lacks pack b, b is added. All CSS is scoped to `.rsx-*`, so loading it is inert. Build after `await RSX.ready()` (glyph metrics). Lint-checked with a 3-technique test scene (lens + jump zoom, chest-band stat morph, karaoke caption) over a footage slot: 0 errors.

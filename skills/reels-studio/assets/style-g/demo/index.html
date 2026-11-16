@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>Style G demo — Editorial Selfie</title>
+    <!-- Run ./prepare.sh first: copies runtime + Style G pack into ./lib (HyperFrames forbids "../" paths).
+         Identity is the demo brand "Link HR" / "@linkhr" — never the reference creator.
+         Footage = labelled neutral slot (never a drawn person): one selfie take, never reframed.
+         Generated scene = scene-light.jpg, a procedural abstract placeholder (light streaks + embers, no people)
+         standing in for the reels-art / connector render of a real run. Silent (audio comes from mix.py in a run).
+         Topic: neutral self-improvement (keeping your word at work). -->
+    <link rel="stylesheet" href="lib/tokens-g.css" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script src="lib/runtime.js"></script>
+    <script src="lib/g.js"></script>
+    <style>
+      body { margin: 0; background: #000; }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: #000; }
+      .scene { position: absolute; inset: 0; }
+    </style>
+  </head>
+  <body>
+    <!-- Hard cuts (Style G): adjacent clips, no overlaps. Times are absolute on the one main timeline.
+         Inserts are front-loaded (s2 mint, s4 scene) like the reference; after 9.6 s pure head + statements. -->
+    <div id="root" data-composition-id="main" data-start="0" data-width="1080" data-height="1920" data-duration="26">
+      <div id="s1" class="scene clip" data-start="0" data-duration="2.2" data-track-index="1"></div>
+      <div id="s2" class="scene clip" data-start="2.2" data-duration="1.6" data-track-index="2"></div>
+      <div id="s3" class="scene clip" data-start="3.8" data-duration="3.6" data-track-index="1"></div>
+      <div id="s4" class="scene clip" data-start="7.4" data-duration="2.2" data-track-index="2">
+        <img id="s4-img" src="scene-light.jpg" alt="" />
+      </div>
+      <div id="s5" class="scene clip" data-start="9.6" data-duration="4.4" data-track-index="1"></div>
+      <div id="s6" class="scene clip" data-start="14" data-duration="1.4" data-track-index="2"></div>
+      <div id="s7" class="scene clip" data-start="15.4" data-duration="1.8" data-track-index="1"></div>
+      <div id="s8" class="scene clip" data-start="17.2" data-duration="4.4" data-track-index="2"></div>
+      <div id="s9" class="scene clip" data-start="21.6" data-duration="2.6" data-track-index="1"></div>
+      <div id="s10" class="scene clip" data-start="24.2" data-duration="1.8" data-track-index="2"></div>
+    </div>
+    <script>
+      (async function () {
+        await RSG.ready();
+        const tl = gsap.timeline({ paused: true });
+        const $ = (id) => document.getElementById(id);
+        const L = RSG.layout;
+        const HEAD = { label: "ваше видео", sub: "селфи · 9:16 · один дубль" };
+        const W = (pairs) => pairs.map(([w, at]) => ({ w, at }));   // words with spoken onsets
+
+        /* s1 · head-emphasis — hook: thesis in one stack (ref "один / навык"): lead left on the emphasis edge,
+           value word in bold-yellow at its onset. */
+        L.headEmphasis($("s1"), { footage: HEAD, stacks: [
+          { lines: [{ role: "lead", words: W([["одна", 0.25]]) },
+                    { role: "emph", words: W([["привычка", 0.7]]), treat: "bold-yellow" }] },
+        ] }, tl, 0);
+
+        /* s2 · insert-kinetic — 1-frame white flash → mint page, navy definition stack L / S / L / XL. */
+        L.insertKinetic($("s2"), { stacks: [
+          { lines: [{ role: "emph", words: W([["-умение", 2.26]]), size: 200 },
+                    { role: "lead", words: W([["доводить", 2.62]]), size: 100, dx: 24, gap: 10 },
+                    { role: "emph", words: W([["начатое", 2.95]]), size: 190, align: "left", gap: 6 },
+                    { role: "emph", words: W([["до", 3.3], ["конца", 3.42]]), size: 250, align: "left", gap: 4 }] },
+        ] }, tl, 2.2);
+
+        /* s3 · head-emphasis — a theme run in one treatment (ref 3 yellows in a row), lead lines change per stack. */
+        L.headEmphasis($("s3"), { footage: HEAD, stacks: [
+          { lines: [{ role: "lead", words: W([["если", 3.9], ["мы", 4.08]]) },
+                    { role: "emph", words: W([["научимся", 4.3]]), treat: "bold-yellow" }] },
+          { lines: [{ role: "lead", words: W([["этому", 5.4]]) },
+                    { role: "emph", words: W([["навыку", 5.75]]), treat: "bold-yellow" }] },
+        ] }, tl, 3.8);
+
+        /* s4 · insert-scene — generated scene (placeholder), neon word with flicker + huge translucent 100% behind. */
+        L.insertScene($("s4"), { media: { node: $("s4-img") }, dur: 2.2,
+          backdrop: { text: "100%", at: 8.35, size: 520 },
+          stacks: [
+            { lines: [{ role: "lead", words: W([["то", 7.5], ["мы", 7.62]]) },
+                      { role: "emph", words: W([["раскроем", 7.75]]), treat: "bold-white", size: 170 }] },
+            { lines: [{ role: "lead", words: W([["свой", 8.1]]) },
+                      { role: "emph", words: W([["потенциал", 8.3]]), treat: "glow-yellow", size: 150 }] },
+          ] }, tl, 7.4);
+
+        /* s5 · head-emphasis — small-only line → a pink-glow run (devotion / giving) → spread lead + serif reflection. */
+        L.headEmphasis($("s5"), { footage: HEAD, stacks: [
+          { lines: [{ role: "small", words: W([["в", 9.7], ["первую", 9.8], ["очередь", 10.05]]) }] },
+          { lines: [{ role: "lead", words: W([["обещания", 10.6], ["данные", 10.95]]), align: "center" },
+                    { role: "emph", words: W([["себе", 11.2]]), treat: "glow-pink" }] },
+          { lines: [{ role: "lead", words: W([["и", 11.95]]) },
+                    { role: "emph", words: W([["другим", 12.1]]), treat: "glow-pink" }] },
+          { lines: [{ role: "lead", words: W([["мы", 12.75], ["должны", 12.85], ["об", 13.1], ["этом", 13.2]]), align: "spread" },
+                    { role: "emph", words: W([["не", 13.35], ["забывать", 13.48]]), treat: "serif-pink" }] },
+        ] }, tl, 9.6);
+
+        /* s6 · head — small lead lines only, word by word, pre-laid out. */
+        L.head($("s6"), { footage: HEAD, stacks: [
+          { lines: [{ role: "small", words: W([["будь", 14.1], ["честным", 14.35]]) }] },
+          { lines: [{ role: "small", words: W([["с", 14.85], ["командой", 14.95]]) }] },
+        ] }, tl, 14);
+
+        /* s7 · statement — white M two-line statement over the footage (ref "доверенным / человеком"). */
+        L.statement($("s7"), { footage: HEAD, stacks: [
+          { lines: [{ role: "m", words: W([["надёжным", 15.5]]) },
+                    { role: "m", words: W([["человеком", 15.9]]) }] },
+        ] }, tl, 15.4);
+
+        /* s8 · head-emphasis — red warning run (XL for a short word) → white duty word with a spread tuck + glide. */
+        L.headEmphasis($("s8"), { footage: HEAD, stacks: [
+          { lines: [{ role: "lead", words: W([["где", 17.3], ["очень", 17.45], ["много", 17.7]]) },
+                    { role: "emph", words: W([["слов", 18.0]]), treat: "red" }] },
+          { lines: [{ role: "lead", words: W([["мало", 18.9]]) },
+                    { role: "emph", words: W([["действий", 19.2]]), treat: "red" }] },
+          { lines: [{ role: "lead", words: W([["а", 20.0], ["если", 20.1], ["ты", 20.25]]), align: "center" },
+                    { role: "emph", words: W([["лидер", 20.4]]), treat: "bold-white" },
+                    { role: "tuck", words: W([["тем", 20.95], ["более", 21.1]]), align: "spread" }] },
+        ] }, tl, 17.2);
+
+        /* s9 · head-emphasis — closing stack: two red emphasis lines framing a spread tuck line, block glides up. */
+        L.headEmphasis($("s9"), { footage: HEAD, stacks: [
+          { lines: [{ role: "emph", words: W([["слово", 21.75]]), treat: "red" },
+                    { role: "tuck", words: W([["даже", 22.5], ["важнее", 22.7]]), align: "spread" },
+                    { role: "emph", words: W([["договора", 23.2]]), treat: "red", align: "left" }] },
+        ] }, tl, 21.6);
+
+        /* s10 · statement (CTA, optional in Style G) — dark page, lead + handle in the value treatment. */
+        L.statement($("s10"), { bg: "dark", stacks: [
+          { lines: [{ role: "lead", words: W([["подписывайся", 24.3], ["на", 24.55]]), align: "center" },
+                    { role: "emph", words: W([["@linkhr", 24.75]]), treat: "bold-yellow", keepCase: true, size: 190 },
+                    { role: "tuck", words: W([["Link", 25.2], ["HR", 25.3]]), align: "center", keepCase: true }] },
+        ] }, tl, 24.2);
+
+        window.__timelines["main"] = tl;
+      })();
+    </script>
+  </body>
+</html>

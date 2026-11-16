@@ -40,6 +40,9 @@ head ↔ head_overlay = same footage: only the outgoing overlay fades. transitio
 Style F ("Kinetic Talking Head") is a hard-cut style: its default boundary is "cut" (no warning), its caption track is
 small kinetic-face (Montserrat 800 + single-storey а) phrases shown whole (hard swap, digits / brief.captions_highlight in yellow), and
 edit/cuts.json punch_ins may carry "drift" (slow linear zoom inside a segment).
+Style G ("Editorial Selfie") is a hard-cut style too; its caption track is NOT a subtitle line but editorial stacks
+(lead words + one director-marked emphasis word with a treatment, scenes[].emphasis — contracts.md → "Style G
+emphasis"), rendered by RSG.captionTrack inside an async build (await RSG.ready()) before the timeline registers.
 
 Captions (talking-head modes, brief.captions auto|all|off): scripts/captions.py turns audio/transcript.json into
 1–4-word phrases; they are rendered as ONE root-level layer (#rs-captions, z 900) with per-word reveals ending at
@@ -70,8 +73,8 @@ import captions  # noqa: E402  (scripts/captions.py — caption track planner)
 
 # ---- cross-layer transitions (head ↔ motion, motion ↔ motion without a scene-owned transition)
 OV_MIN, OV_MAX, OV_DEFAULT = 0.35, 0.6, 0.45
-TX_DEFAULT = {"a": "blur-drift", "d": "blur-drift", "b": "dissolve", "c": "dissolve", "e": "blur-swap", "f": "cut"}
-HARD_CUT_STYLES = ("f",)   # styles whose default boundary is a hard cut (no transition drawn, no warning)
+TX_DEFAULT = {"a": "blur-drift", "d": "blur-drift", "b": "dissolve", "c": "dissolve", "e": "blur-swap", "f": "cut", "g": "cut"}
+HARD_CUT_STYLES = ("f", "g")   # styles whose default boundary is a hard cut (no transition drawn, no warning)
 TX_ALIAS = {"blur": "blur-drift", "drift": "blur-drift", "blurdrift": "blur-drift", "crossfade": "dissolve",
             "fade": "dissolve", "light-orb": "portal", "orb": "portal", "swap": "blur-swap", "blurswap": "blur-swap",
             "datamosh": "dissolve", "rgb-ghost": "dissolve", "rgbghost": "dissolve", "glitch": "dissolve",
@@ -103,6 +106,9 @@ CAP_STYLE["f"] = {"font": "var(--rsf-font, 'RSF Kinetic A', Montserrat, sans-ser
                   "ls": "-0.03em", "color": "#FCFCFC", "case": "lowercase", "shadow": "0 2px 10px rgba(0,0,0,.45)",
                   "scrim": 0.0, "karaoke": False, "phrase": True, "hl": "#FCF900"}
 CAP_STYLE["c"] = CAP_STYLE["b"]
+# G: the caption track IS the editorial stack layer — rendered by RSG.captionTrack from captions.json (lib g.js);
+# lead words Inter Tight 700 86 px white, emphasis fitted 180–290 px with its treatment, hard swaps, per-word reveal
+CAP_STYLE["g"] = {"rsg": True}
 
 
 def log(msg: str) -> None:
@@ -235,6 +241,7 @@ def main() -> None:
     # style "d" (Talking Head × 3D Keyword = Style A over the head) is built on the A pack: copy + load a → d
     # style "e" (Data News) is self-contained: pack e only (default branch below)
     # style "f" (Kinetic Talking Head) is self-contained as well: pack f only
+    # style "g" (Editorial Selfie) is self-contained: pack g only; its caption track is built by RSG.captionTrack
     packs = {"c": ["a", "b", "c"], "d": ["a", "d"]}.get(style, [style])
     # technique pack assets/techniques/head-umar.{css,js} (global RSX) is always copied + loaded after the style
     # packs; it is inert unless a scene calls RSX. RSX depends on RSB, so when a scene uses it and the style does
@@ -498,6 +505,18 @@ def main() -> None:
     cap_html, cap_css, cap_lines = "", "", []
     if capres and capres.get("error"):
         warnings.append(f"captions: {capres['error']}")
+    elif capres and CAP_STYLE.get(style, {}).get("rsg"):
+        # style G: editorial stacks (one per phrase) built at runtime by RSG.captionTrack (fonts measured first)
+        cap_css = ".rs-cap-g { position: absolute; inset: 0; z-index: 900; pointer-events: none; }"
+        body.append('    <div id="rs-captions" class="rs-cap-g"></div>')
+        cap_lines.append("      RSG.captionTrack(document.getElementById(\"rs-captions\"), "
+                         + json.dumps({"y": capres["y"], "phrases": capres["phrases"]}, ensure_ascii=False) + ", tl);")
+        (comp / "captions.json").write_text(json.dumps(capres, ensure_ascii=False, indent=1))
+        for w_ in capres.get("warnings") or []:
+            warnings.append(f"captions: {w_}")
+        cov = capres["coverage"]
+        if cov["pct_in_ranges"] is not None and cov["pct_in_ranges"] < 98:
+            warnings.append(f"captions cover {cov['pct_in_ranges']}% of the words in caption ranges (< 98%)")
     elif capres:
         cs_ = CAP_STYLE.get(style, CAP_STYLE["a"])
         y = capres["y"]
@@ -542,10 +561,16 @@ def main() -> None:
         body.append(f'    <audio id="mix" src="media/mix.wav" data-start="0" data-duration="{f3(duration)}" '
                     f'data-track-index="9" data-volume="1"></audio>')
 
-    bg = a.bg or ("#0B0D0D" if style in ("a", "c") else "#FCFCFC" if style == "e" else "#000000" if style == "f" else "#1A1A1C")
+    bg = a.bg or ("#0B0D0D" if style in ("a", "c") else "#FCFCFC" if style == "e" else "#000000" if style in ("f", "g") else "#1A1A1C")
     script_tags = "\n".join(f'    <script src="{s}"></script>' for s in scripts)
     rs_caps = json.dumps({"on": bool(capres and not capres.get("error")), "y": (capres or {}).get("y"),
                           "ranges": (capres or {}).get("ranges", [])})
+    tl_code = chr(10).join(tl_lines + tx_lines + cap_lines)
+    if style == "g":   # RSG measures fonts before laying out stacks → build + register after RSG.ready()
+        script_body = ("      (async function () {\n        await RSG.ready();\n        const tl = gsap.timeline({ paused: true });\n"
+                       + tl_code + '\n        window.__timelines["main"] = tl;\n      })();')
+    else:
+        script_body = '      const tl = gsap.timeline({ paused: true });\n' + tl_code + '\n      window.__timelines["main"] = tl;'
     doc = f"""<!doctype html>
 <html lang="{html.escape(brief.get('lang', 'ru'))}">
   <head>
@@ -572,9 +597,7 @@ def main() -> None:
 {chr(10).join(body)}
     </div>
     <script>
-      const tl = gsap.timeline({{ paused: true }});
-{chr(10).join(tl_lines + tx_lines + cap_lines)}
-      window.__timelines["main"] = tl;
+{script_body}
     </script>
   </body>
 </html>

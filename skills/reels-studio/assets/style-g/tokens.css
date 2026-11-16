@@ -1,0 +1,114 @@
+/* reels-studio · Style G "Editorial Selfie" — design tokens (all scoped to .rsg)
+ * Frame 1080×1920. Numbers measured on the reference (teardowns/style-g/DekIQiwIrSz.md §2–§6).
+ *
+ * FONTS (Google Fonts, every face ships cyrillic-ext → Kazakh ә ғ қ ң ө ұ ү һ і, + latin-ext → Uzbek oʻ gʻ U+02BB):
+ *   - grotesk  = Inter Tight 700 (reference: a Helvetica-Neue-Bold-class neo-grotesk set at ≈ −0.09 em; Arimo 700 is the
+ *                outline fallback). Lead words, small captions, statements and most emphasis treatments.
+ *   - serif    = Noto Serif Display, condensed through its wdth axis (font-stretch 62.5 %), weight 400 — the reference's
+ *                narrow high-contrast Didone ("не забывать", "Пророк(с.а.с)"). Never a wide Didone at 100 %.
+ *   - condensed= Roboto Condensed 800 — optional extra treatment (not in the reference; for long nouns / numbers).
+ * The brand may replace only --rsg-font (grotesk). The serif face is part of the treatment palette and stays.
+ *
+ * BASE: footage only. The head is always the client's real phone-selfie video (or, in assembled runs, head.mp4 under
+ * a transparent layer); without footage a labelled neutral slot. Never a drawn person.
+ */
+@import url("https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;700;800&family=Arimo:wght@700&family=Noto+Serif+Display:wdth,wght@62.5..100,300..600&family=Roboto+Condensed:wght@800&display=block");
+
+.rsg {
+  /* ---------- type ---------- */
+  --rsg-font: "Inter Tight", "Arimo", system-ui, sans-serif;
+  --rsg-serif: "Noto Serif Display", "Playfair Display", Georgia, serif;
+  --rsg-cond: "Roboto Condensed", "Oswald", sans-serif;
+  --rsg-serif-stretch: 62.5%;      /* wdth axis minimum: condensed Didone (ref "не забывать" 740 px wide for 11 letters) */
+  --rsg-track-emph: -0.09em;       /* emphasis words: letters touch — Inter Tight width fit 1.01–1.04 × ref at −0.09 */
+  --rsg-track-lead: -0.07em;       /* lead words / small captions (ref "один" 154 px at x-height 44) */
+  --rsg-track-serif: -0.02em;
+
+  /* ---------- colours (sampled, see teardown §3.2) ---------- */
+  --rsg-white: #FBF9FE;            /* bold-white emphasis, M statements */
+  --rsg-lead: #FFFAF6;             /* lead words over footage / scenes */
+  --rsg-value: #F9E376;            /* bold-yellow = the value / skill word (brand accent replaces it) */
+  --rsg-neon: #F4FF15;             /* glow-yellow (scene emphasis, flickers in) */
+  --rsg-pink: #FAE0F9;             /* glow-pink fill */
+  --rsg-pink-glow-1: rgba(255, 190, 250, .78);
+  --rsg-pink-glow-2: rgba(200, 120, 220, .46);
+  --rsg-serif-pink: #F0D8F2;       /* serif-pink (reflection / remembrance) */
+  --rsg-serif-grey: #C9C6CF;       /* serif-grey (quiet reflection on bright footage) */
+  --rsg-gold: #F8E377;             /* serif-gold (titles of honour over a scene) */
+  --rsg-red: #D9031D;              /* red = warning / words-vs-deeds */
+  --rsg-navy: #0B297E;             /* ink on the kinetic insert (brand accent2 replaces it) */
+  --rsg-mint: #C3E0DE;             /* kinetic insert page centre (brand accent2 hue) */
+  --rsg-mint-mid: #B6CCC9;
+  --rsg-mint-edge: #8DA09E;        /* page edges: the vignette is part of the page */
+  --rsg-paper: #FBF9FC;            /* white (calligraphy) insert */
+  --rsg-ink: #020003;              /* lead words on the white insert */
+  --rsg-callig: #7D7B7E;           /* calligraphy tint (client image) */
+  --rsg-flash: #F5F9FA;            /* 1-frame white flash into an insert */
+  --rsg-backdrop: rgba(255, 246, 228, .42); /* translucent huge number behind a scene word ("100 %") */
+
+  /* ---------- geometry ---------- */
+  --rsg-band-cy: 1335px;           /* emphasis x-band centre over the chest (ref 1259–1442) */
+  --rsg-cx: 520px;                 /* stack centre x (ref 520 ± 25) */
+}
+
+/* ---------- layers ---------- */
+.rsg-layer { position: absolute; inset: 0; overflow: hidden; }
+.rsg-insert { background: var(--rsg-paper); }
+.rsg-insert.mint { background: radial-gradient(120% 80% at 50% 45%, var(--rsg-mint) 0%, var(--rsg-mint-mid) 55%, var(--rsg-mint-edge) 100%); }
+.rsg-insert.dark { background: #0B0B0E; }
+.rsg-flash { position: absolute; inset: 0; background: var(--rsg-flash); opacity: 0; z-index: 60; pointer-events: none; }
+
+/* ---------- footage ---------- */
+.rsg-head { position: absolute; inset: 0; overflow: hidden; background: #3A3833; }
+.rsg-head.transparent { background: transparent; }
+.rsg-media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.rsg-slot { position: absolute; inset: 0; background: linear-gradient(180deg, #8C887F 0%, #77736A 52%, #2A3140 52.5%, #232A38 100%); }
+.rsg-slot .face { position: absolute; left: 290px; top: 420px; width: 500px; height: 640px; border-radius: 240px;
+  border: 4px dashed rgba(255,255,255,.55); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+  color: rgba(255,255,255,.85); font: 600 40px/1.15 var(--rsg-font); text-align: center; }
+.rsg-slot .face svg { width: 96px; height: 72px; }
+.rsg-slot .face .sb { font-size: 28px; font-weight: 500; opacity: .75; }
+.rsg-slot .eyes { position: absolute; left: 0; right: 0; top: 760px; border-top: 2px dashed rgba(255,255,255,.35); }
+.rsg-slot .eyes span { position: absolute; right: 40px; top: -40px; font: 500 26px var(--rsg-font); color: rgba(255,255,255,.6); }
+
+/* ---------- editorial stack ---------- */
+.rsg-stack { position: absolute; left: 0; top: 0; z-index: 20; }
+.rsg-line { position: absolute; left: 0; top: 0; white-space: nowrap; line-height: 1; display: flex; }
+.rsg-line .w { display: inline-block; }
+.rsg-line.spread { justify-content: space-between; }
+.rsg-line.lead, .rsg-line.small { font-family: var(--rsg-font); font-weight: 700; letter-spacing: var(--rsg-track-lead); color: var(--rsg-lead); text-transform: lowercase; }
+.rsg-line.m { font-family: var(--rsg-font); font-weight: 700; letter-spacing: -0.08em; color: var(--rsg-white); text-transform: lowercase; }
+.rsg-line.emph { font-family: var(--rsg-font); font-weight: 700; letter-spacing: var(--rsg-track-emph); text-transform: lowercase; }
+.rsg-line.keepcase { text-transform: none; }
+/* treatments (ids are the contract: brief/scenes[].emphasis[].treat) */
+.rsg-t-bold-yellow { color: var(--rsg-value); }
+.rsg-t-glow-yellow { color: var(--rsg-neon); text-shadow: 0 0 8px rgba(244,255,21,.85), 0 0 26px rgba(232,255,0,.55), 0 0 60px rgba(210,240,0,.3); }
+.rsg-t-glow-pink { color: var(--rsg-pink); text-shadow: 0 0 10px var(--rsg-pink-glow-1), 0 0 30px var(--rsg-pink-glow-2), 0 0 64px var(--rsg-pink-glow-2); }
+.rsg-t-serif-pink, .rsg-t-serif-grey, .rsg-t-serif-gold { font-family: var(--rsg-serif) !important; font-weight: 500 !important;
+  font-stretch: var(--rsg-serif-stretch); letter-spacing: var(--rsg-track-serif) !important; }
+.rsg-t-serif-pink { color: var(--rsg-serif-pink); }
+.rsg-t-serif-grey { color: var(--rsg-serif-grey); }
+.rsg-t-serif-gold { color: var(--rsg-gold); text-transform: none !important; }
+.rsg-t-red { color: var(--rsg-red); }
+.rsg-t-bold-white { color: var(--rsg-white); }
+.rsg-t-navy { color: var(--rsg-navy); }
+.rsg-t-condensed { font-family: var(--rsg-cond) !important; font-weight: 800 !important; letter-spacing: -0.02em !important; color: var(--rsg-white); }
+.rsg-t-ink { color: var(--rsg-ink); }
+/* lead colour per surface */
+.rsg-on-mint .rsg-line.lead, .rsg-on-mint .rsg-line.small, .rsg-on-mint .rsg-line.m { color: var(--rsg-navy); }
+.rsg-on-paper .rsg-line.lead, .rsg-on-paper .rsg-line.small, .rsg-on-paper .rsg-line.m { color: var(--rsg-ink); }
+.rsg-bullet { display: inline-block; width: .2em; height: .2em; border-radius: 50%; background: currentColor; margin-right: .18em; align-self: center; }
+
+/* ---------- scene / backdrop / calligraphy ---------- */
+.rsg-scene { position: absolute; inset: 0; overflow: hidden; background: #0E1426; }
+.rsg-scene .rsg-media { transform-origin: 50% 45%; }
+.rsg-scene-slot { position: absolute; inset: 0; background: radial-gradient(60% 40% at 50% 42%, #3B3F6A 0%, #161B33 60%, #0B0E1C 100%);
+  display: flex; align-items: flex-end; justify-content: center; padding-bottom: 300px; box-sizing: border-box;
+  color: rgba(255,255,255,.7); font: 600 34px/1.2 var(--rsg-font); text-align: center; }
+.rsg-backdrop { position: absolute; left: -60px; right: -60px; z-index: 10; text-align: center; white-space: nowrap; line-height: 1;
+  font-family: var(--rsg-font); font-weight: 700; letter-spacing: -0.06em; color: var(--rsg-backdrop); opacity: 0; }
+.rsg-callig { position: absolute; z-index: 10; display: flex; align-items: center; justify-content: center; }
+.rsg-callig img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.rsg-callig.slot { border: 4px dashed rgba(0,0,0,.25); border-radius: 28px; color: rgba(0,0,0,.45); font: 600 34px/1.25 var(--rsg-font);
+  text-align: center; flex-direction: column; gap: 10px; }
+.rsg-callig.slot .sb { font-size: 26px; font-weight: 500; }

@@ -36,7 +36,7 @@ Global exclusions (all niches): alcohol, tobacco/vapes/hookah, gambling/betting,
 
 | slug | niche | styles (ranked) | avoid | accent / accent2 | music |
 |---|---|---|---|---|---|
-| `education` | Образование и подготовка к экзаменам | E › B › D | C | `#1D5FD1` / `#F2B705` | 100–110 |
+| `education` | Образование и подготовка к экзаменам | E › B › D › G | C | `#1D5FD1` / `#F2B705` | 100–110 |
 | `online_school` | Онлайн-школы и курсы | B › C › D | E | `#0F7B83` / `#FFC857` | 104–114 |
 | `food_cafe` | Кафе, рестораны и доставка еды | B › D › C | A, E | `#C8452A` / `#F2C14E` | 96–108 |
 | `bakery` | Кондитерские и пекарни | B › D › C | A, E | `#A0522D` / `#F3D9B1` | 96–106 |
@@ -49,13 +49,14 @@ Global exclusions (all niches): alcohol, tobacco/vapes/hookah, gambling/betting,
 | `it_saas` | IT, SaaS и HR-tech | C › B › A | — | `#2563EB` / `#7CF0C0` | 100–114 |
 | `finance` | Финансы, банки и финтех | E › B › A | C | `#0F6E5A` / `#E6C068` | 95–106 |
 | `ecommerce` | E-commerce и продавцы маркетплейсов | C › B › A | — | `#E8540F` / `#FFD43B` | 104–116 |
-| `personal_brand` | Личный бренд, эксперт, коуч | D › B › C | A | `#0A7CFF` / `#FFD60A` | 99–112 |
+| `personal_brand` | Личный бренд, эксперт, коуч | D › B › C › F › G | A | `#0A7CFF` / `#FFD60A` | 99–112 |
 | `travel` | Туризм и путешествия | B › C › D | A | `#0077B6` / `#F4A261` | 98–112 |
 | `kids_family` | Дети и семья | B › D › C | E | `#2A8C82` / `#FFB703` | 98–110 |
+| `religion_spirituality` | Религия, духовность, нравственность | G › F › E | A, C | `#2E8B6E` / `#E9D58A` | 96–104 |
 | `default` | Другое / общий бизнес | B › A › D | — | `#0A7CFF` / `#FFD60A` | 99–110 |
 
 ### `education` — Образование и подготовка к экзаменам · Taʼlim va imtihonga tayyorlov · Білім беру және емтиханға дайындық
-**Styles:** **E** — Scores, deadlines and rule changes are news + numbers — E's cover/data cards and literal captions are made for it; **B** — Step-by-step study tips and lists read clearly as iOS cards with literal words; **D** — A teacher on camera builds trust; keyword headlines keep the key rule on screen.  
+**Styles:** **E** — Scores, deadlines and rule changes are news + numbers — E's cover/data cards and literal captions are made for it; **B** — Step-by-step study tips and lists read clearly as iOS cards with literal words; **D** — A teacher on camera builds trust; keyword headlines keep the key rule on screen; **G** — A teacher's calm selfie explanation with the key term as an editorial stack — cheap to film, reads like a study note.  
 **Avoid:** **C** — Whips and 3D spectacle compete with dense study content; spend the budget on real score screenshots instead.  
 **Palette (no brand colours only):** `#1D5FD1` / `#F2B705` — notebook ink blue + school-pencil yellow; blue reads on light and dark; yellow only as highlighter fill under ink text.  
 **Art direction:** matte paper and soft-touch plastic materials, clean desk-scale objects, soft daylight from upper left, gentle shadow, palette of ink blue, warm white and pencil yellow, calm and orderly, no text on objects. Props: stack of notebooks with a bookmark, sharpened pencil, answer sheet with bubbles (blank), hourglass, graduation cap, desk lamp, open book, stopwatch.  
@@ -274,7 +275,7 @@ _Marketplace UI only as the client's own real screenshots; never fake a listing,
 **Compliance:** Discounts only from a real previous price; state promo conditions and dates. No fake reviews, ratings or sales numbers. Marketplace names are trademarks: mention factually, no implied partnership. Excluded categories: alcohol, tobacco/vapes, weapons, counterfeit goods.  
 
 ### `personal_brand` — Личный бренд, эксперт, коуч · Shaxsiy brend, ekspert, kouch · Жеке бренд, сарапшы, коуч
-**Styles:** **D** — The face IS the brand; A keywords and 3D beside the speaker make an expert's talk premium; **B** — The reference look for experts (iOS keynote): literal words, profile-card CTA, chat objections; **C** — Talking head at hook/CTA with cinematic 3D + UI between — for launches and big ideas.  
+**Styles:** **D** — The face IS the brand; A keywords and 3D beside the speaker make an expert's talk premium; **B** — The reference look for experts (iOS keynote): literal words, profile-card CTA, chat objections; **C** — Talking head at hook/CTA with cinematic 3D + UI between — for launches and big ideas; **F** — footage with two-framing cuts + kinetic stacks; **G** — values / mindset talks as a phone selfie with meaning-coded editorial stacks.  
 **Avoid:** **A** — Faceless hides the person the brand is built on; use only for a side explainer series.  
 **Palette (no brand colours only):** `#0A7CFF` / `#FFD60A` — system blue + highlighter yellow — B's native accents, neutral for any expert; blue reads on light and dark; yellow is a selection/highlight fill under ink.  
 **Art direction:** glossy soft-touch materials and frosted glass, clean studio light with soft rim, palette of warm neutrals with a single blue accent, minimal and confident, no text. Props: microphone, notebook and pen, coffee cup, lightbulb, chess piece, compass, target with arrow, speech bubble.  
@@ -323,6 +324,17 @@ _Children's faces are the strictest privacy item: no consent → no face (blur o
 - kk: hooks «Балабақшамызда алғашқы күн қалай өтеді» · «Үйде сөйлеуді дамытатын 3 жаттығу» · «Ағылшын тілін неше жастан бастау керек — педагог жауап береді» · CTA: Экскурсияға жазылыңыз, Сақтап қойыңыз, Баланың жасын жазыңыз · avoid: балаңыз қалып жатыр, данышпан, нәтиже кепілдігі, жаман ата-ана
 
 **Compliance:** Children on screen only with written parental consent. Ads must not urge children to persuade parents or exploit trust (RU 38-ФЗ ст.6; similar in KZ/UZ). No developmental/medical promises; speech therapy = specialist consultation framing. Toy safety: no claims without certification.  
+
+### `religion_spirituality` — Религия, духовность, нравственность · Din, maʼnaviyat, axloq · Дін, рухани құндылықтар, адамгершілік
+**Styles:** **G** — the reference look for reflective faith talks: calm selfie, editorial stacks with meaning-coded emphasis (pink glow = devotion, serif = remembrance), light-only generated scenes, client calligraphy; **F** — a more direct lecture rhythm without sacred imagery; **E** — announcements (Ramadan schedule, event dates, charity totals).  
+**Avoid:** **A** — glossy 3D toys trivialise sacred topics; **C** — whips/portals clash with a reflective tone.  
+**Palette (no brand colours only):** `#2E8B6E` / `#E9D58A` — deep green + parchment gold.  
+**Art direction:** cinematic, reverent, soft volumetric light, warm amber and deep navy, dust in light beams, symbolic not literal, no text, **no faces**. Props: open book of light, lantern, tasbih, light through a geometric lattice, path of lights, hands releasing light, dawn horizon, date palm silhouette.  
+**Music:** calm ambient pads or vocal-only (nasheed), 96–104 BPM — **ask whether instruments are acceptable**; voice-only when the client prefers it or recitation is present.  
+**Techniques:** favour `lens_blur`, `hero_word`, `selection_highlight`; avoid `glitch_cta`, `rgb_ghost`, `mute_gag`, `glove_tap`, `jump_zoom`, `sticker_title`, `strike_fix`. **Layouts:** `head`, `head-side`, `statement`, `media`, `hero`.  
+**Materials:** talking-head footage; exact honorifics/spellings (с.а.с / ﷺ); calligraphy/ornament files the client owns, verified by the client; sources for quoted hadith/verses; handle & CTA keyword.  
+**Copy:** humble, reflective, "мы должны", one value per reel, no fear-mongering. Hooks ru «Один навык, который меняет человека» · uz «Insonni oʻzgartiradigan bitta koʻnikma» · kk «Адамды өзгертетін бір дағды».  
+**Compliance (binding):** never depict faces of prophets, companions or holy figures (light / silhouette / empty place only; no human faces in generated scenes); no AI-generated calligraphy or Arabic of holy names/verses — client-supplied, client-verified files only; honorifics and quotes exactly as supplied, with sources; no comic SFX; nothing mocking other faiths; local rules on religious advertising apply; same care for every faith; never reuse reference footage/scenes/handles.  
 
 ### `default` — Другое / общий бизнес · Boshqa / umumiy biznes · Басқа / жалпы бизнес
 **Styles:** **B** — Safest all-rounder: literal words, clear cards, works for any service with or without footage; **A** — Faceless explainer when there's no footage and the topic is a concept; **D** — If the client has talking-head footage — a face beats any graphic for trust.  

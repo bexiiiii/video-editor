@@ -30,6 +30,20 @@ caption track and every reveal inherit the error.
 ## 3b. Visual per scene
 - A: one hero 3D object per scene (generated, transparent) OR a glass/UI card OR a screenshot frame. Alternate dark/light themes; accent backgrounds for hook and payoff scenes only (≤ 3 per video).
 - F: every insert (`insert-object`, `number` with object) gets one generated object in `assets[]` — "glossy photoreal 3D <object>, studio light, white seamless background, soft shadow, no text", transparent, 1024x1024 (+ niche/brand words); the stack under it is plain black unless one word must be red. Stacks: ≤ 1 accent, many none (`style-f.md` §2).
+- G (Editorial Selfie): head scenes need no scene HTML — the stacks come from the caption track. Mark the emphasis of
+  **every sentence that has a point** in `scenes[].emphasis` (≈ 1 stack per 2–3 s; one word, or a 2-word negation like
+  "не словами"), pick the treatment by **meaning** (`style-g.md` §2: value → bold-yellow · devotion/giving →
+  glow-pink · reflection/remembrance → serif-pink · warning/contrast → red · duty/fact → bold-white), let a theme run
+  2–3 stacks in one colour, ≥ 3 treatments per reel, red ≤ 30 %. Use `tuck` for 2 short words that complete the
+  emphasis ("тем более"), `join` for the closing 2-emphasis stack, `statements` windows for calm 2-line sentences.
+  Inserts (`kind: "motion"`) only in the first ≈ 15 s: `insert-kinetic` (mint, the thesis definition, white flash in),
+  `insert-scene` (one generated image/video in `assets[]` — "cinematic dark scene, volumetric light, glowing
+  particles, light streaks, slow motion, no text, no faces" + idea; optional backdrop number), `insert-calligraphy`
+  (faith content, **client file only**). Head scenes are one take: no punch-ins (`edit_head.py --framing none`).
+- **Sensitive content (religious topics, binding, `style-g.md` §8)**: never request or generate faces of prophets,
+  companions or holy figures (light / silhouette / empty place only), never generate calligraphy or Arabic script of
+  holy names (client-supplied and client-verified files only), keep honorifics exactly as the client writes them,
+  no comic SFX or flicker on sacred words; same care for every faith. If unsure — ask the client before generating.
 - B: one component per beat from `components.md` (card, capsule, player, ring, counter, calendar, notification, selection highlight, typing dots, profile card…). Theme flips per chapter: light → dark → blue ("masalan / for example" moments) → light. Chapter changes advance the page dots.
 - Talking head (`head` / `head_overlay`): punch-in 1.0 ↔ 1.12 on cuts every 3–5 s; overlays only in the chest band (y 880–1460); head ↔ motion transitions come from the assembler (A/D blur-drift or whip, B/C dissolve or portal, E blur-swap). The literal caption track (`brief.captions` "auto") is added by the assembler — never plan subtitles inside scenes; keep scene text out of the caption band y 1400–1520 in head scenes.
 

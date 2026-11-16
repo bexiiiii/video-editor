@@ -11,7 +11,7 @@ work/<slug>/
   input/                     # user footage / script.txt / logo
   audio/voice.wav            # step 1  clean voice on the FINAL timeline, 48 kHz mono (edit_head keeps voice.source.wav)
   audio/transcript.json      # step 1  word timings on the FINAL timeline
-  edit/cuts.json             # step 1a footage only: kept source ranges + punch_ins [{start,end,scale,on,framing?,drift?}] + punch_anchor (style F: two-cam wide 1.0 ↔ tight 1.4 on every cut, anchor from face detection)
+  edit/cuts.json             # step 1a footage only: kept source ranges + punch_ins [{start,end,scale,on,framing?,drift?}] + punch_anchor (style F: two-cam wide 1.0 ↔ tight 1.4 on every cut, anchor from face detection; style G: framing "none" = one punch_in scale 1.0)
   edit/head.mp4              # step 1a footage only: cut talking head, 1080×1920 30fps, audio = voice.wav
   plan/scenes.json           # step 2  director
   plan/materials.json        # step 2b assets requested from the client (materials.md)
@@ -39,7 +39,7 @@ work/<slug>/
 ```json
 {
   "slug": "linkhr-ru-01",
-  "style": "A",                       // "A" 3D Keyword | "B" iOS Keynote | "C" Keynote 3D | "D" 3D Keyword Talking Head = style A over footage (needs footage) | "E" Data News | "F" Kinetic Talking Head (needs footage; hard cuts, two framings, kinetic stacks) — chosen from assets/previews
+  "style": "A",                       // "A" 3D Keyword | "B" iOS Keynote | "C" Keynote 3D | "D" 3D Keyword Talking Head = style A over footage (needs footage) | "E" Data News | "F" Kinetic Talking Head (needs footage; hard cuts, two framings, kinetic stacks) | "G" Editorial Selfie (needs footage; phone selfie one take, editorial caption stacks with emphasis treatments, front-loaded inserts) — chosen from assets/previews
   "mode": "faceless",                 // "faceless" | "hook_cta" | "head_overlay"
   "lang": "ru",                       // "ru" | "uz" | "kk" — asked FIRST, before style
   "target_sec": 45,
@@ -59,8 +59,9 @@ work/<slug>/
   "audio_profile": "energetic",             // "energetic" (default, all styles: audible music + SFX) | "reference" (purist per-style policy, only on request) — audio-policy.md
   "captions": "auto",                       // "auto" (default: literal subtitles over every head|head_overlay scene in talking-head
                                             // reels — hook_cta, head_overlay, style D) | "all" (whole reel) | "off"
-  "captions_y": null,                       // optional caption centre y px (default 1440; style D 1470, F 1328), keep inside 1250–1500
-  "captions_highlight": []                  // style F: extra caption words drawn yellow (numbers are automatic)
+  "captions_y": null,                       // optional caption centre y px (default 1440; style D 1470, F 1328, G 1335), keep inside 1250–1500
+  "captions_highlight": [],                 // style F: extra caption words drawn yellow (numbers are automatic)
+  "emphasis": []                            // style G: optional reel-wide emphasis marks (absolute "at"), same shape as scenes[].emphasis
 }
 ```
 
@@ -99,6 +100,10 @@ Which tokens each style overrides and which stay fixed: `references/branding.md`
                                                             // dur 0.35–0.6; omit → style default; "owner":"scene" = the scene draws it
       "captions": null,                                     // optional per-scene override of the caption track (true/false)
       "caption_mute": [[0.6, 2.1]],                         // optional scene-local windows without captions (style F: kinetic-stack windows)
+      "emphasis": [{"word": "навык", "treat": "bold-yellow", "at": 0.48, "tuck": 0, "lead_align": "left", "join": false}],
+                                                            // style G head scenes: director-marked emphasis words (see "Style G emphasis")
+      "statements": [[0.0, 1.6]],                           // style G: scene-local windows whose phrases render as white M statements
+                                                            //   ("statement": true = the whole scene)
       "broll": {"kind": "screen", "url": "https://kolesa.kz/cars/", "query": "car listings", "seconds": 2.0},
                                                             // optional B-roll (broll.md): kind screen (public https page the script names)
                                                             // | stock (English query) | generated (connector, orchestrator only); url/query/seconds
@@ -160,6 +165,30 @@ root-level layer (`#rs-captions`, above all scenes) — independent of scene bui
 - targets: ≥ 98 % of spoken words in caption ranges, sync −0.10…+0.05 s (qa.py `caption_coverage` / `caption_sync`).
   Sync is only as good as the transcript: forced-language ASR with word timestamps (Scribe v2 or whisper `large-v3`);
   `small`/`base` whisper models are for pipeline tests only.
+- style G: the track is rendered as editorial stacks — see "Style G emphasis" (centre y 1335, no scrim).
+
+## Style G emphasis (editorial caption stacks — `captions.py` style "g" → `RSG.captionTrack`)
+In style G the caption track over head scenes **is** the editorial layer: every phrase is a stack. The director marks
+the emphasis words; everything else is automatic.
+- `scenes[].emphasis[]` (head scenes; scene-local `at`) or `brief.emphasis[]` (absolute `at`):
+  `{"word": "не забывать", "treat": "serif-pink", "at": 11.2, "tuck": 0, "lead_align": "left"|"center", "join": false}`
+  - `word`: one or more words exactly as spoken (matched case/ё/punctuation-insensitively in `audio/transcript.json`;
+    a multi-word mark becomes ONE emphasis token); `at` disambiguates repeats (closest onset wins); unmatched marks
+    are reported as `captions: emphasis word not found …` warnings by assemble.py;
+  - `treat`: `bold-yellow` (value/skill) · `glow-pink` (devotion/giving/emotion) · `serif-pink` / `serif-grey`
+    (reflection, remembrance) · `serif-gold` (honour titles, scenes) · `red` (warning/contrast) · `bold-white`
+    (duty/fact, default) · `glow-yellow` (scene only) · `navy` (mint insert) · `condensed` — choose by meaning
+    (`style-g.md` §2); `tuck`: number of following words spread under the emphasis ("тем · более");
+    `join: true`: this emphasis opens its phrase and is appended to the previous stack as its 2nd emphasis line
+    ("слово / даже · важнее / жизни").
+- Phrase rules: an emphasis word ENDS its phrase (≤ 3 lead words before it, then its `tuck` words); other phrases
+  follow the default limits (≤ 4 words / ≤ 24 chars). Phrase output adds `emph: {i, treat, tuck, leadAlign?}`,
+  `emph2: {i, treat}` (join) and `kind: "stack" | "statement" | "small"`; an emphasis stack is held ≥ 0.8 s after the
+  emphasis onset (the next phrase then reveals late, never early). Centre y 1335 (`brief.captions_y` overrides).
+- Rendering: assemble.py writes `<div id="rs-captions">` and calls `RSG.captionTrack(container, {y, phrases}, tl)` inside
+  `await RSG.ready()`; per-word reveal on the onset (3 frames + rise), hard swaps, no punctuation, lowercase.
+- Inserts (mint kinetic, generated scene, calligraphy) are `kind: "motion"` scenes built with `RSG.layout.insert*`
+  (no caption track on them); head scenes need no scene HTML.
 
 ## scenes/<id>/brief.json (what a scene-builder or art worker gets)
 `{ "scene": {...one scene...}, "style": "B", "theme_tokens": "$SKILL/assets/style-b/tokens.css", "lib": "$SKILL/assets/style-b/lib.js", "chapter_index": 2, "chapter_count": 4, "assets_dir": "work/<slug>/assets/img", "out": "work/<slug>/scenes/s03/" }`

@@ -35,3 +35,10 @@ Style B
 Talking head
 - [ ] No leftover silences > 0.6 s, no filler words, no jump in audio level at cuts.
 - [ ] Punch-ins alternate; overlays in chest band only; captions one line synced to words (assembler caption track: 1–4 words, lower third y 1250–1500, never over the face).
+Style G (Editorial Selfie)
+- [ ] Every stack = small lead words + ONE emphasis word (closer may have two); emphasis fitted (≤ 700 px, short words XL), lowercase, no punctuation; interlock tight (lead baseline → emphasis x-top ≈ 6 px), spread/tuck lines hug the emphasis edges.
+- [ ] Treatments match meaning (value yellow · devotion pink glow · reflection serif · warning red · duty white); only glow-pink / glow-yellow glow; ≥ 3 treatments; red ≤ 30 % of stacks.
+- [ ] Words reveal on their onset (never early), 3-frame fade + small rise; stacks swap hard; emphasis stacks readable ≥ 0.8 s.
+- [ ] Stacks on the chest band (emphasis centre ≈ y 1335), never over the mouth/chin, never below y 1500.
+- [ ] Inserts front-loaded (first ≈ 15 s); mint insert entered with a 1-frame white flash; head uncut, no punch-ins.
+- [ ] **Sensitive content (religious topics):** no faces of prophets, companions or holy figures anywhere (light / silhouette only); no AI-generated calligraphy or Arabic of holy names (client file, client-verified); honorifics exactly as supplied; calm sound, no meme SFX; same care for any faith.
